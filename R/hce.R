@@ -1,8 +1,10 @@
-#' Helper function for the hce object
+#' Helper function for `hce` objects
 #'
-#' @param AVAL a numeric vector of analysis values.
-#' @param TRTP a character vector of the same length as AVAL containing assigned treatment groups.
-#' @returns an object of class hce. Its is a subject-level data frame (each row corresponds to one subject), containing the following columns:
+#' @param GROUP a character vector of the same length as `AVAL` containing events.
+#' @param TRTP a character vector of the same length as `AVAL` containing assigned treatment groups.
+#' @param AVAL0 a numeric vector of analysis values within each category. The default is 0.
+#' @param ORD a character vector containing ordered unique values of the `GROUP` variable for determining the hierarchy of events.
+#' @returns an object of class `hce`. Its is a subject-level data frame (each row corresponds to one subject), containing the following columns:
 #' * SUBJID subject ID.
 #' * GROUP a character vector specifying the type of the outcome the patient experienced - either a TTE (time-to-event) or C (continuous).
 #' * GROUPN a numeric vector version of the `GROUP` column.
@@ -11,17 +13,28 @@
 #' * TRTP assigned treatment groups.
 #' @export
 #' @md
-#' @seealso [hce::new_hce()], [hce::validate_hce()]  for the helper and validator functions of hce.
+#' @seealso [hce::new_hce()], [hce::validate_hce()]  for the helper and validator functions of `hce` objects.
 #' @examples
 #' set.seed(2022)
-#' d <- hce(AVAL = c(rnorm(5, mean = 1), rnorm(5)), TRTP = rep(c("A", "P"), each = 5))
+#' d <- hce(GROUP = sample(x = c("A", "B", "C"), size = 10, replace = TRUE), 
+#' TRTP = rep(c("A", "P"), each = 5), 
+#' AVAL0 = c(rnorm(5, mean = 1), rnorm(5)), ORD = c("A", "B", "C"))
 #' calcWO(d)
-hce <- function(AVAL = numeric(), TRTP = character()){
 
-  if(length(AVAL) != length(TRTP))
-    stop("The AVAL and TRTP vectors should have the same length")
-
-  d <- data.frame(AVAL = AVAL, TRTP = TRTP)
+hce <- function(GROUP = character(), TRTP = character(), AVAL0 = 0, ORD = sort(unique(GROUP))){
+  if(!any(ORD %in% GROUP))
+    stop("ORD should contain events from the variable GROUP")
+  
+  ORD <- ORD[ORD %in% GROUP]
+  EVENT <- ordered(GROUP, levels = ORD) 
+  
+  EVENTN <- as.numeric(EVENT) - 1
+  ord <- max(abs(AVAL0))
+  SEQ <- c(0, 1, 10, 100, 1000, 1000, 10000, 10^5, 10^6, 10^7, 10^8, 10^9, 10^10)
+  i <- which( ord < SEQ)[1]
+  ord <- SEQ[i]
+  GROUPN <- EVENTN*ord
+  d <- data.frame(TRTP = TRTP, GROUP = as.character(GROUP), GROUPN = GROUPN, AVAL = AVAL0 + GROUPN, AVAL0 = AVAL0, ord = ord)
   d <- validate_hce(d)
   new_hce(d)
 }

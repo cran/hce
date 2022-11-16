@@ -2,12 +2,12 @@
 % Please edit documentation in R/calcWO_hce.R
 \name{calcWO.hce}
 \alias{calcWO.hce}
-\title{Win odds calculation for an hce object}
+\title{Win odds calculation for \code{hce} objects}
 \usage{
 \method{calcWO}{hce}(x, ...)
 }
 \arguments{
-\item{x}{an hce object.}
+\item{x}{an \code{hce} object.}
 
 \item{...}{additional parameters.}
 }
@@ -21,14 +21,17 @@ a data frame containing the win odds and its confidence interval. It contains th
 \item WOnull win odds of the null hypothesis (specified in the \code{WOnull} argument).
 \item alpha two-sided significance level for calculating the confidence interval (specified in the \code{alpha} argument).
 \item Pvalue p-value associated with testing the null hypothesis.
+\item WP calculated win probability.
+\item WP_SE standard error of the win probability.
 }
 }
 \description{
-Win odds calculation for an hce object
+Win odds calculation for \code{hce} objects
 }
 \examples{
-data(HCE3)
-class(HCE3) <- c("hce", "data.frame")
-calcWO(HCE3)
-
+Rates_A <- c(1, 1.5) 
+Rates_P <- c(2, 2) 
+dat <- simHCE(n = 500, TTE_A = Rates_A, TTE_P = Rates_P, CM_A = 1.25, CM_P = 1)
+calcWO(dat)
+calcWO(dat, ref = "A")
 }

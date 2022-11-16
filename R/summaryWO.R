@@ -1,12 +1,12 @@
-#' A generic function for calculating win odds
+#' A generic function for summarizing win odds
 #'
 #' @param x an object used to select a method.
 #' @param ... further arguments passed to or from other methods.
 #' @return a data frame containing calculated values.
 #' @export
 #' @md
-#' @seealso [hce::calcWO.formula()], [hce::calcWO.hce()], [hce::calcWO.data.frame()]  methods.
+#' @seealso [hce::summaryWO.data.frame()], [hce::summaryWO.hce()]  methods.
 #'
-calcWO <- function(x, ...) {
-  UseMethod("calcWO")
+summaryWO <- function(x, ...) {
+  UseMethod("summaryWO")
 }

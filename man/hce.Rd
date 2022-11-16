@@ -2,17 +2,26 @@
 % Please edit documentation in R/hce.R
 \name{hce}
 \alias{hce}
-\title{Helper function for the hce object}
+\title{Helper function for \code{hce} objects}
 \usage{
-hce(AVAL = numeric(), TRTP = character())
+hce(
+  GROUP = character(),
+  TRTP = character(),
+  AVAL0 = 0,
+  ORD = sort(unique(GROUP))
+)
 }
 \arguments{
-\item{AVAL}{a numeric vector of analysis values.}
+\item{GROUP}{a character vector of the same length as \code{AVAL} containing events.}
 
-\item{TRTP}{a character vector of the same length as AVAL containing assigned treatment groups.}
+\item{TRTP}{a character vector of the same length as \code{AVAL} containing assigned treatment groups.}
+
+\item{AVAL0}{a numeric vector of analysis values within each category. The default is 0.}
+
+\item{ORD}{a character vector containing ordered unique values of the \code{GROUP} variable for determining the hierarchy of events.}
 }
 \value{
-an object of class hce. Its is a subject-level data frame (each row corresponds to one subject), containing the following columns:
+an object of class \code{hce}. Its is a subject-level data frame (each row corresponds to one subject), containing the following columns:
 \itemize{
 \item SUBJID subject ID.
 \item GROUP a character vector specifying the type of the outcome the patient experienced - either a TTE (time-to-event) or C (continuous).
@@ -23,13 +32,15 @@ an object of class hce. Its is a subject-level data frame (each row corresponds 
 }
 }
 \description{
-Helper function for the hce object
+Helper function for \code{hce} objects
 }
 \examples{
 set.seed(2022)
-d <- hce(AVAL = c(rnorm(5, mean = 1), rnorm(5)), TRTP = rep(c("A", "P"), each = 5))
+d <- hce(GROUP = sample(x = c("A", "B", "C"), size = 10, replace = TRUE), 
+TRTP = rep(c("A", "P"), each = 5), 
+AVAL0 = c(rnorm(5, mean = 1), rnorm(5)), ORD = c("A", "B", "C"))
 calcWO(d)
 }
 \seealso{
-\code{\link[=new_hce]{new_hce()}}, \code{\link[=validate_hce]{validate_hce()}}  for the helper and validator functions of hce.
+\code{\link[=new_hce]{new_hce()}}, \code{\link[=validate_hce]{validate_hce()}}  for the helper and validator functions of \code{hce} objects.
 }

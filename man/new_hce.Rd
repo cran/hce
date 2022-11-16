@@ -2,7 +2,7 @@
 % Please edit documentation in R/new_hce.R
 \name{new_hce}
 \alias{new_hce}
-\title{Constructor function for the hce object}
+\title{Constructor function for \code{hce} objects}
 \usage{
 new_hce(x = data.frame())
 }
@@ -10,10 +10,10 @@ new_hce(x = data.frame())
 \item{x}{a data frame.}
 }
 \value{
-an object of class hce.
+an object of class \code{hce}.
 }
 \description{
-Constructor function for the hce object
+Constructor function for \code{hce} objects
 }
 \examples{
 data(HCE1)
@@ -22,5 +22,5 @@ class(dat)
 calcWO(dat)
 }
 \seealso{
-\code{\link[=hce]{hce()}}, \code{\link[=validate_hce]{validate_hce()}}  for the helper and validator functions of hce.
+\code{\link[=hce]{hce()}}, \code{\link[=validate_hce]{validate_hce()}}  for the helper and validator functions of \code{hce} objects.
 }

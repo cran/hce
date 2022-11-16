@@ -2,7 +2,7 @@
 % Please edit documentation in R/print_results.R
 \name{print.hce_results}
 \alias{print.hce_results}
-\title{A print method for hce_results objects}
+\title{A print method for \code{hce_results} objects}
 \usage{
 \method{print}{hce_results}(x, ...)
 }
@@ -15,7 +15,7 @@
 no return value, called for printing.
 }
 \description{
-A print method for hce_results objects
+A print method for \code{hce_results} objects
 }
 \examples{
 print(powerWO(N = 1000, WO = 1.2))

@@ -1,11 +1,11 @@
-#' Validator function for the hce object
+#' Validator function for `hce` objects
 #'
-#' @param x an object used for the hce validation.
+#' @param x an object used for the `hce` validation.
 #'
-#' @return a validated data frame that can be used for creating an hce object.
+#' @return a validated data frame that can be used for creating an `hce` object.
 #' @export
 #' @md
-#' @seealso [hce::hce()], [hce::new_hce()]  for the helper and constructor functions of hce.
+#' @seealso [hce::hce()], [hce::new_hce()]  for the helper and constructor functions of `hce` objects.
 #' @examples
 #' data(HCE1)
 #' validate_hce(HCE1)

@@ -28,7 +28,7 @@ powerWO(N = 1000, WO = 1.2)
 powerWO(N = seq(500, 1500, 100), WO = 1.2)
 }
 \references{
-Gasparyan, Samvel B., et al. "Power and sample size calculation for the win odds test: application to an ordinal endpoint in COVID-19 trials." Journal of Biopharmaceutical Statistics 31.6 (2021): 765-787.
+Gasparyan, Samvel B., et al. "Power and sample size calculation for the win odds test: application to an ordinal endpoint in COVID-19 trials." Journal of Biopharmaceutical Statistics 31.6 (2021): 765-787. \url{doi:10.1080/10543406.2021.1968893}
 }
 \seealso{
 \code{\link[=sizeWO]{sizeWO()}}, \code{\link[=minWO]{minWO()}} for WO sample size or minimum detectable WO calculation.

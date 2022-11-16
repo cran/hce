@@ -1,4 +1,4 @@
-#' A print method for hce_results objects
+#' A print method for `hce_results ` objects
 #'
 #' @param x an object of class `hce_results`.
 #' @param ... additional arguments to be passed to [base::plot()] function.

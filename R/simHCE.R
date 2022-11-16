@@ -1,8 +1,9 @@
-#' Simulate an HCE with given event rates of time-to-event outcomes, mean and SD of the continuous outcome by treatment group
+#' Simulate `hce` object with given event rates of time-to-event outcomes, mean and SD of the continuous outcome by treatment group
 #'
-#' @param n sample size per treatment group
-#' @param TTE_A event rates in the active group for the time-to-event outcomes.
-#' @param TTE_P event rates in the placebo group for the time-to-event outcomes. Should have the same length as TTE_A.
+#' @param n sample size in the active treatment group.
+#' @param n0 sample size in the placebo group.
+#' @param TTE_A event rates per year in the active group for the time-to-event outcomes.
+#' @param TTE_P event rates per year in the placebo group for the time-to-event outcomes. Should have the same length as TTE_A.
 #' @param CM_A mean value for the continuous outcome of the active group.
 #' @param CM_P mean value for the continuous outcome of the placebo group.
 #' @param CSD_A standard deviation for the continuous outcome of the active group.
@@ -15,19 +16,27 @@
 #' @return an object of class hce.
 #' @export
 #' @md
-#' @seealso [hce::hce()], [hce::new_hce()], [hce::validate_hce()]  for the helper, constructor, and validtaor functions of hce.
+#' @seealso [hce::hce()], [hce::new_hce()], [hce::validate_hce()]  for the helper, constructor, and validator functions of hce.
 #' @examples
+#' # Example 1
 #' Rates_A <- c(1.72, 1.74, 0.58, 1.5, 1)
 #' Rates_P <- c(2.47, 2.24, 2.9, 4, 6)
-#' dat0 <- simHCE(n = 2500, TTE_A = Rates_A, TTE_P = Rates_P,
+#' dat <- simHCE(n = 2500, TTE_A = Rates_A, TTE_P = Rates_P,
 #' CM_A = -3, CM_P = -6, CSD_A = 16, CSD_P = 15, fixedfy = 3)
-#' str(dat0)
+#' head(dat)
+#' 
+#'# Example 2
+#' Rates_A <- c(5, 7)
+#' Rates_P <- c(7, 10)
+#' dat <- simHCE(n = 1000, n0 = 500, TTE_A = Rates_A, TTE_P = Rates_P, CM_A = 2, CM_P = 0)
+#' summaryWO(dat)
 
-simHCE <- function(n, TTE_A, TTE_P, CM_A, CM_P, CSD_A = 1, CSD_P = 1, fixedfy = 1, yeardays = 360, pat = 100, ord = 10000, seed = NULL ){
+simHCE <- function(n, n0 = n, TTE_A, TTE_P, CM_A, CM_P, CSD_A = 1, CSD_P = 1, fixedfy = 1, yeardays = 360, pat = 100, ord = 10000, seed = NULL ){
   if(base::length(TTE_P) != base::length(TTE_A))
     stop("Event rate vectors for active and placebo groups should have the same length")
-
+  
   n <- n[1]
+  n0 <- n0[1]
   CM_A <- CM_A[1]
   CM_P <- CM_P[1]
   CSD_A <-  CSD_A[1]
@@ -43,19 +52,22 @@ simHCE <- function(n, TTE_A, TTE_P, CM_A, CM_P, CSD_A = 1, CSD_P = 1, fixedfy = 
   TTE_A <- TTE_A/yeardays/pat
   ####################################
   l <- base::length(TTE_A)
-  if(is.null(seed))
+  if(is.null(seed)){
     seed <- base::as.numeric(base::Sys.time())
+  }
   seed <- seed[1]
   base::set.seed(seed)
 
 
-  M_P <- base::sapply(TTE_P, stats::rexp, n = n)
+  M_P <- base::sapply(TTE_P, stats::rexp, n = n0)
+  M_P <- round(M_P)
   M_P <- base::as.data.frame(M_P)
   base::names(M_P) <- base::paste0("TTE", 1:l)
   M_P$TRTP <- "P"
-  M_P$ID <- (n + 1):(2*n)
+  M_P$ID <- (n + 1):(n0 + n)
 
   M_A <- base::sapply(TTE_A, stats::rexp, n = n)
+  M_A <- round(M_A)
   M_A <- base::as.data.frame(M_A)
   base::names(M_A) <- base::paste0("TTE", 1:l)
   M_A$TRTP <- "A"
@@ -64,8 +76,12 @@ simHCE <- function(n, TTE_A, TTE_P, CM_A, CM_P, CSD_A = 1, CSD_P = 1, fixedfy = 
   dat <- base::rbind(M_A, M_P)
   dat$TTEfixed <- fixedf
   dat$seed <- seed
-  dat$AVALT <- base::apply(dat[, base::startsWith(names(dat), "TTE")], 1, base::min)
-  dat$EVENTN <- base::apply(dat[, base::startsWith(names(dat), "TTE")], 1, base::which.min)
+  
+  
+  dat$AVALT <- base::apply(dat[, base::startsWith(names(dat), "TTE")], 1, function(x) x[x <= fixedf][1])
+  dat$AVALT[is.na(dat$AVALT)] <- fixedf
+  dat$EVENTN <- base::apply(dat[, base::startsWith(names(dat), "TTE")], 1, function(x) which(x <= fixedf)[1])
+  dat$EVENTN[is.na(dat$EVENTN)]  <- l + 1
   ###############################################################
   dat$EVENT <- base::factor(dat$EVENTN, levels = 1:(l+1))
   base::levels(dat$EVENT) <- base::c(paste0("TTE", 1:l), "C")
@@ -75,14 +91,15 @@ simHCE <- function(n, TTE_A, TTE_P, CM_A, CM_P, CSD_A = 1, CSD_P = 1, fixedfy = 
   lencont_A <- dat$GROUP=="C" & dat$TRTP=="A"
   lencont_P <- dat$GROUP=="C" & dat$TRTP=="P"
 
-  dat[lencont_A, "AVAL0"] <- stats::rnorm(base::sum(lencont_A), mean = CM_A, sd = CSD_A)
-  dat[lencont_P, "AVAL0"] <- stats::rnorm(base::sum(lencont_P), mean = CM_P, sd = CSD_P)
+  dat[lencont_A, "AVAL0"] <- round(stats::rnorm(base::sum(lencont_A), mean = CM_A, sd = CSD_A), 2)
+  dat[lencont_P, "AVAL0"] <- round(stats::rnorm(base::sum(lencont_P), mean = CM_P, sd = CSD_P), 2)
   dat[base::is.na(dat$AVAL0), "AVAL0"] <- dat[base::is.na(dat$AVAL0), "AVALT"]
   dat$AVAL <- dat$AVAL0 + dat$GROUPN
   dat$ord <- ord
-  dat <- dat[ , c("ID", "TRTP", "GROUP", "GROUPN", "AVALT", "AVAL0", "AVAL", "TTEfixed", "ord", "seed")]
-
-  base::class(dat) <- c("hce", "data.frame")
+  dat <- dat[ , c("ID", "TRTP", "GROUP", "GROUPN", "AVALT", "AVAL0", "AVAL", "ord", "seed")]
+  dat$TTEfixed <- fixedf
+  
+  dat <- new_hce(dat)
   return(dat)
 
 }

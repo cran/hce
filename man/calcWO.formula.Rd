@@ -23,13 +23,19 @@ a data frame containing the win odds and its confidence interval. It contains th
 \item WOnull win odds of the null hypothesis (specified in the \code{WOnull} argument).
 \item alpha two-sided significance level for calculating the confidence interval (specified in the \code{alpha} argument).
 \item Pvalue p-value associated with testing the null hypothesis.
+\item WP calculated win probability.
+\item WP_SE standard error of the win probability.
 }
 }
 \description{
 Win odds calculation using formula syntax
 }
 \examples{
+#Example 1
 data(HCE1)
 calcWO(AVAL ~ TRTP, data = HCE1)
+
+#Example 2
+calcWO(data = iris[iris$Species != "setosa",], Sepal.Width ~ Species)
 
 }

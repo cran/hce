@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_results.R
 \name{plot.hce_results}
 \alias{plot.hce_results}
-\title{A print method for hce_results objects}
+\title{A print method for \code{hce_results } objects}
 \usage{
 \method{plot}{hce_results}(x, ...)
 }
@@ -15,7 +15,7 @@
 no return value, called for plotting.
 }
 \description{
-A print method for hce_results objects
+A print method for \code{hce_results } objects
 }
 \examples{
 WO <- minWO(N = 100:1000)

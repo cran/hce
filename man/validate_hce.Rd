@@ -2,23 +2,23 @@
 % Please edit documentation in R/valicate_hce.R
 \name{validate_hce}
 \alias{validate_hce}
-\title{Validator function for the hce object}
+\title{Validator function for \code{hce} objects}
 \usage{
 validate_hce(x)
 }
 \arguments{
-\item{x}{an object used for the hce validation.}
+\item{x}{an object used for the \code{hce} validation.}
 }
 \value{
-a validated data frame that can be used for creating an hce object.
+a validated data frame that can be used for creating an \code{hce} object.
 }
 \description{
-Validator function for the hce object
+Validator function for \code{hce} objects
 }
 \examples{
 data(HCE1)
 validate_hce(HCE1)
 }
 \seealso{
-\code{\link[=hce]{hce()}}, \code{\link[=new_hce]{new_hce()}}  for the helper and constructor functions of hce.
+\code{\link[=hce]{hce()}}, \code{\link[=new_hce]{new_hce()}}  for the helper and constructor functions of \code{hce} objects.
 }

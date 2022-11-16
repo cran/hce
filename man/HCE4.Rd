@@ -3,14 +3,14 @@
 \docType{data}
 \name{HCE4}
 \alias{HCE4}
-\title{HCE1, HCE2, HCE3, HCE4 datasets for 1000 patients with different treatment effects.}
+\title{\code{HCE1}, \code{HCE2}, \code{HCE3}, \code{HCE4} datasets for 1000 patients with different treatment effects.}
 \format{
 a data frame with 1000 rows and 6 variables:
 \describe{
 \item{SUBJID}{subject ID, numbers from 1 to 1000}
 \item{GROUP}{type of the event, either Time-To-Event (TTE) or Continuous (C), character}
-\item{GROUPN}{type of the event, for the ordering of outcomes in the GROUP variable, numeric}
-\item{AVAL}{AVAL = AVAL0 + GROUPN, ordinal analysis values for the HCE analysis, numeric, but caution NOT to apply numeric operations; will give meaningless results}
+\item{GROUPN}{type of the event, for the ordering of outcomes in the \code{GROUP} variable, numeric}
+\item{AVAL}{\code{AVAL = AVAL0 + GROUPN}, ordinal analysis values for the HCE analysis, numeric, but caution NOT to apply numeric operations; will give meaningless results}
 \item{AVAL0}{original values for each type of the event, time for TTE outcomes, numeric values for Continuous outcomes, numeric}
 \item{TRTP}{treatment values, A Active or P Placebo, character}
 }
