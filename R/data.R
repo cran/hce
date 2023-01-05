@@ -62,3 +62,45 @@
 #'   \item{TRTP}{treatment values, A Active or P Placebo, character}
 #' }
 "HCE4"
+
+
+#' COVID-19 ordinal scale dataset (full report).
+#'
+#' A dataset containing dataset with COVID-19 ordinal scale outcomes for 1062 patients.
+#'
+#' @format a data frame with 1062 rows and 2 variables:
+#' \describe{
+#'   \item{GROUP}{type of the event, ordinal outcomes 1-8, where a higher value means a better outcome}
+#'   \item{TRTP}{treatment values, A Active or P Placebo, character}
+#' }
+#' @source <doi:10.1056/NEJMoa2007764>
+#' @examples
+#' #Frequencies
+#' table(COVID19)
+#' mosaicplot(table(COVID19), col = c(1, 8, 6, 2, 4, 5, 3, 7), 
+#' xlab = "Treatment", ylab = "Ordinal Scale", main = "COVID-19 ordinal scale")
+#' # Convert to an hce object
+#' COVID19HCE <- hce(GROUP = COVID19$GROUP, TRTP = COVID19$TRTP)
+#' # Summary wins, losses, and ties with win odds
+#' summaryWO(COVID19HCE)
+"COVID19"
+
+
+#' COVID-19 ordinal scale dataset (preliminary report).
+#'
+#' A dataset containing dataset with COVID-19 ordinal scale outcomes for 844 patients.
+#'
+#' @format a data frame with 844 rows and 2 variables:
+#' \describe{
+#'   \item{GROUP}{type of the event, ordinal outcomes 1-8, where a higher value means a better outcome}
+#'   \item{TRTP}{treatment values, A Active or P Placebo, character}
+#' }
+#' @source <doi:10.1056/NEJMoa2007764>
+#' @examples
+#' #Frequencies
+#' table(COVID19b)
+#' mosaicplot(table(COVID19b), col = c(1, 8, 6, 2, 4, 5, 3, 7), 
+#' xlab = "Treatment", ylab = "Ordinal Scale", main = "COVID-19 ordinal scale")
+#' # Calculate win statistics
+#' calcWINS(x = COVID19b, AVAL = "GROUP", TRTP = "TRTP", ref = "P")
+"COVID19b"

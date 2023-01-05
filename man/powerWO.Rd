@@ -24,11 +24,17 @@ a data frame containing the calculated power with input values.
 Power calculation for the win odds test (no ties)
 }
 \examples{
+# Example 1- Use the default standard deviation
 powerWO(N = 1000, WO = 1.2)
 powerWO(N = seq(500, 1500, 100), WO = 1.2)
+# Example 2 - Use data-driven win odds and standard deviation from the COVID19 dataset
+res <- calcWO(x = COVID19, AVAL = "GROUP", TRTP = "TRTP", ref = "P")
+print(res)
+powerWO(N = 500, WO = res$WO, SD = res$SD_WP)
+powerWO(N = 500, WO = res$WO) # power with the default standard deviation for the win proportion.
 }
 \references{
-Gasparyan, Samvel B., et al. "Power and sample size calculation for the win odds test: application to an ordinal endpoint in COVID-19 trials." Journal of Biopharmaceutical Statistics 31.6 (2021): 765-787. \url{doi:10.1080/10543406.2021.1968893}
+Gasparyan, Samvel B., et al. "Power and sample size calculation for the win odds test: application to an ordinal endpoint in COVID-19 trials." Journal of Biopharmaceutical Statistics 31.6 (2021): 765-787. \url{doi:10.1080/10543406.2021.1968893}.
 }
 \seealso{
 \code{\link[=sizeWO]{sizeWO()}}, \code{\link[=minWO]{minWO()}} for WO sample size or minimum detectable WO calculation.

@@ -18,8 +18,11 @@
 #' * Pvalue p-value associated with testing the null hypothesis.
 #' * WP calculated win probability.
 #' * WP_SE standard error of the win probability.
+#' * WP_SD standard deviation of the win probability, calculated as `WP_SE` multiplied by `sqrt(N)`.
+#' * N total number of patients in the analysis.
 #' @export
 #' @md
+#' @seealso [hce::calcWO()], [hce::calcWO.hce()], [hce::calcWO.formula()].
 #' @references Gasparyan, Samvel B., et al. "Adjusted win ratio with stratification: calculation methods and interpretation." Statistical Methods in Medical Research 30.2 (2021): 580-611. <doi:10.1177/0962280220942558>
 #' @examples
 #' data(HCE4)
@@ -43,6 +46,7 @@ calcWO.data.frame <- function(x, AVAL, TRTP, ref, alpha = 0.05, WOnull = 1, ...)
   n <- base::tapply(data$AVAL, data$TRTP, base::length)
   n1 <- n[["A"]]
   n0 <- n[["P"]]
+  N <- n0 + n1
 
   d <- base::data.frame(R1 = A, R2 = base::c(B$A, B$P), TRTP = base::c(base::rep("A", n1), base::rep("P", n0)))
   d$R <- d$R1 - d$R2
@@ -52,6 +56,7 @@ calcWO.data.frame <- function(x, AVAL, TRTP, ref, alpha = 0.05, WOnull = 1, ...)
   WP0 <- base::tapply(d$R0, d$TRTP, base::mean)
   VAR <- base::tapply(d$R0, d$TRTP, function(x) (base::length(x)-1)*stats::var(x)/base::length(x))
   SE_WP <- base::sqrt(base::sum(VAR/n))
+  SD_WP <- SE_WP*base::sqrt(N)
 
   WP = WP0[["A"]]
   WO = WP/(1 - WP)
@@ -63,7 +68,7 @@ calcWO.data.frame <- function(x, AVAL, TRTP, ref, alpha = 0.05, WOnull = 1, ...)
   threshold <- base::abs(WP - WPnull)/SE_WP
   P <- 2*(1 - stats::pnorm(threshold))
 
-  out <- base::data.frame(WO = WO, LCL = LCL, UCL = UCL, SE = SE, WOnull = WOnull, alpha = alpha, Pvalue = P, WP = WP, SE_WP = SE_WP)
+  out <- base::data.frame(WO = WO, LCL = LCL, UCL = UCL, SE = SE, WOnull = WOnull, alpha = alpha, Pvalue = P, WP = WP, SE_WP = SE_WP, SD_WP = SD_WP, N = N)
 
   return(out)
 }

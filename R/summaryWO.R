@@ -5,7 +5,7 @@
 #' @return a data frame containing calculated values.
 #' @export
 #' @md
-#' @seealso [hce::summaryWO.data.frame()], [hce::summaryWO.hce()]  methods.
+#' @seealso [hce::summaryWO.hce()], [hce::summaryWO.formula()], [hce::summaryWO.data.frame()]  methods.
 #'
 summaryWO <- function(x, ...) {
   UseMethod("summaryWO")

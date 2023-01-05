@@ -14,6 +14,7 @@
 #' summaryWO(dat, ref = "P")
 summaryWO.hce <- function(x, ...){
   Args <- base::list(...)
+  x <- new_hce(x)
   x <- base::as.data.frame(x)
   
   if(!is.null(Args[["ref"]])) ref <- Args[["ref"]]

@@ -15,13 +15,19 @@
 #' @md
 #' @seealso [hce::new_hce()], [hce::validate_hce()]  for the helper and validator functions of `hce` objects.
 #' @examples
+#' # Example 1
 #' set.seed(2022)
 #' d <- hce(GROUP = sample(x = c("A", "B", "C"), size = 10, replace = TRUE), 
-#' TRTP = rep(c("A", "P"), each = 5), 
+#' TRTP = rep(c("Active", "Control"), each = 5), 
 #' AVAL0 = c(rnorm(5, mean = 1), rnorm(5)), ORD = c("A", "B", "C"))
-#' calcWO(d)
+#' calcWO(d, ref = "Control")
 
 hce <- function(GROUP = character(), TRTP = character(), AVAL0 = 0, ORD = sort(unique(GROUP))){
+  if(length(TRTP) == 0)
+    stop("TRTP is required.")
+  if(length(GROUP) == 0)
+    stop("GROUP is required.")
+  
   if(!any(ORD %in% GROUP))
     stop("ORD should contain events from the variable GROUP")
   
@@ -29,9 +35,9 @@ hce <- function(GROUP = character(), TRTP = character(), AVAL0 = 0, ORD = sort(u
   EVENT <- ordered(GROUP, levels = ORD) 
   
   EVENTN <- as.numeric(EVENT) - 1
-  ord <- max(abs(AVAL0))
+  ord <- length(ORD)*max(abs(AVAL0))
   SEQ <- c(0, 1, 10, 100, 1000, 1000, 10000, 10^5, 10^6, 10^7, 10^8, 10^9, 10^10)
-  i <- which( ord < SEQ)[1]
+  i <- which(ord < SEQ)[1]
   ord <- SEQ[i]
   GROUPN <- EVENTN*ord
   d <- data.frame(TRTP = TRTP, GROUP = as.character(GROUP), GROUPN = GROUPN, AVAL = AVAL0 + GROUPN, AVAL0 = AVAL0, ord = ord)

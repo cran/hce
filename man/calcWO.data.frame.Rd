@@ -33,6 +33,8 @@ a data frame containing the win odds and its confidence interval. It contains th
 \item Pvalue p-value associated with testing the null hypothesis.
 \item WP calculated win probability.
 \item WP_SE standard error of the win probability.
+\item WP_SD standard deviation of the win probability, calculated as \code{WP_SE} multiplied by \code{sqrt(N)}.
+\item N total number of patients in the analysis.
 }
 }
 \description{
@@ -44,4 +46,7 @@ calcWO(x = HCE4, AVAL = "AVAL", TRTP = "TRTP", ref = "P")
 }
 \references{
 Gasparyan, Samvel B., et al. "Adjusted win ratio with stratification: calculation methods and interpretation." Statistical Methods in Medical Research 30.2 (2021): 580-611. \url{doi:10.1177/0962280220942558}
+}
+\seealso{
+\code{\link[=calcWO]{calcWO()}}, \code{\link[=calcWO.hce]{calcWO.hce()}}, \code{\link[=calcWO.formula]{calcWO.formula()}}.
 }

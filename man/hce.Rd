@@ -35,11 +35,12 @@ an object of class \code{hce}. Its is a subject-level data frame (each row corre
 Helper function for \code{hce} objects
 }
 \examples{
+# Example 1
 set.seed(2022)
 d <- hce(GROUP = sample(x = c("A", "B", "C"), size = 10, replace = TRUE), 
-TRTP = rep(c("A", "P"), each = 5), 
+TRTP = rep(c("Active", "Control"), each = 5), 
 AVAL0 = c(rnorm(5, mean = 1), rnorm(5)), ORD = c("A", "B", "C"))
-calcWO(d)
+calcWO(d, ref = "Control")
 }
 \seealso{
 \code{\link[=new_hce]{new_hce()}}, \code{\link[=validate_hce]{validate_hce()}}  for the helper and validator functions of \code{hce} objects.

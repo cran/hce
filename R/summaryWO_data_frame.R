@@ -24,7 +24,7 @@ summaryWO.data.frame <- function(x, AVAL, TRTP, ref, GROUP = NULL, ...){
   
   if (length(unique(data$TRTP)) != 2) 
     stop("The dataset should contain two treatment groups.")
-  if(! ref %in% x$TRTP) stop("Choose the reference from the values in TRTP.")
+  if(! ref %in% unique(data$TRTP)) stop("Choose the reference from the values in TRTP.")
   data$TRTP <- base::ifelse(data$TRTP == ref, "P", "A")
   
   A <- base::rank(c(data$AVAL[data$TRTP == "A"], data$AVAL[data$TRTP == "P"]), ties.method = "average")

@@ -18,5 +18,5 @@ a data frame containing calculated values.
 A generic function for calculating win odds
 }
 \seealso{
-\code{\link[=calcWO.formula]{calcWO.formula()}}, \code{\link[=calcWO.hce]{calcWO.hce()}}, \code{\link[=calcWO.data.frame]{calcWO.data.frame()}}  methods.
+\code{\link[=calcWO.hce]{calcWO.hce()}}, \code{\link[=calcWO.formula]{calcWO.formula()}}, \code{\link[=calcWO.data.frame]{calcWO.data.frame()}}  methods.
 }
