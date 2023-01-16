@@ -26,7 +26,7 @@
 #' calcWO(AVAL ~ TRTP, data = HCE1)
 #'
 #'#Example 2
-#' calcWO(data = COVID19, GROUP ~ TRTP)
+#' calcWO(data = COVID19, GROUP ~ TRTP, ref = "Placebo")
 #'
 calcWO.formula <- function(x, data, ...){
   Args <- base::list(...)

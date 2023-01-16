@@ -58,8 +58,8 @@ calcWO.data.frame <- function(x, AVAL, TRTP, ref, alpha = 0.05, WOnull = 1, ...)
   SE_WP <- base::sqrt(base::sum(VAR/n))
   SD_WP <- SE_WP*base::sqrt(N)
 
-  WP = WP0[["A"]]
-  WO = WP/(1 - WP)
+  WP <- WP0[["A"]]
+  WO <- WP/(1 - WP)
   SE <- SE_WP/(WP*(1-WP))
   Ca <- stats::qnorm(1 - alpha/2)
   LCL <- WO*base::exp(-Ca*SE)

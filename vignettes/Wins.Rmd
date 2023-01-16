@@ -1,0 +1,76 @@
+---
+title: "Wins"
+date: "`r format(as.Date('2023-01-20'), '%d %B, %Y')`"
+author:
+  - name: "Samvel B. Gasparyan"
+    affiliation: https://gasparyan.co/
+output:
+  rmarkdown::html_document:
+          theme: "darkly"
+          highlight: "zenburn"
+          toc: true
+          toc_float: true
+          link-citations: true 
+bibliography: REFERENCES.bib
+vignette: >
+  %\VignetteIndexEntry{Wins}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Win odds, win ratio, and net benefit
+
+Load the package `hce` and check the version
+
+```{r setup}
+library(hce)
+packageVersion("hce")
+```
+
+
+For citing the package run `citation("hce")` [@hce].
+
+Two treatment groups are compared using an ordinal endpoint and each comparison results in a win, loss, or a tie for the patient in the active group compared to a patient in the placebo group. All possible (overall) combinations are denoted by $O$, with $W$ denoted the total wins for the active group, $L$ total losses, and $T$ the total ties, so that $O=W+L+T.$ Then the following quantities are called **win statistics**
+
+- **Win proportion** defined as $WP=\frac{W+0.5T}{O}$, that is, the total number of wins, added half of the total number of ties, divided by the overall number of comparisons.
+- **Number needed to treat** defined as $NNT=\frac{1}{2WP-1}$ rounded up to the nearest natural number.
+- **Win ratio** defined as $WR=\frac{W}{L}$.
+- **Win odds** defined as $WO=\frac{W+0.5T}{L+0.5T} = \frac{WP}{1-WP}$.
+- **Net Benefit** defined as $NB=\frac{W - L}{O}$.
+
+Given the overall number of comparisons $O,$ the win proportion $WP$ and the win ratio $WR$, it is possible to find the total number of wins and losses. Indeed, first the win odds can be found $WO=\frac{WP}{WP+1}$ and
+
+\begin{align*}
+&L = O*\frac{2WP-1}{WR-1},\nonumber\\
+&W = WR*L = WR*O*\frac{2WP-1}{WR-1},\nonumber\\
+&T=O-W-L = O*\left[1 - (WR+1)\frac{2WP-1}{WR-1}\right].
+\end{align*}
+
+
+The concept of win probability for the binary and continuous outcomes has been described in the paper by @buyse2010generalized as "proportion in favor of treatment" (see also @rauch2014opportunities), while in @verbeeck2020unbiasedness it is called "probabilistic index".
+
+The concept of "win ratio" was introduced in @poc2012, which, unlike the win odds, does not account for ties, whereas the win odds is the odds of winning, following @dong2020 (see also @peng2020use; @brunner2021win; @gasparyan2021power). The same statistic was named as Mann-Whitney odds in @obrien2006. In @gasparyan2021adjusted the "win ratio" was used as a general term and included ties in the definition. @dong2022winwinnet suggested to consider win ratio, win odds, and net benefit together as win statistics.
+
+The function `propWINS()` implements the formula above
+
+```{r}
+args("propWINS")
+propWINS(WO = 1.5, WR = 2)
+```
+
+In case we have $n_1=120$ patients in the placebo group and $n_2=150$ in the active group and need to know given the win ratio and win odds above how many wins and losses we will have for the active group then the argument `Overall` can be used to specify the number of all comparisons
+
+```{r}
+propWINS(WO = 1.25, WR = 1.5, Overall = 120*150)
+```
+
+
+## References
+

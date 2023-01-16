@@ -9,7 +9,7 @@
 #' @examples
 #' print(powerWO(N = 1000, WO = 1.2))
 print.hce_results <- function(x, ...){
-
+  x <- attr(x, "res")
   base::print(x$result, ...)
-
+  
 }

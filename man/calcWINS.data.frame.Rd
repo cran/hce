@@ -38,7 +38,7 @@ a list containing win statistics and their confidence intervals. It contains the
 Win statistics calculation using a data frame
 }
 \examples{
-calcWINS(x = COVID19b, AVAL = "GROUP", TRTP = "TRTP", ref = "P")
+calcWINS(x = COVID19b, AVAL = "GROUP", TRTP = "TRTP", ref = "Placebo")
 }
 \references{
 The theory of win statistics is covered in the following papers.

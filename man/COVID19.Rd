@@ -12,7 +12,7 @@ a data frame with 1062 rows and 2 variables:
 }
 }
 \source{
-\url{doi:10.1056/NEJMoa2007764}
+Beigel et al. (2020) \url{doi:10.1056/NEJMoa2007764}.
 }
 \usage{
 COVID19

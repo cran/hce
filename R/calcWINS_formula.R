@@ -34,7 +34,7 @@
 #' # Example 1
 #' calcWINS(x = GROUP ~ TRTP, data = COVID19b)
 #' # Example 2
-#' calcWINS(x = GROUP ~ TRTP, data = COVID19, ref = "P", alpha = 0.01, WOnull = 1.2)
+#' calcWINS(x = GROUP ~ TRTP, data = COVID19, ref = "Placebo", alpha = 0.01, WOnull = 1.2)
 calcWINS.formula <- function(x, data, ...){
   Args <- base::list(...)
   formulavars <- base::all.vars(x)

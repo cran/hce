@@ -18,5 +18,5 @@ a data frame containing calculated values.
 A generic function for calculating win statistics
 }
 \seealso{
-\code{\link[=calcWINS.formula]{calcWINS.formula()}}, \code{\link[=calcWINS.data.frame]{calcWINS.data.frame()}}  methods.
+\code{\link[=calcWINS.hce]{calcWINS.hce()}}, \code{\link[=calcWINS.formula]{calcWINS.formula()}}, \code{\link[=calcWINS.data.frame]{calcWINS.data.frame()}}  methods.
 }

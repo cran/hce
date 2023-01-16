@@ -27,5 +27,5 @@ Win odds summary using formula syntax
 }
 \examples{
 summaryWO(data = COVID19, GROUP ~ TRTP)
-summaryWO(data = COVID19, GROUP ~ TRTP, GROUP = "GROUP", ref = "P")
+summaryWO(data = COVID19, GROUP ~ TRTP, GROUP = "GROUP", ref = "Placebo")
 }

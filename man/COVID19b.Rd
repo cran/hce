@@ -8,11 +8,11 @@
 a data frame with 844 rows and 2 variables:
 \describe{
 \item{GROUP}{type of the event, ordinal outcomes 1-8, where a higher value means a better outcome}
-\item{TRTP}{treatment values, A Active or P Placebo, character}
+\item{TRTP}{treatment values, Active or Placebo, character}
 }
 }
 \source{
-\url{doi:10.1056/NEJMoa2007764}
+Beigel et al. (2020) \url{doi:10.1056/NEJMoa2007764}.
 }
 \usage{
 COVID19b
@@ -26,6 +26,6 @@ table(COVID19b)
 mosaicplot(table(COVID19b), col = c(1, 8, 6, 2, 4, 5, 3, 7), 
 xlab = "Treatment", ylab = "Ordinal Scale", main = "COVID-19 ordinal scale")
 # Calculate win statistics
-calcWINS(x = COVID19b, AVAL = "GROUP", TRTP = "TRTP", ref = "P")
+calcWINS(x = COVID19b, AVAL = "GROUP", TRTP = "TRTP", ref = "Placebo")
 }
 \keyword{datasets}

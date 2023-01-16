@@ -11,6 +11,7 @@
 #' POW <- powerWO(N = 100:1000, WO = 1.2)
 #' plot(POW, ylim = c(0, 1))
 plot.hce_results <- function(x, ...){
+  x <- attr(x, "res")
   Args <- base::list(...)
   Args[["x"]] <- x$input
   Args[["y"]] <- x$value

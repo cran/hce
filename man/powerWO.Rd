@@ -4,7 +4,7 @@
 \alias{powerWO}
 \title{Power calculation for the win odds test (no ties)}
 \usage{
-powerWO(N, WO, SD = 1/sqrt(3), alpha = 0.05, WOnull = 1)
+powerWO(N, WO, SD = NULL, k = 0.5, alpha = 0.05, WOnull = 1)
 }
 \arguments{
 \item{N}{a numeric vector of sample size values.}
@@ -12,6 +12,8 @@ powerWO(N, WO, SD = 1/sqrt(3), alpha = 0.05, WOnull = 1)
 \item{WO}{the given win odds for the alternative hypothesis. A numeric vector of length 1.}
 
 \item{SD}{assumed standard deviation of the win proportion. By default uses the conservative SD. A numeric vector of length 1.}
+
+\item{k}{proportion of active group in the overall sample size. Default is 0.5 (balanced randomization). A numeric vector of length 1.}
 
 \item{alpha}{the significance level for the 2-sided test. Default is 0.05. A numeric vector of length 1.}
 
@@ -28,10 +30,12 @@ Power calculation for the win odds test (no ties)
 powerWO(N = 1000, WO = 1.2)
 powerWO(N = seq(500, 1500, 100), WO = 1.2)
 # Example 2 - Use data-driven win odds and standard deviation from the COVID19 dataset
-res <- calcWO(x = COVID19, AVAL = "GROUP", TRTP = "TRTP", ref = "P")
+res <- calcWO(x = COVID19, AVAL = "GROUP", TRTP = "TRTP", ref = "Placebo")
 print(res)
 powerWO(N = 500, WO = res$WO, SD = res$SD_WP)
 powerWO(N = 500, WO = res$WO) # power with the default standard deviation for the win proportion.
+# Example 3 - Non-balanced 3:1 randomization
+powerWO(N = 1000, WO = 1.2, k = 0.75)
 }
 \references{
 Gasparyan, Samvel B., et al. "Power and sample size calculation for the win odds test: application to an ordinal endpoint in COVID-19 trials." Journal of Biopharmaceutical Statistics 31.6 (2021): 765-787. \url{doi:10.1080/10543406.2021.1968893}.

@@ -35,7 +35,7 @@
 #' calcWINS(COVID19HCE)
 #' # Example 2
 #' COVID19bHCE <- hce(GROUP = COVID19b$GROUP, TRTP = COVID19b$TRTP)
-#' calcWINS(COVID19bHCE, ref = "A", WOnull = 1.1, alpha = 0.01)
+#' calcWINS(COVID19bHCE, ref = "Placebo", WOnull = 1.1, alpha = 0.01)
 calcWINS.hce <- function(x, ...){
   Args <- base::list(...)
   x <- new_hce(x)

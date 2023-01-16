@@ -35,7 +35,7 @@
 #' \cr \cr Goodman, L. A., & Kruskal, W. H. (1954) Measures of association for cross classifications. Journal of the American Statistical Association, 49, 732-764. 
 #' \cr \cr Goodman, L. A., & Kruskal, W. H. (1963) Measures of association for cross classifications III: Approximate sampling theory. Journal of the American Statistical Association, 58, 310-364.
 #' @examples
-#' calcWINS(x = COVID19b, AVAL = "GROUP", TRTP = "TRTP", ref = "P")
+#' calcWINS(x = COVID19b, AVAL = "GROUP", TRTP = "TRTP", ref = "Placebo")
 calcWINS.data.frame <- function(x, AVAL, TRTP, ref, alpha = 0.05, WOnull = 1, ...){
   
   data <- as.data.frame(x)
@@ -51,8 +51,8 @@ calcWINS.data.frame <- function(x, AVAL, TRTP, ref, alpha = 0.05, WOnull = 1, ..
   if(!ref %in% unique(data$TRTP)) stop("Choose the reference from the values in TRTP.")
   data$TRTP <- base::ifelse(data$TRTP == ref, "P", "A")
   
-  res0 <- calcWO(x = data, AVAL = "AVAL", TRTP = "TRTP", ref = ref, alpha = alpha, WOnull = WOnull)
-  Res <- summaryWO(x = data, AVAL = "AVAL", TRTP = "TRTP", ref = ref, GROUP = "AVAL")
+  res0 <- calcWO(x = data, AVAL = "AVAL", TRTP = "TRTP", ref = "P", alpha = alpha, WOnull = WOnull)
+  Res <- summaryWO(x = data, AVAL = "AVAL", TRTP = "TRTP", ref = "P", GROUP = "AVAL")
   res1 <- Res$summary_by_GROUP
   res2 <- table(data$TRTP, data$AVAL)
   res2 <- as.data.frame(res2)

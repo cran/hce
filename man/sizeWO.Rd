@@ -4,7 +4,7 @@
 \alias{sizeWO}
 \title{Sample size calculation for the win odds test (no ties)}
 \usage{
-sizeWO(WO, power, SD = 1/sqrt(3), alpha = 0.05, WOnull = 1)
+sizeWO(WO, power, SD = NULL, k = 0.5, alpha = 0.05, WOnull = 1)
 }
 \arguments{
 \item{WO}{a numeric vector of win odds values.}
@@ -12,6 +12,8 @@ sizeWO(WO, power, SD = 1/sqrt(3), alpha = 0.05, WOnull = 1)
 \item{power}{the given power. A numeric vector of length 1.}
 
 \item{SD}{assumed standard deviation of the win proportion. By default uses the conservative SD. A numeric vector of length 1.}
+
+\item{k}{proportion of active group in the overall sample size. Default is 0.5 (balanced randomization). A numeric vector of length 1.}
 
 \item{alpha}{the significance level for the 2-sided test. Default is 0.05. A numeric vector of length 1.}
 
@@ -25,6 +27,7 @@ Sample size calculation for the win odds test (no ties)
 }
 \examples{
 sizeWO(WO = 1.25, power = 0.9)
+sizeWO(WO = 1.25, power = 0.9, k = 0.75)
 sizeWO(WO = seq(1.05, 1.5, 0.05), power = 0.9)
 }
 \references{
