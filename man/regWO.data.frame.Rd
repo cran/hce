@@ -24,7 +24,7 @@
 \item{...}{additional parameters.}
 }
 \value{
-a data frame containing the win odds and its confidence interval. The data frame has an attribute called "covar_info" giving summary statistics for the covariate used for the calculations. The data frame itselfs contains the following columns:
+a data frame containing the win odds and its confidence interval.
 \itemize{
 \item WO_beta adjusted win odds.
 \item LCL lower confidence limit for adjusted WO.
@@ -33,11 +33,17 @@ a data frame containing the win odds and its confidence interval. The data frame
 \item WOnull win odds of the null hypothesis (specified in the \code{WOnull} argument).
 \item alpha two-sided significance level for calculating the confidence interval (specified in the \code{alpha} argument).
 \item Pvalue p-value associated with testing the null hypothesis.
+\item N total number of patients in the analysis.
 \item beta adjusted win probability.
 \item SE_beta standard error for the adjusted win probability.
+\item SD_beta standard deviation for the adjusted win probability.
 \item WP (non-adjusted) win probability.
 \item SE_WP standard error of the non-adjusted win probability.
+\item SD_WP standard deviation of the non-adjusted win probability.
 \item WO non-adjusted win odds.
+\item COVAR_MEAN_DIFF mean difference between two treatment groups of the numeric covariate.
+\item COVAR_VAR sum of variances of two treatment groups of the numeric covariate.
+\item COVAR_COV covariance between the response and the numeric covariate.
 }
 }
 \description{
@@ -51,10 +57,9 @@ n <- nrow(dat)
 dat$Severity <- ifelse(dat$GROUP > 4, rexp(n, 1), rexp(n, 10))
 res <- regWO(x = dat, AVAL = "GROUP", TRTP = "TRTP", COVAR = "Severity", ref = "Placebo")
 res
-attr(res, "covar_info")
 }
 \references{
-Gasparyan, Samvel B., et al. "Adjusted win ratio with stratification: calculation methods and interpretation." Statistical Methods in Medical Research 30.2 (2021): 580-611. \url{doi:10.1177/0962280220942558}
+Gasparyan SB et al. "Adjusted win ratio with stratification: calculation methods and interpretation." Statistical Methods in Medical Research 30.2 (2021): 580-611. \url{doi:10.1177/0962280220942558}
 }
 \seealso{
 \code{\link[=regWO]{regWO()}}.

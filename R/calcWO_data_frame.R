@@ -23,7 +23,7 @@
 #' @export
 #' @md
 #' @seealso [hce::calcWO()], [hce::calcWO.hce()], [hce::calcWO.formula()].
-#' @references Gasparyan, Samvel B., et al. "Adjusted win ratio with stratification: calculation methods and interpretation." Statistical Methods in Medical Research 30.2 (2021): 580-611. <doi:10.1177/0962280220942558>
+#' @references Gasparyan SB et al. "Adjusted win ratio with stratification: calculation methods and interpretation." Statistical Methods in Medical Research 30.2 (2021): 580-611. <doi:10.1177/0962280220942558>
 #' @examples
 #' data(HCE4)
 #' calcWO(x = HCE4, AVAL = "AVAL", TRTP = "TRTP", ref = "P")
@@ -33,8 +33,13 @@ calcWO.data.frame <- function(x, AVAL, TRTP, ref, alpha = 0.05, WOnull = 1, ...)
   alpha <- alpha[1]
   WOnull <- WOnull[1]
   WPnull <- WOnull/(WOnull + 1)
-
-
+  ref <- ref[1]
+  AVAL <- AVAL[1]
+  TRTP <- TRTP[1]
+  if(! AVAL %in% base::names(data))
+    stop(paste0("The variable ", AVAL, " is not in the dataset."))
+  if(! TRTP %in% base::names(data))
+    stop(paste0("The variable ", TRTP, " is not in the dataset."))
   data$AVAL <- data[, base::names(data) == AVAL]
   data$TRTP <- data[, base::names(data) == TRTP]
   if(length(unique(data$TRTP)) != 2) stop("The dataset should contain two treatment groups.")

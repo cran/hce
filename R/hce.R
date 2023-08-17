@@ -13,7 +13,7 @@
 #' * TRTP assigned treatment groups.
 #' @export
 #' @md
-#' @seealso [hce::new_hce()], [hce::validate_hce()]  for the helper and validator functions of `hce` objects.
+#' @seealso [hce::as_hce()] for coercing to `hce` objects.
 #' @examples
 #' # Example 1
 #' set.seed(2022)
@@ -41,6 +41,5 @@ hce <- function(GROUP = character(), TRTP = character(), AVAL0 = 0, ORD = sort(u
   ord <- SEQ[i]
   GROUPN <- EVENTN*ord
   d <- data.frame(TRTP = TRTP, GROUP = as.character(GROUP), GROUPN = GROUPN, AVAL = AVAL0 + GROUPN, AVAL0 = AVAL0, ord = ord)
-  d <- validate_hce(d)
-  new_hce(d)
+  as_hce(d)
 }

@@ -23,7 +23,7 @@ a list containing the summary of wins, losses, and ties. It contains the followi
 Win odds summary for \code{hce} objects
 }
 \examples{
-dat <- new_hce(HCE4)
+dat <- as_hce(HCE4)
 summaryWO(dat, ref = "P")
 }
 \seealso{

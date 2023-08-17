@@ -8,7 +8,7 @@
 #' @param alpha significance level. The default is 0.05.
 #' @param WOnull the null hypothesis. The default is 1.
 #' @param ... additional parameters.
-#' @returns a data frame containing the win odds and its confidence interval. The data frame has an attribute called "covar_info" giving summary statistics for the covariate used for the calculations. The data frame itselfs contains the following columns:
+#' @returns a data frame containing the win odds and its confidence interval. 
 #' * WO_beta adjusted win odds.
 #' * LCL lower confidence limit for adjusted WO.
 #' * UCL upper confidence limit for adjusted WO.
@@ -16,15 +16,21 @@
 #' * WOnull win odds of the null hypothesis (specified in the `WOnull` argument).
 #' * alpha two-sided significance level for calculating the confidence interval (specified in the `alpha` argument).
 #' * Pvalue p-value associated with testing the null hypothesis.
+#' * N total number of patients in the analysis.
 #' * beta adjusted win probability.
 #' * SE_beta standard error for the adjusted win probability.
+#' * SD_beta standard deviation for the adjusted win probability.
 #' * WP (non-adjusted) win probability.
 #' * SE_WP standard error of the non-adjusted win probability.
+#' * SD_WP standard deviation of the non-adjusted win probability.
 #' * WO non-adjusted win odds.
+#' * COVAR_MEAN_DIFF mean difference between two treatment groups of the numeric covariate.
+#' * COVAR_VAR sum of variances of two treatment groups of the numeric covariate.
+#' * COVAR_COV covariance between the response and the numeric covariate.
 #' @export
 #' @md
 #' @seealso [hce::regWO()].
-#' @references Gasparyan, Samvel B., et al. "Adjusted win ratio with stratification: calculation methods and interpretation." Statistical Methods in Medical Research 30.2 (2021): 580-611. <doi:10.1177/0962280220942558>
+#' @references Gasparyan SB et al. "Adjusted win ratio with stratification: calculation methods and interpretation." Statistical Methods in Medical Research 30.2 (2021): 580-611. <doi:10.1177/0962280220942558>
 #' @examples
 #' # A baseline covariate that is highly correlated with the outcome
 #' set.seed(2023)
@@ -33,11 +39,14 @@
 #' dat$Severity <- ifelse(dat$GROUP > 4, rexp(n, 1), rexp(n, 10))
 #' res <- regWO(x = dat, AVAL = "GROUP", TRTP = "TRTP", COVAR = "Severity", ref = "Placebo")
 #' res
-#' attr(res, "covar_info")
 regWO.data.frame <- function(x, AVAL, TRTP, COVAR, ref, alpha = 0.05, WOnull = 1, ...){
   data <- as.data.frame(x)
   alpha <- alpha[1]
   WOnull <- WOnull[1]
+  TRTP <- TRTP[1]
+  COVAR <- COVAR[1]
+  AVAL <- AVAL[1]
+  ref <- ref[1]
   WPnull <- WOnull/(WOnull + 1)
   Ca <- stats::qnorm(1 - alpha/2)
   
@@ -86,12 +95,13 @@ regWO.data.frame <- function(x, AVAL, TRTP, COVAR, ref, alpha = 0.05, WOnull = 1
   
   out <- base::data.frame(WO_beta = WO_beta, LCL = LCL, UCL = UCL, 
                           SE = SE, WOnull = WOnull, 
-                          alpha = alpha, Pvalue = P, 
-                          beta = beta, SE_beta = SE_beta, 
-                          WP = WP, SE_WP = SE_WP, WO = WP/(1 - WP))
+                          alpha = alpha, Pvalue = P, N = N,
+                          beta = beta, SE_beta = SE_beta, SD_beta = SE_beta*sqrt(N),
+                          WP = WP, SE_WP = SE_WP, SD_WP = SE_WP*sqrt(N), WO = WP/(1 - WP))
   
-  covar_info <- data.frame(MEAN_DIFF = MEAN_COVAR["A"] - MEAN_COVAR["P"], VAR_SUM = sum(VAR_COVAR/c(n1, n0)), COV_SUM = C1)
-  attr(out, "covar_info") <- covar_info
+  out$COVAR_MEAN_DIFF <- MEAN_COVAR["A"] - MEAN_COVAR["P"]
+  out$COVAR_VAR <- sum(VAR_COVAR/c(n1, n0))
+  out$COVAR_COV <- C1
   
   return(out)
 }

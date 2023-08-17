@@ -43,5 +43,5 @@ AVAL0 = c(rnorm(5, mean = 1), rnorm(5)), ORD = c("A", "B", "C"))
 calcWO(d, ref = "Control")
 }
 \seealso{
-\code{\link[=new_hce]{new_hce()}}, \code{\link[=validate_hce]{validate_hce()}}  for the helper and validator functions of \code{hce} objects.
+\code{\link[=as_hce]{as_hce()}} for coercing to \code{hce} objects.
 }

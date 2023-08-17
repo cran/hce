@@ -12,13 +12,13 @@ a data frame with 1062 rows and 2 variables:
 }
 }
 \source{
-Beigel et al. (2020) \url{doi:10.1056/NEJMoa2007764}.
+Beigel JH et al "Remdesivir for the treatment of Covid-19-final report." New England Journal of Medicine 383.19 (2020): 1813-1836 \url{doi:10.1056/NEJMoa2007764}.
 }
 \usage{
 COVID19
 }
 \description{
-A dataset containing dataset with COVID-19 ordinal scale outcomes for 1062 patients.
+A dataset with COVID-19 ordinal scale outcomes for 1062 patients.
 }
 \examples{
 #Frequencies

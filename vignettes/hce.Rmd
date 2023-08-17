@@ -1,0 +1,68 @@
+---
+title: "Hierarchical composite endpoints"
+date: "`r format(as.Date('2023-08-14'), '%d %B, %Y')`"
+author:
+  - name: "Samvel B. Gasparyan"
+    affiliation: https://gasparyan.co/
+output:
+  rmarkdown::html_document:
+          theme: "darkly"
+          highlight: "zenburn"
+          toc: true
+          toc_float: true
+          link-citations: true 
+bibliography: REFERENCES.bib
+vignette: >
+  %\VignetteIndexEntry{Hce}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction
+
+
+### Setup
+
+Load the package `hce` and check the version
+
+```{r setup}
+library(hce)
+packageVersion("hce")
+```
+
+For citing the package run `citation("hce")` [@hce].
+
+### Definitions
+
+Prioritized outcome composite endpoints (POCE) are a general class of endpoints combining different clinical outcomes of patients into a composite so as to preserve their different natures. A particular case of these endpoints is the hierarchical composite endpoint (HCE). It is evaluated in a fixed follow-up period and accounts for the patient’s clinically most important outcome for the analysis. HCEs are analyzed using win odds and other win statistics.
+
+## Examples
+
+Here we provide examples of HCE using in clinical trials from different therapeutic areas. General considerations for creating HCEs can be found in @gasparyan2022design.
+
+### COVID-19
+
+The DARE-19 [@kosiborod2021effects;@kosiborod2021dapagliflozin] trial used an HCE to assess outcomes in patients hospitalized for COVID-19 and treated for 30 days. The COVID-19 HCE is presented below. It combines death, in hospital organ dysfunction events with clinical status at Day 30 for patients alive, still hospitalized but without previous organ dysfunction events, and hospital discharge as the most favorable outcome for patients discharging without organ dysfunction events and being alive at Day 30. 
+
+Below a higher category signifies a better outcome. Patients are ranked into one and only one category based on their clinically most severe event. For example, patients experiencing an in-hospital new or worsening organ dysfunction event then dying will be included in the category `I`.
+
+```{r echo=FALSE}
+HCE <- data.frame(Order = c("I", "II", "III", "IV", "V"), 
+                  Category = c("Death", "More than one new or worsened organ dysfunction events", 
+                               "One new or worsened organ dysfunction event", 
+                               "Hospitalized at the end of follow-up (Day 30)", 
+                               "Discharged from hospital before Day 30")
+)
+HCE
+```
+
+Patients in the category `I` are compared using the timing of the event, with an earlier event being a worse outcome (are assigned a lower rank). Similarly, in the category `III` the timing of the event is used for ranking patients within this category. In the category `II` patients are compared using the number of events with a higher number signifying a worse outcome. Patients in the category `IV` - hospitalized at the end of follow-up without previous worsening events - are further ranked according to oxygen support requirements at the hospital (`IV.1` on high flow oxygen devices, `IV.2` requiring supplemental oxygen, `IV.3` not requiring supplemental oxygen, with a higher rank being a better outcome). Patients in the category `V` are compared using the timing of the event, but, the hospital discharge being a favorable outcome, here the earlier event signifies a better outcome than the late event (reverse of the ranking in categories `I` and `III`).
+
+## References

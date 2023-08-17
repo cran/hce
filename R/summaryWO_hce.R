@@ -10,17 +10,16 @@
 #' @md
 #' @seealso [hce::calcWO()], [hce::summaryWO()], [hce::summaryWO.data.frame()] methods.
 #' @examples
-#' dat <- new_hce(HCE4)
+#' dat <- as_hce(HCE4)
 #' summaryWO(dat, ref = "P")
 summaryWO.hce <- function(x, ...){
   Args <- base::list(...)
-  x <- new_hce(x)
+  x <- as_hce(x)
   x <- base::as.data.frame(x)
   
   if(!is.null(Args[["ref"]])) ref <- Args[["ref"]]
   else if ("P" %in% unique(x$TRTP)) ref <- "P"
   else ref <- unique(x$TRTP)[1]
-  
 
   summaryWO.data.frame(x = x, AVAL = "AVAL", TRTP = "TRTP", ref = ref, GROUP = "GROUP")
 }

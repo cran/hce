@@ -16,7 +16,6 @@ simHCE(
   fixedfy = 1,
   yeardays = 360,
   pat = 100,
-  ord = 10000,
   seed = NULL
 )
 }
@@ -43,12 +42,22 @@ simHCE(
 
 \item{pat}{scale of provided event rates (per pat-years).}
 
-\item{ord}{the coefficient for creating ordinal values}
-
 \item{seed}{the seed for generating random numbers.}
 }
 \value{
-an object of class hce.
+an object of class hce containing the following columns:
+\itemize{
+\item ID subject identifier.
+\item TRTP planned treatment group - "A" for active, "P" for Placebo.
+\item GROUP type of the outcome, either "TTE" for time-to-event outcomes or "C" for continuous.
+Only one continuous outcome is possible, but no restriction on the number of "TTE" outcomes.
+\item GROUPN order of outcomes in \code{GROUP}, with a higher value signifying a better outcome.
+\item AVALT the timing of the time-to-event outcomes.
+\item AVAL0 numeric values of the continuous outcome and the timing of "TTE" outcomes.
+\item AVAL analysis values derived as \code{AVAL0 + GROUPN}. For the continuous outcome the values of \code{AVAL0} are shifted to start always from 0.
+\item seed the seed of the random sample. If not specified in \code{seed} argument will be selected based on system time.
+\item PADY primary analysis day, the length of fixed follow-up in days calculated as \code{yeardays} multiplied by \code{fixedfy}.
+}
 }
 \description{
 Simulate \code{hce} object with given event rates of time-to-event outcomes, mean and SD of the continuous outcome by treatment group
@@ -68,5 +77,5 @@ dat <- simHCE(n = 1000, n0 = 500, TTE_A = Rates_A, TTE_P = Rates_P, CM_A = 2, CM
 summaryWO(dat)
 }
 \seealso{
-\code{\link[=hce]{hce()}}, \code{\link[=new_hce]{new_hce()}}, \code{\link[=validate_hce]{validate_hce()}}  for the helper, constructor, and validator functions of hce.
+\code{\link[=hce]{hce()}}, \code{\link[=as_hce]{as_hce()}} for the helper a coerce function to hce objects.
 }

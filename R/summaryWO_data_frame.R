@@ -16,17 +16,27 @@
 #' @examples
 #' summaryWO(x = HCE3, AVAL = "AVAL", TRTP = "TRTP", ref = "P", GROUP = "GROUP")
 summaryWO.data.frame <- function(x, AVAL, TRTP, ref, GROUP = NULL, ...){
-  
   data <- as.data.frame(x)
+  ref <- ref[1]
+  AVAL <- AVAL[1]
+  TRTP <- TRTP[1]
+  GROUP <- GROUP[1]
+  if(! AVAL %in% base::names(data))
+    stop(paste0("The variable ", AVAL, " is not in the dataset."))
+  if(! TRTP %in% base::names(data))
+    stop(paste0("The variable ", TRTP, " is not in the dataset."))
   data$AVAL <- data[, base::names(data) == AVAL]
   data$TRTP <- data[, base::names(data) == TRTP]
-  data$GROUP <- data[, base::names(data) == GROUP]
-  
+  if(!is.null(GROUP)){
+    if(! GROUP %in% base::names(data))
+      stop(paste0("The variable ", GROUP, " is not in the dataset."))
+    data$GROUP <- data[, base::names(data) == GROUP]
+   }
   if (length(unique(data$TRTP)) != 2) 
     stop("The dataset should contain two treatment groups.")
   if(! ref %in% unique(data$TRTP)) stop("Choose the reference from the values in TRTP.")
+
   data$TRTP <- base::ifelse(data$TRTP == ref, "P", "A")
-  
   A <- base::rank(c(data$AVAL[data$TRTP == "A"], data$AVAL[data$TRTP == "P"]), ties.method = "average")
   B <- base::tapply(data$AVAL, data$TRTP, base::rank, ties.method = "average")
   n <- base::tapply(data$AVAL, data$TRTP, base::length)
