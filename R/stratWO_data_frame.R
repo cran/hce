@@ -9,7 +9,7 @@
 #' @param alpha the reference treatment group.
 #' @param WOnull the null hypothesis. The default is 1.
 #' @param ... additional parameters.
-#' @returns a data frame containing the win odds and its confidence interval. The data frame has an attribute called "covar_info" giving summary statistics for the covariate used for the calculations. The data frame itselfs contains the following columns:
+#' @returns a data frame containing the following columns:
 #' * WO stratified (or adjusted/stratified) win odds.
 #' * LCL lower confidence limit for adjusted (or adjusted/stratified) WO.
 #' * UCL upper confidence limit for adjusted (or adjusted/stratified) WO.
@@ -25,7 +25,7 @@
 #' @export
 #' @md
 #' @seealso [hce::stratWO()].
-#' @references Gasparyan SB et al. "Adjusted win ratio with stratification: calculation methods and interpretation." Statistical Methods in Medical Research 30.2 (2021): 580-611. <doi:10.1177/0962280220942558>
+#' @references Gasparyan SB et al. (2021) "Adjusted win ratio with stratification: calculation methods and interpretation." Statistical Methods in Medical Research 30.2: 580-611. <doi:10.1177/0962280220942558>
 #' @examples
 #' # Stratified win odds
 #' res <- stratWO(x = KHCE, AVAL = "AVAL", TRTP = "TRTP", 

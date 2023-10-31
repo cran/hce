@@ -2,7 +2,7 @@
 % Please edit documentation in R/simHCE.R
 \name{simHCE}
 \alias{simHCE}
-\title{Simulate \code{hce} object with given event rates of time-to-event outcomes, mean and SD of the continuous outcome by treatment group}
+\title{Simulate \code{hce} object with given event rates of time-to-event outcomes (Weibull), mean and SD of the continuous outcome (normal or log-normal) by treatment group}
 \usage{
 simHCE(
   n,
@@ -16,6 +16,8 @@ simHCE(
   fixedfy = 1,
   yeardays = 360,
   pat = 100,
+  shape = 1,
+  logC = FALSE,
   seed = NULL
 )
 }
@@ -26,7 +28,7 @@ simHCE(
 
 \item{TTE_A}{event rates per year in the active group for the time-to-event outcomes.}
 
-\item{TTE_P}{event rates per year in the placebo group for the time-to-event outcomes. Should have the same length as TTE_A.}
+\item{TTE_P}{event rates per year in the placebo group for the time-to-event outcomes. Should have the same length as \code{TTE_A}.}
 
 \item{CM_A}{mean value for the continuous outcome of the active group.}
 
@@ -40,12 +42,16 @@ simHCE(
 
 \item{yeardays}{number of days in a year.}
 
-\item{pat}{scale of provided event rates (per pat-years).}
+\item{pat}{scale of provided event rates (per \code{pat}-years).}
+
+\item{shape}{shape of the Weibull distribution for time-to-event outcomes. Default is exponential distribution with \code{shape = 1}.}
+
+\item{logC}{logical, whether to use log-normal distribution for the continuous outcome.}
 
 \item{seed}{the seed for generating random numbers.}
 }
 \value{
-an object of class hce containing the following columns:
+an object of class \code{hce} containing the following columns:
 \itemize{
 \item ID subject identifier.
 \item TRTP planned treatment group - "A" for active, "P" for Placebo.
@@ -60,20 +66,21 @@ Only one continuous outcome is possible, but no restriction on the number of "TT
 }
 }
 \description{
-Simulate \code{hce} object with given event rates of time-to-event outcomes, mean and SD of the continuous outcome by treatment group
+Simulate \code{hce} object with given event rates of time-to-event outcomes (Weibull), mean and SD of the continuous outcome (normal or log-normal) by treatment group
 }
 \examples{
 # Example 1
 Rates_A <- c(1.72, 1.74, 0.58, 1.5, 1)
 Rates_P <- c(2.47, 2.24, 2.9, 4, 6)
 dat <- simHCE(n = 2500, TTE_A = Rates_A, TTE_P = Rates_P,
-CM_A = -3, CM_P = -6, CSD_A = 16, CSD_P = 15, fixedfy = 3)
+              CM_A = -3, CM_P = -6, CSD_A = 16, CSD_P = 15, fixedfy = 3)
 head(dat)
 
 # Example 2
-Rates_A <- c(5, 7)
-Rates_P <- c(7, 10)
-dat <- simHCE(n = 1000, n0 = 500, TTE_A = Rates_A, TTE_P = Rates_P, CM_A = 2, CM_P = 0)
+Rates_A <- 10
+Rates_P <- 15
+dat <- simHCE(n = 1000, n0 = 500, TTE_A = Rates_A, TTE_P = Rates_P, 
+              CM_A = 0.1, CM_P = 0, seed = 5, shape = 0.2, logC = TRUE)
 summaryWO(dat)
 }
 \seealso{

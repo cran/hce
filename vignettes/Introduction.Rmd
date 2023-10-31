@@ -1,6 +1,6 @@
 ---
 title: "Introduction"
-date: "`r format(as.Date('2023-08-14'), '%d %B, %Y')`"
+date: "`r format(as.Date('2023-11-01'), '%d %B, %Y')`"
 author:
   - name: "Samvel B. Gasparyan"
     affiliation: https://gasparyan.co/
@@ -171,11 +171,13 @@ To simulate values from a hierarchical composite endpoint we use the function `s
 args("simHCE")
 ```
 
-- The vector arguments `TTE_A` and `TTE_P` show the event rates per year for time-to-event outcomes in the active and control groups, respectively. The function assumes constant event rates (uses exponential survival function for simulations). These two vectors should have the same length and their length shows the number of time-to-event outcomes, which can be arbitrary. 
+- The vector arguments `TTE_A` and `TTE_P` show the event rates per year for time-to-event outcomes in the active and control groups, respectively. The function assumes Weibull survival function with the same shape parameter for simulating all time-to-event outcomes in both treatment groups (by default `shape = 1` hence assumes exponential survival function). These two vectors should have the same length and their length shows the number of time-to-event outcomes, which can be arbitrary. 
 
 - By default, the event rates are presented per 100 patient-years (`pat = 100`), which can be changed using the argument `pat`. The function simulates event times in days, hence `yeardays = 360` argument can be used to change the number of days in a year (for example, 365 or 365.25 can be used).
 
 - The function simulates events during a fixed-follow-up time only, hence argument `fixedfy` can be used to change the length of the follow-up (in years).
+
+- The function simulates the continuous outcome from a normal (default) or log-normal (if `logC = TRUE`) distribution with given means and standard deviations for two treatment groups.
 
 ```{r}
 Rates_A <- c(1.72, 1.74, 0.58, 1.5, 1) 
@@ -184,7 +186,7 @@ dat3 <- simHCE(n = 2500, n0 = 1500, TTE_A = Rates_A,
                TTE_P = Rates_P, 
                CM_A = -3, CM_P = -6, 
                CSD_A = 16, CSD_P = 15, 
-               fixedfy = 3)
+               fixedfy = 3, seed = 2023)
 ```
 
 ```{r}

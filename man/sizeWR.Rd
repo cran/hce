@@ -30,7 +30,7 @@ sizeWR(WR = 1.36, Pties = 0.064, power = 0.9)
 sizeWR(WR = 1.36, WO = 1.333, power = 0.9)
 }
 \references{
-Yu RX, Ganju J. Sample size formula for a win ratio endpoint. Statistics in medicine. 2022 Mar 15;41(6):950-63. \url{doi:10.1002/sim.9297}.
+Yu RX, Ganju J. (2022) "Sample size formula for a win ratio endpoint." Statistics in Medicine, 41.6: 950-63. \url{doi:10.1002/sim.9297}.
 }
 \seealso{
 \code{\link[=sizeWO]{sizeWO()}} for WO sample size calculation.

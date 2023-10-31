@@ -1591,7 +1591,7 @@ border-radius: 0px;
 <h1 class="title toc-ignore">Hierarchical composite endpoints</h1>
 <h4 class="author">Samvel B. Gasparyan</h4>
 <address class="author_afil">
-<a href="https://gasparyan.co/" class="uri">https://gasparyan.co/</a><br><h4 class="date">14 August,
+<a href="https://gasparyan.co/" class="uri">https://gasparyan.co/</a><br><h4 class="date">01 November,
 2023</h4>
 
 </div>
@@ -1604,7 +1604,7 @@ border-radius: 0px;
 <p>Load the package <code>hce</code> and check the version</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(hce)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">&quot;hce&quot;</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; [1] &#39;0.5.8&#39;</span></span></code></pre></div>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; [1] &#39;0.5.9&#39;</span></span></code></pre></div>
 <p>For citing the package run <code>citation(&quot;hce&quot;)</code> <span class="citation">(Samvel B. Gasparyan 2023)</span>.</p>
 </div>
 <div id="definitions" class="section level3">
@@ -1661,15 +1661,282 @@ compared using the timing of the event, but, the hospital discharge
 being a favorable outcome, here the earlier event signifies a better
 outcome than the late event (reverse of the ranking in categories
 <code>I</code> and <code>III</code>).</p>
+<p>The simplest case of a COVID-19 HCE is an endpoint with ordinal scale
+outcomes assessed at a given timepoint. The endpoint uses 1-8 categories
+for assessing the physical limitations of hospitalized patients with
+COVID-19 after 15 or 30 days of treatment. But unlike the DARE-19 HCE,
+within each category it does not use the timing of events to reduce the
+ties in a paiwrise comparison of patients in the active group with
+patients in the control group. See, for example, <code>COVID-19</code>
+and <code>COVID-19b</code> datasest ordinal scale outcomes <span class="citation">(Beigel et al. 2020)</span>.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">table</span>(COVID19)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt;          GROUP</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; TRTP        1   2   3   4   5   6   7   8</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt;   Active   34  95  28  58  38  14 117 157</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt;   Placebo  58 121  24  60  33   8 102 115</span></span></code></pre></div>
+<p>The function <code>hce::summaryWO()</code> provides the number of
+wins, losses, and ties by categories. We can calculate the probability
+of ties from the provided numbers.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>COVID19HCE <span class="ot">&lt;-</span> <span class="fu">hce</span>(<span class="at">GROUP =</span> COVID19<span class="sc">$</span>GROUP, <span class="at">TRTP =</span> COVID19<span class="sc">$</span>TRTP)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>SUM <span class="ot">&lt;-</span> <span class="fu">summaryWO</span>(COVID19HCE, <span class="at">ref =</span> <span class="st">&quot;Placebo&quot;</span>)<span class="sc">$</span>summary</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>SUM<span class="sc">$</span>Ptie <span class="ot">&lt;-</span> <span class="fu">round</span>(SUM<span class="sc">$</span>TIE<span class="sc">/</span>SUM<span class="sc">$</span>TOTAL, <span class="dv">2</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>SUM</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt;   TRTP    WIN   LOSS   TIE  TOTAL        WR        WO Ptie</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; 1    A 135744  97143 48974 281861 1.3973627 1.3173641 0.17</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; 2    P  97143 135744 48974 281861 0.7156338 0.7590916 0.17</span></span></code></pre></div>
+</div>
+<div id="kidney-hce" class="section level3">
+<h3>Kidney HCE</h3>
+<p>The kidney HCE defined in <span class="citation">Heerspink et al.
+(2023)</span> has the following ordinal outcomes (for the review of the
+topic see <span class="citation">Little et al. (2023)</span>).</p>
+<pre><code>#&gt;   Order                                      Category
+#&gt; 1     I                                         Death
+#&gt; 2    II            Dialysis or kidney transplantation
+#&gt; 3   III         Sustained GFR &lt; 15 ml/min per 1.73 m2
+#&gt; 4    IV Sustained GFR decline from baseline of &gt;= 57%
+#&gt; 5     V Sustained GFR decline from baseline of &gt;= 50%
+#&gt; 6    VI Sustained GFR decline from baseline of &gt;= 40%
+#&gt; 7   VII                          Individual GFR slope</code></pre>
+<p>The dataset <code>KHCE</code> contains data on a kidney HCE
+outcomes</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>dat <span class="ot">&lt;-</span> KHCE</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>Order <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Death (adj)&quot;</span>, <span class="st">&quot;Chronic dialysis (adj) &gt;=90 days&quot;</span>, </span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>           <span class="st">&quot;Sustained eGFR&lt;15 (mL/min/1.73 m2)&quot;</span>, <span class="st">&quot;Sustained &gt;=57% decline in eGFR&quot;</span>, </span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>           <span class="st">&quot;Sustained &gt;=50% decline in eGFR&quot;</span>, <span class="st">&quot;Sustained &gt;=40% decline in eGFR&quot;</span>, <span class="st">&quot;eGFR slope&quot;</span>)   </span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>dat<span class="sc">$</span>GROUP <span class="ot">&lt;-</span> <span class="fu">factor</span>(dat<span class="sc">$</span>GROUP, <span class="at">levels =</span> Order)</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="fu">table</span>(dat<span class="sc">$</span>GROUP, dat<span class="sc">$</span>TRTP)</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt;                                     </span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt;                                        A   P</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt;   Death (adj)                         40  50</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt;   Chronic dialysis (adj) &gt;=90 days    17  29</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt;   Sustained eGFR&lt;15 (mL/min/1.73 m2)  16  28</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt;   Sustained &gt;=57% decline in eGFR      2   9</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt;   Sustained &gt;=50% decline in eGFR      7  22</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt;   Sustained &gt;=40% decline in eGFR     36  34</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt;   eGFR slope                         632 578</span></span></code></pre></div>
+<p>This dataset is derived from <code>ADSL</code> which contains
+baseline characteristics,</p>
+<table>
+<caption>ADSL dataset structure</caption>
+<thead>
+<tr class="header">
+<th align="right">ID</th>
+<th align="right">TRTPN</th>
+<th align="right">EGFRBL</th>
+<th align="right">STRATAN</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">44</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">31</td>
+<td align="right">3</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="right">1</td>
+<td align="right">28</td>
+<td align="right">4</td>
+</tr>
+<tr class="even">
+<td align="right">4</td>
+<td align="right">1</td>
+<td align="right">61</td>
+<td align="right">4</td>
+</tr>
+<tr class="odd">
+<td align="right">5</td>
+<td align="right">1</td>
+<td align="right">37</td>
+<td align="right">4</td>
+</tr>
+<tr class="even">
+<td align="right">6</td>
+<td align="right">2</td>
+<td align="right">35</td>
+<td align="right">1</td>
+</tr>
+</tbody>
+</table>
+<p><code>ADLB</code> laboratory measurements of kidney function,</p>
+<table>
+<caption>ADLB dataset structure</caption>
+<thead>
+<tr class="header">
+<th align="right">ID</th>
+<th align="right">TRTPN</th>
+<th align="right">AVAL</th>
+<th align="right">ADAY</th>
+<th align="right">AVISITN</th>
+<th align="left">PARAM</th>
+<th align="left">PARAMCD</th>
+<th align="right">PARAMN</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">40</td>
+<td align="right">357</td>
+<td align="right">7</td>
+<td align="left">eGFR measurements</td>
+<td align="left">eGFR</td>
+<td align="right">7</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">49</td>
+<td align="right">119</td>
+<td align="right">5</td>
+<td align="left">eGFR measurements</td>
+<td align="left">eGFR</td>
+<td align="right">7</td>
+</tr>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">41</td>
+<td align="right">238</td>
+<td align="right">6</td>
+<td align="left">eGFR measurements</td>
+<td align="left">eGFR</td>
+<td align="right">7</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">36</td>
+<td align="right">469</td>
+<td align="right">8</td>
+<td align="left">eGFR measurements</td>
+<td align="left">eGFR</td>
+<td align="right">7</td>
+</tr>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">40</td>
+<td align="right">721</td>
+<td align="right">10</td>
+<td align="left">eGFR measurements</td>
+<td align="left">eGFR</td>
+<td align="right">7</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">34</td>
+<td align="right">602</td>
+<td align="right">9</td>
+<td align="left">eGFR measurements</td>
+<td align="left">eGFR</td>
+<td align="right">7</td>
+</tr>
+</tbody>
+</table>
+<p>and <code>ADET</code> for the time-to-event outcomes with their
+timing.</p>
+<table>
+<caption>ADET dataset structure</caption>
+<thead>
+<tr class="header">
+<th align="right">ID</th>
+<th align="right">AVAL</th>
+<th align="left">PARAM</th>
+<th align="left">PARAMCD</th>
+<th align="right">PARAMN</th>
+<th align="right">TRTPN</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">11</td>
+<td align="right">359</td>
+<td align="left">Sustained &gt;=50% decline in eGFR</td>
+<td align="left">EGFR50</td>
+<td align="right">5</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">11</td>
+<td align="right">467</td>
+<td align="left">Sustained &gt;=57% decline in eGFR</td>
+<td align="left">EGFR57</td>
+<td align="right">4</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">11</td>
+<td align="right">359</td>
+<td align="left">Sustained &gt;=40% decline in eGFR</td>
+<td align="left">EGFR40</td>
+<td align="right">6</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">11</td>
+<td align="right">841</td>
+<td align="left">Sustained eGFR&lt;15 (mL/min/1.73 m2)</td>
+<td align="left">EGFR15</td>
+<td align="right">3</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">15</td>
+<td align="right">962</td>
+<td align="left">Death (adj)</td>
+<td align="left">DTHADJ</td>
+<td align="right">1</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="right">21</td>
+<td align="right">737</td>
+<td align="left">Sustained &gt;=40% decline in eGFR</td>
+<td align="left">EGFR40</td>
+<td align="right">6</td>
+<td align="right">1</td>
+</tr>
+</tbody>
+</table>
+<p>For the detailed derivation see the <a href="https://cdn-links.lww.com/permalink/jsn/e/jsn_2023_09_29_heerspink_1_sdc1.pdf">Technical
+Appendix</a> in <span class="citation">Heerspink et al.
+(2023)</span>.</p>
+</div>
+<div id="heart-failure" class="section level3">
+<h3>Heart Failure</h3>
+<p>In the Heart Failure population (see <span class="citation">Kondo et
+al. (2023)</span>) the following HCE was considered</p>
+<pre><code>#&gt;   Order                                        Category
+#&gt; 1     I                            Cardiovascular death
+#&gt; 2    II Total (first and recurrent) HF hospitalizations
+#&gt; 3   III                          Total urgent HF visits
+#&gt; 4    IV           Improvement/deterioration in KCCQ-TSS</code></pre>
 </div>
 </div>
 <div id="references" class="section level2 unnumbered">
 <h2 class="unnumbered">References</h2>
 <div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-beigel2020remdesivir" class="csl-entry">
+Beigel, John H, Kay M Tomashek, Lori E Dodd, Aneesh K Mehta, Barry S
+Zingman, Andre C Kalil, Elizabeth Hohmann, et al. 2020.
+<span>“Remdesivir for the Treatment of Covid-19.”</span> <em>New England
+Journal of Medicine</em> 383 (19): 1813–26. <a href="https://doi.org/10.1056/NEJMoa2007764">https://doi.org/10.1056/NEJMoa2007764</a>.
+</div>
 <div id="ref-hce" class="csl-entry">
 Gasparyan, Samvel B. 2023. <em><span class="nocase">hce</span>: Design
 and Analysis of Hierarchical Composite Endpoints</em>. <em>CRAN: The
-Comprehensive R Archive Network, R Package, Version 0.5.8</em>. <a href="https://CRAN.R-project.org/package=hce">https://CRAN.R-project.org/package=hce</a>.
+Comprehensive R Archive Network, R Package, Version 0.5.9</em>. <a href="https://CRAN.R-project.org/package=hce">https://CRAN.R-project.org/package=hce</a>.
 </div>
 <div id="ref-gasparyan2022design" class="csl-entry">
 Gasparyan, Samvel B, Joan Buenconsejo, Elaine K Kowalewski, Jan
@@ -1678,6 +1945,19 @@ Berwanger, and Mikhail N Kosiborod. 2022. <span>“Design and Analysis of
 Studies Based on Hierarchical Composite Endpoints: Insights from the
 DARE-19 Trial.”</span> <em>Therapeutic Innovation &amp; Regulatory
 Science</em> 56 (5): 785–94. <a href="https://doi.org/10.1007/s43441-022-00420-1">https://doi.org/10.1007/s43441-022-00420-1</a>.
+</div>
+<div id="ref-khce2" class="csl-entry">
+Heerspink, Hiddo L, Niels Jongs, Patrick Schloemer, Dustin J Little,
+Meike Brinker, Christoph Taso, Martin Karpefors, et al. 2023.
+<span>“Development and Validation of a New HCE for Clinical Trials of
+Kidney Disease Progression.”</span> <em>Journal of the American Society
+of Nephrology</em>. <a href="https://doi.org/10.1681/ASN.0000000000000243">https://doi.org/10.1681/ASN.0000000000000243</a>.
+</div>
+<div id="ref-kondo2023use" class="csl-entry">
+Kondo, Toru, Samvel B Gasparyan, Pardeep S Jhund, Olof Bengtsson, Brian
+L Claggett, Rudolf A de Boer, Adrian F Hernandez, et al. 2023.
+<span>“Use of Win Statistics to Analyze Outcomes in the DAPA-HF and
+DELIVER Trials.”</span> <em>NEJM Evidence</em> 2 (11): EVIDoa2300042. <a href="https://doi.org/10.1056/EVIDoa2300042">https://doi.org/10.1056/EVIDoa2300042</a>.
 </div>
 <div id="ref-kosiborod2021dapagliflozin" class="csl-entry">
 Kosiborod, Mikhail N, Russell Esterline, Remo HM Furtado, Jan Oscarsson,
@@ -1694,6 +1974,13 @@ Dapagliflozin on Prevention of Major Clinical Events and Recovery in
 Patients with Respiratory Failure Because of COVID-19: Design and
 Rationale for the DARE-19 Study.”</span> <em>Diabetes, Obesity and
 Metabolism</em> 23 (4): 886–96. <a href="https://doi.org/10.1111/dom.14296">https://doi.org/10.1111/dom.14296</a>.
+</div>
+<div id="ref-khce1" class="csl-entry">
+Little, Dustin J, Samvel B Gasparyan, Patrick Schloemer, Niels Jongs,
+Meike Brinker, Martin Karpefors, Christoph Taso, et al. 2023.
+<span>“Validity and Utility of a Hierarchical Composite Endpoint for
+Clinical Trials of Kidney Disease Progression: A Review.”</span>
+<em>Journal of the American Society of Nephrology</em>. <a href="https://doi.org/10.1681/ASN.0000000000000244">https://doi.org/10.1681/ASN.0000000000000244</a>.
 </div>
 </div>
 </div>

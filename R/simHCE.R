@@ -1,18 +1,20 @@
-#' Simulate `hce` object with given event rates of time-to-event outcomes, mean and SD of the continuous outcome by treatment group
+#' Simulate `hce` object with given event rates of time-to-event outcomes (Weibull), mean and SD of the continuous outcome (normal or log-normal) by treatment group
 #'
 #' @param n sample size in the active treatment group.
 #' @param n0 sample size in the placebo group.
 #' @param TTE_A event rates per year in the active group for the time-to-event outcomes.
-#' @param TTE_P event rates per year in the placebo group for the time-to-event outcomes. Should have the same length as TTE_A.
+#' @param TTE_P event rates per year in the placebo group for the time-to-event outcomes. Should have the same length as `TTE_A`.
 #' @param CM_A mean value for the continuous outcome of the active group.
 #' @param CM_P mean value for the continuous outcome of the placebo group.
 #' @param CSD_A standard deviation for the continuous outcome of the active group.
 #' @param CSD_P standard deviation for the continuous outcome of the placebo group.
 #' @param fixedfy length of follow-up in years.
 #' @param yeardays number of days in a year.
-#' @param pat scale of provided event rates (per pat-years).
+#' @param pat scale of provided event rates (per `pat`-years).
+#' @param shape shape of the Weibull distribution for time-to-event outcomes. Default is exponential distribution with `shape = 1`.
+#' @param logC logical, whether to use log-normal distribution for the continuous outcome.
 #' @param seed the seed for generating random numbers.
-#' @return an object of class hce containing the following columns:
+#' @return an object of class `hce` containing the following columns:
 #' * ID subject identifier.
 #' * TRTP planned treatment group - "A" for active, "P" for Placebo.
 #' * GROUP type of the outcome, either "TTE" for time-to-event outcomes or "C" for continuous. 
@@ -31,16 +33,17 @@
 #' Rates_A <- c(1.72, 1.74, 0.58, 1.5, 1)
 #' Rates_P <- c(2.47, 2.24, 2.9, 4, 6)
 #' dat <- simHCE(n = 2500, TTE_A = Rates_A, TTE_P = Rates_P,
-#' CM_A = -3, CM_P = -6, CSD_A = 16, CSD_P = 15, fixedfy = 3)
+#'               CM_A = -3, CM_P = -6, CSD_A = 16, CSD_P = 15, fixedfy = 3)
 #' head(dat)
 #' 
 #'# Example 2
-#' Rates_A <- c(5, 7)
-#' Rates_P <- c(7, 10)
-#' dat <- simHCE(n = 1000, n0 = 500, TTE_A = Rates_A, TTE_P = Rates_P, CM_A = 2, CM_P = 0)
+#' Rates_A <- 10
+#' Rates_P <- 15
+#' dat <- simHCE(n = 1000, n0 = 500, TTE_A = Rates_A, TTE_P = Rates_P, 
+#'               CM_A = 0.1, CM_P = 0, seed = 5, shape = 0.2, logC = TRUE)
 #' summaryWO(dat)
 
-simHCE <- function(n, n0 = n, TTE_A, TTE_P, CM_A, CM_P, CSD_A = 1, CSD_P = 1, fixedfy = 1, yeardays = 360, pat = 100, seed = NULL ){
+simHCE <- function(n, n0 = n, TTE_A, TTE_P, CM_A, CM_P, CSD_A = 1, CSD_P = 1, fixedfy = 1, yeardays = 360, pat = 100, shape = 1, logC = FALSE, seed = NULL ){
   if(base::length(TTE_P) != base::length(TTE_A))
     stop("Event rate vectors for active and placebo groups should have the same length")
   
@@ -53,13 +56,14 @@ simHCE <- function(n, n0 = n, TTE_A, TTE_P, CM_A, CM_P, CSD_A = 1, CSD_P = 1, fi
   fixedfy <- fixedfy[1]
   yeardays <- yeardays[1]
   pat <- pat[1]
-
-
+  seed <- seed[1]
+  logC <- as.logical(logC[1])
+  shape <- shape[1]
 
   fixedf <- yeardays*fixedfy
   TTE_P <- TTE_P/yeardays/pat
   TTE_A <- TTE_A/yeardays/pat
-  ####################################
+
   l <- base::length(TTE_A)
   if(is.null(seed)){
     seed <- base::as.numeric(base::Sys.time())
@@ -68,14 +72,14 @@ simHCE <- function(n, n0 = n, TTE_A, TTE_P, CM_A, CM_P, CSD_A = 1, CSD_P = 1, fi
   base::set.seed(seed)
 
 
-  M_P <- base::sapply(TTE_P, stats::rexp, n = n0)
+  M_P <- base::sapply(1/TTE_P, stats::rweibull, n = n0, shape = shape)
   M_P <- round(M_P)
   M_P <- base::as.data.frame(M_P)
   base::names(M_P) <- base::paste0("TTE", 1:l)
   M_P$TRTP <- "P"
   M_P$ID <- (n + 1):(n0 + n)
 
-  M_A <- base::sapply(TTE_A, stats::rexp, n = n)
+  M_A <- base::sapply(1/TTE_A, stats::rweibull, n = n, shape = shape)
   M_A <- round(M_A)
   M_A <- base::as.data.frame(M_A)
   base::names(M_A) <- base::paste0("TTE", 1:l)
@@ -87,11 +91,11 @@ simHCE <- function(n, n0 = n, TTE_A, TTE_P, CM_A, CM_P, CSD_A = 1, CSD_P = 1, fi
   dat$seed <- seed
   
   
-  dat$AVALT <- base::apply(dat[, base::startsWith(names(dat), "TTE")], 1, function(x) x[x <= fixedf][1])
+  dat$AVALT <- base::apply(dat[, base::startsWith(names(dat), "TTE"), drop = FALSE], 1, function(x) x[x <= fixedf][1])
   dat$AVALT[is.na(dat$AVALT)] <- fixedf
-  dat$EVENTN <- base::apply(dat[, base::startsWith(names(dat), "TTE")], 1, function(x) which(x <= fixedf)[1])
+  dat$EVENTN <- base::apply(dat[, base::startsWith(names(dat), "TTE"), drop = FALSE], 1, function(x) which(x <= fixedf)[1])
   dat$EVENTN[is.na(dat$EVENTN)]  <- l + 1
-  ###############################################################
+
   dat$EVENT <- base::factor(dat$EVENTN, levels = 1:(l+1))
   base::levels(dat$EVENT) <- base::c(paste0("TTE", 1:l), "C")
   dat$GROUP <- base::as.character(dat$EVENT)
@@ -101,8 +105,18 @@ simHCE <- function(n, n0 = n, TTE_A, TTE_P, CM_A, CM_P, CSD_A = 1, CSD_P = 1, fi
   lencont_P <- dat$GROUP=="C" & dat$TRTP=="P"
   
 
-  dat[lencont_A, "AVAL0"] <- round(stats::rnorm(base::sum(lencont_A), mean = CM_A, sd = CSD_A), 2)
-  dat[lencont_P, "AVAL0"] <- round(stats::rnorm(base::sum(lencont_P), mean = CM_P, sd = CSD_P), 2)
+  if(logC){
+    dat[lencont_A, "AVAL0"] <- round(stats::rlnorm(base::sum(lencont_A), 
+                                                   meanlog = CM_A, sdlog = CSD_A), 2)
+    dat[lencont_P, "AVAL0"] <- round(stats::rlnorm(base::sum(lencont_P), 
+                                                   meanlog = CM_P, sdlog = CSD_P), 2)
+  } else {
+    dat[lencont_A, "AVAL0"] <- round(stats::rnorm(base::sum(lencont_A), 
+                                                  mean = CM_A, sd = CSD_A), 2)
+    dat[lencont_P, "AVAL0"] <- round(stats::rnorm(base::sum(lencont_P), 
+                                                  mean = CM_P, sd = CSD_P), 2)
+  }
+  
   dat[base::is.na(dat$AVAL0), "AVAL0"] <- dat[base::is.na(dat$AVAL0), "AVALT"]
   mcont <- min(dat[dat$GROUP == "C", "AVAL0"])
   dat$AVAL <- ifelse(dat$GROUP != "C", dat$AVAL0 + dat$GROUPN, dat$AVAL0 - mcont + 1 + dat$GROUPN)

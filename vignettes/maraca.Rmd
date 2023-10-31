@@ -1,0 +1,61 @@
+---
+title: "Visualization of HCE using maraca plots"
+date: "`r format(as.Date('2023-11-01'), '%d %B, %Y')`"
+author:
+  - name: "Samvel B. Gasparyan"
+    affiliation: https://gasparyan.co/
+output:
+  rmarkdown::html_document:
+          theme: "darkly"
+          highlight: "zenburn"
+          toc: true
+          toc_float: true
+          link-citations: true 
+bibliography: REFERENCES.bib
+vignette: >
+  %\VignetteIndexEntry{maraca}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Visualization
+
+
+### Setup
+
+Load the package `hce` and check the version
+
+```{r setup}
+library(hce)
+packageVersion("hce")
+```
+
+For citing the package run `citation("hce")` [@hce].
+
+### The maraca plot
+
+The *maraca* plot (named after its visual similarity to its namesake musical instrument) has been recently introduced [@karpefors2023maraca] for visualization of HCEs which combine multiple dichotomous outcomes with a single continuous endpoint. The maraca plot visualizes the contribution of components of a hierarchical composite endpoint (HCE) over time. It is formed by end-to-end adjoining, from left to right by declining severity of uniformly scaled Kaplan–Meier plots of times to each dichotomous outcome among those without more severe outcomes, with superimposed box/violin plot of the continuous outcome.
+
+The maraca plot is implemented in the package @maraca which depends on the package `hce`. The maraca package has a `plot.hce()` method to visualize objects of the type `hce`. Consider the following example.
+
+```{r eval=FALSE}
+library(maraca)
+Rates_A <- 10
+Rates_P <- 15
+dat <- simHCE(n = 1000, n0 = 500, TTE_A = Rates_A, TTE_P = Rates_P, 
+              CM_A = 0.2, CM_P = 0, seed = 2, shape = 0.35)
+plot(dat)
+```
+
+```{r echo=FALSE}
+knitr::include_graphics("maraca.png", dpi = 100)
+```
+
+## References

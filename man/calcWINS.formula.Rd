@@ -39,17 +39,17 @@ calcWINS(x = GROUP ~ TRTP, data = COVID19, ref = "Placebo", alpha = 0.01, WOnull
 The theory of win statistics is covered in the following papers.
 \itemize{
 \item For the win proportion CI calculation see
-\cr \cr Gasparyan, Samvel B., et al. "Adjusted win ratio with stratification: calculation methods and interpretation." Statistical Methods in Medical Research 30.2 (2021): 580-611 \url{doi:10.1177/0962280220942558}.
+\cr \cr Gasparyan SB et al. (2021) "Adjusted win ratio with stratification: calculation methods and interpretation." Statistical Methods in Medical Research 30.2: 580-611. \url{doi:10.1177/0962280220942558}.
 \item The win odds CI is calculated using the formula in
-\cr \cr Gasparyan, Samvel B., et al. "Power and sample size calculation for the win odds test: application to an ordinal endpoint in COVID-19 trials." Journal of Biopharmaceutical Statistics 31.6 (2021): 765-787 \url{doi:10.1080/10543406.2021.1968893}.
+\cr \cr Gasparyan SB et al. (2021) "Power and sample size calculation for the win odds test: application to an ordinal endpoint in COVID-19 trials." Journal of Biopharmaceutical Statistics 31.6: 765-787. \url{doi:10.1080/10543406.2021.1968893}.
 \item The win ratio the first CI uses the standard error derived from the standard error of the \code{gamma} statistic.
 \item The win ratio the second CI uses the standard error presented in
-\cr \cr Yu RX, Ganju J. Sample size formula for a win ratio endpoint. Statistics in medicine. 2022 Mar 15;41(6):950-63 \url{doi:10.1002/sim.9297}.
-\item The Goodman Kruskal's \code{gamma} and its CI match those in DescTools::GoodmanKruskalGamma() and are based on
-\cr \cr Agresti, A. (2002) Categorical Data Analysis. John Wiley & Sons, pp. 57-59.
-\cr \cr Brown, M.B., Benedetti, J.K.(1977) Sampling Behavior of Tests for Correlation in Two-Way Contingency Tables, Journal of the American Statistical Association, 72, 309-315.
-\cr \cr Goodman, L. A., & Kruskal, W. H. (1954) Measures of association for cross classifications. Journal of the American Statistical Association, 49, 732-764.
-\cr \cr Goodman, L. A., & Kruskal, W. H. (1963) Measures of association for cross classifications III: Approximate sampling theory. Journal of the American Statistical Association, 58, 310-364.
+\cr \cr Yu RX, Ganju J. (2022) "Sample size formula for a win ratio endpoint." Statistics in Medicine 41.6: 950-63. \url{doi:10.1002/sim.9297}.
+\item The Goodman Kruskal's \code{gamma} and its CI match those in \code{DescTools::GoodmanKruskalGamma()} and are based on
+\cr \cr Agresti A. (2002) Categorical Data Analysis. John Wiley & Sons, pp. 57-59.
+\cr \cr Brown MB, Benedetti JK. (1977) "Sampling Behavior of Tests for Correlation in Two-Way Contingency Tables." Journal of the American Statistical Association 72, 309-315.
+\cr \cr Goodman LA, Kruskal WH. (1954) "Measures of association for cross classifications." Journal of the American Statistical Association 49, 732-764.
+\cr \cr Goodman LA, Kruskal WH. (1963) "Measures of association for cross classifications III: Approximate sampling theory." Journal of the American Statistical Association 58, 310-364.
 }
 }
 \seealso{

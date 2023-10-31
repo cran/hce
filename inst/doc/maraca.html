@@ -11,7 +11,7 @@
 
 
 
-<title>Introduction</title>
+<title>Visualization of HCE using maraca plots</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -1588,7 +1588,8 @@ border-radius: 0px;
 
 
 
-<h1 class="title toc-ignore">Introduction</h1>
+<h1 class="title toc-ignore">Visualization of HCE using maraca
+plots</h1>
 <h4 class="author">Samvel B. Gasparyan</h4>
 <address class="author_afil">
 <a href="https://gasparyan.co/" class="uri">https://gasparyan.co/</a><br><h4 class="date">01 November,
@@ -1597,367 +1598,57 @@ border-radius: 0px;
 </div>
 
 
-<div id="hce-package-intro" class="section level2">
-<h2><code>hce</code> package intro</h2>
+<div id="visualization" class="section level2">
+<h2>Visualization</h2>
 <div id="setup" class="section level3">
 <h3>Setup</h3>
 <p>Load the package <code>hce</code> and check the version</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(hce)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">&quot;hce&quot;</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; [1] &#39;0.5.9&#39;</span></span></code></pre></div>
-<p>For citing the package run <code>citation(&quot;hce&quot;)</code> <span class="citation">(Samvel B. Gasparyan 2023)</span>.</p>
+<p>For citing the package run <code>citation(&quot;hce&quot;)</code> <span class="citation">(Gasparyan 2023)</span>.</p>
 </div>
-<div id="contents" class="section level3">
-<h3>Contents</h3>
-<p>List the functions and the datasets in the package</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">ls</span>(<span class="st">&quot;package:hce&quot;</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;ADET&quot;      &quot;ADLB&quot;      &quot;ADSL&quot;      &quot;COVID19&quot;   &quot;COVID19b&quot;  &quot;HCE1&quot;     </span></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt;  [7] &quot;HCE2&quot;      &quot;HCE3&quot;      &quot;HCE4&quot;      &quot;KHCE&quot;      &quot;as_hce&quot;    &quot;calcWINS&quot; </span></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; [13] &quot;calcWO&quot;    &quot;hce&quot;       &quot;minWO&quot;     &quot;powerWO&quot;   &quot;propWINS&quot;  &quot;regWO&quot;    </span></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; [19] &quot;simHCE&quot;    &quot;sizeWO&quot;    &quot;sizeWR&quot;    &quot;stratWO&quot;   &quot;summaryWO&quot;</span></span></code></pre></div>
-<p>In brief, the package contains the following:</p>
-<ol style="list-style-type: decimal">
-<li>Datasets: use <code>data(package = &quot;hce&quot;)</code> for the list of all
-datasets included in the package.</li>
-</ol>
-<ul>
-<li><p>Simulated datasets - <code>HCE1 - HCE4</code> that contain two
-treatment groups and analysis values <code>AVAL</code> of an
-hierarchical composite endpoint.</p></li>
-<li><p>The datasets <code>COVID19</code>, <code>COVID19b</code> of
-COVID-19 ordinal scale outcomes <span class="citation">(Beigel et al.
-2020)</span>.</p></li>
-<li><p>The datasets <code>ADET</code> (event-time), <code>ADLB</code>
-(laboratory), <code>ADSL</code> (subject-level baseline characteristics)
-datasets, correspondingly, for kidney events and their timing, kidney
-related laboratory measurements of eGFR (estimated glomerular filtration
-rate), and, based on this, derived kidney hierarchical composite
-endpoint dataset <code>KHCE</code> for the same patients <span class="citation">(Heerspink et al. 2023)</span>.</p></li>
-</ul>
-<ol start="2" style="list-style-type: decimal">
-<li>Functions to create <code>hce</code> objects -
-<code>hce(), as_hce(), simHCE()</code> (see <span class="citation">Samvel B. Gasparyan et al. (2022)</span>).</li>
-<li>Win odds (win ratio with ties) calculation generic functions for
-hierarchical composite endpoints - <code>calcWO(), summaryWO()</code>
-(see <span class="citation">Samvel B. Gasparyan, Folkvaljon, et al.
-(2021)</span>, <span class="citation">Samvel B. Gasparyan, Kowalewski,
-et al. (2021)</span>).</li>
-<li>Win statistics (win odds, win ratio, net benefit, Goodman Kruskal’s
-<code>gamma</code>) and their confidence intervals calculation function
-- <code>calcWINS()</code>. Backward calculation of number of wins,
-losses, and ties given the win odds and win ratio using the function
-<code>propWINS()</code>.</li>
-<li>Adjusted win odds calculation for a single, numeric covariate using
-the function <code>regWO()</code>.</li>
-<li>Stratified win odds with a possible adjustment after stratification
-with a single, numeric covariate using the function
-<code>stratWO()</code>.</li>
-<li>Power, sample size, and minimum detectable win odds calculation
-functions - <code>powerWO(), sizeWO(), minWO()</code> (see <span class="citation">Samvel B. Gasparyan, Kowalewski, et al. (2021)</span>,
-<span class="citation">Samvel B. Gasparyan, Kowalewski, and Koch
-(2022)</span>). Win ratio sample size calculation formula
-<code>sizeWR()</code> <span class="citation">(Yu and Ganju
-2022)</span>.</li>
-<li>Print and plot methods for <code>hce_results</code> objects,
-generated by functions <code>powerWO(), sizeWO(), minWO()</code>.</li>
-</ol>
+<div id="the-maraca-plot" class="section level3">
+<h3>The maraca plot</h3>
+<p>The <em>maraca</em> plot (named after its visual similarity to its
+namesake musical instrument) has been recently introduced <span class="citation">(Karpefors, Lindholm, and Gasparyan 2023)</span> for
+visualization of HCEs which combine multiple dichotomous outcomes with a
+single continuous endpoint. The maraca plot visualizes the contribution
+of components of a hierarchical composite endpoint (HCE) over time. It
+is formed by end-to-end adjoining, from left to right by declining
+severity of uniformly scaled Kaplan–Meier plots of times to each
+dichotomous outcome among those without more severe outcomes, with
+superimposed box/violin plot of the continuous outcome.</p>
+<p>The maraca plot is implemented in the package <span class="citation">Martin Karpefors, Samvel B. Gasparyan, and Monika Huhn
+(2023)</span> which depends on the package <code>hce</code>. The maraca
+package has a <code>plot.hce()</code> method to visualize objects of the
+type <code>hce</code>. Consider the following example.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">library</span>(maraca)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>Rates_A <span class="ot">&lt;-</span> <span class="dv">10</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>Rates_P <span class="ot">&lt;-</span> <span class="dv">15</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">simHCE</span>(<span class="at">n =</span> <span class="dv">1000</span>, <span class="at">n0 =</span> <span class="dv">500</span>, <span class="at">TTE_A =</span> Rates_A, <span class="at">TTE_P =</span> Rates_P, </span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>              <span class="at">CM_A =</span> <span class="fl">0.2</span>, <span class="at">CM_P =</span> <span class="dv">0</span>, <span class="at">seed =</span> <span class="dv">2</span>, <span class="at">shape =</span> <span class="fl">0.35</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="fu">plot</span>(dat)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
 </div>
-</div>
-<div id="hce-objects" class="section level2">
-<h2><code>hce</code> objects</h2>
-<div id="hce-function" class="section level3">
-<h3><code>hce()</code> function</h3>
-<p>The main objects in the package are called <code>hce</code> objects
-which are data frames with a specific structure, matching the design of
-<em>hierarchical composite endpoints (HCE)</em>, which are complex
-endpoints combining into a composite events of different clinical
-importance using a hierarchy for prioritizing in the analysis the
-clinically most important event of a patient. These endpoints are
-implemented in clinical trials in different therapeutic areas. See for
-example, <span class="citation">Samvel B. Gasparyan et al. (2022)</span>
-for an implementation in COVID-19 setting and some practical
-considerations for constructing hierarchical composite endpoints, for
-the Chronic Kidney Disease (CKD) setting see <span class="citation">Heerspink et al. (2023)</span>.</p>
-<p>HCE are ordinal endpoints that can be thought of as having ‘greater’,
-‘less’ or ‘equal’ defined for them but without having the definition by
-how much greater or less. In this sense the ordinal outcomes can be
-represented as numeric vectors <em>as long as numeric operations
-(e.g. sum or division) are not performed on them.</em></p>
-<p><code>hce</code> objects can be constructed using the helper function
-<code>hce()</code> which has three arguments</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">args</span>(<span class="st">&quot;hce&quot;</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt; function (GROUP = character(), TRTP = character(), AVAL0 = 0, </span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt;     ORD = sort(unique(GROUP))) </span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; NULL</span></span></code></pre></div>
-<p>We see that the required arguments are <code>GROUP</code>, which
-specifies clinically the most important event of a patient to be
-included in the analysis and <code>TRTP</code> which specifies the
-(planned) treatment group of a patient (exactly two treatment groups
-should be present). Note that</p>
-<ul>
-<li><p><code>hce</code> structure assumes that only one event per
-patient is present for the analysis, meaning that the resulting
-<code>hce</code> object created by the <code>hce()</code> function is a
-patient-level dataset. The function <code>hce()</code> does not do a
-selection of the clinically most important event of the patient but
-requires it to be already done when calling it.</p></li>
-<li><p>argument <code>TRTP</code> should have exactly two
-levels.</p></li>
-</ul>
-<p>Consider the following example of ordinal outcomes ‘I’, ‘II’, and
-‘III’:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2022</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">100</span></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">hce</span>(<span class="at">GROUP =</span> <span class="fu">rep</span>(<span class="at">x =</span> <span class="fu">c</span>(<span class="st">&quot;I&quot;</span>, <span class="st">&quot;II&quot;</span>, <span class="st">&quot;III&quot;</span>), <span class="at">each =</span> <span class="dv">100</span>), </span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>           <span class="at">TRTP =</span> <span class="fu">sample</span>(<span class="at">x =</span> <span class="fu">c</span>(<span class="st">&quot;Active&quot;</span>, <span class="st">&quot;Control&quot;</span>), <span class="at">size =</span> n<span class="sc">*</span><span class="dv">3</span>, <span class="at">replace =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="fu">class</span>(dat)</span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; [1] &quot;hce&quot;        &quot;data.frame&quot;</span></span></code></pre></div>
-<p>This dataset has the appropriate structure of <code>hce</code>
-objects, but its class inherits from an object of class
-<code>data.frame.</code> Meaning that all functions available for data
-frame can be applied to <code>hce</code> objects, for example the
-function <code>head()</code></p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">head</span>(dat)</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt;      TRTP GROUP GROUPN AVAL AVAL0 ord</span></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; 1 Control     I      0    0     0   1</span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; 2  Active     I      0    0     0   1</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; 3 Control     I      0    0     0   1</span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; 4  Active     I      0    0     0   1</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; 5  Active     I      0    0     0   1</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; 6 Control     I      0    0     0   1</span></span></code></pre></div>
-<p>We see that the dataset has a very specific structure. The column
-<code>GROUPN</code> shows how the function <code>hce()</code> generated
-the order of given events (it uses usual alphabetic order for the unique
-values in <code>GROUP</code> column to determine the clinical importance
-of events)</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">unique</span>(dat[, <span class="fu">c</span>(<span class="st">&quot;GROUP&quot;</span>, <span class="st">&quot;GROUPN&quot;</span>)])</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt;     GROUP GROUPN</span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; 1       I      0</span></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; 101    II      1</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; 201   III      2</span></span></code></pre></div>
-<p>In the class <code>hce</code> the higher values for the ordering mean
-clinically less important event. For example, death which is the most
-important event always should get the lowest ordinal value. If there is
-a need to specify the order of outcomes, then the argument
-<code>ORD</code> can be used</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2022</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">100</span></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">hce</span>(<span class="at">GROUP =</span> <span class="fu">rep</span>(<span class="at">x =</span> <span class="fu">c</span>(<span class="st">&quot;I&quot;</span>, <span class="st">&quot;II&quot;</span>, <span class="st">&quot;III&quot;</span>), <span class="at">each =</span> <span class="dv">100</span>), </span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>           <span class="at">TRTP =</span> <span class="fu">sample</span>(<span class="at">x =</span> <span class="fu">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;P&quot;</span>), <span class="at">size =</span> n<span class="sc">*</span><span class="dv">3</span>, <span class="at">replace =</span> <span class="cn">TRUE</span>), <span class="at">ORD =</span> <span class="fu">c</span>(<span class="st">&quot;III&quot;</span>, <span class="st">&quot;II&quot;</span>, <span class="st">&quot;I&quot;</span>))</span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="fu">unique</span>(dat[, <span class="fu">c</span>(<span class="st">&quot;GROUP&quot;</span>, <span class="st">&quot;GROUPN&quot;</span>)])</span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt;     GROUP GROUPN</span></span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt; 1       I      2</span></span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt; 101    II      1</span></span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; 201   III      0</span></span></code></pre></div>
-<p>This means that the clinically most important event is ‘III’ instead
-of ‘I’. The argument <code>AVAL0</code> is meant to help in the cases
-where we want to introduce sub-ordering within each <code>GROUP</code>
-category. For example, if two events in the group ‘I’ can be compared
-based on other parameters, then <code>AVAL0</code> argument can be
-specified to take that into account.</p>
-<p>Below we use the built-in data frame <code>HCE1</code> to construct
-an <code>hce</code> object. Before specifying the order of events it is
-a good idea to check what are the unique events included in the
-<code>GROUP</code> column</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">data</span>(HCE1)</span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="fu">unique</span>(HCE1<span class="sc">$</span>GROUP)</span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt; [1] &quot;C&quot;    &quot;TTE4&quot; &quot;TTE1&quot; &quot;TTE2&quot; &quot;TTE3&quot;</span></span></code></pre></div>
-<p>Therefore, we can construct the following <code>hce</code> object</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>HCE <span class="ot">&lt;-</span> <span class="fu">hce</span>(<span class="at">GROUP =</span> HCE1<span class="sc">$</span>GROUP, <span class="at">TRTP =</span> HCE1<span class="sc">$</span>TRTP, <span class="at">AVAL0 =</span> HCE1<span class="sc">$</span>AVAL0, </span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>           <span class="at">ORD =</span> <span class="fu">c</span>(<span class="st">&quot;TTE1&quot;</span>, <span class="st">&quot;TTE2&quot;</span>, <span class="st">&quot;TTE3&quot;</span>, <span class="st">&quot;TTE4&quot;</span>, <span class="st">&quot;C&quot;</span>))</span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="fu">class</span>(HCE)</span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co">#&gt; [1] &quot;hce&quot;        &quot;data.frame&quot;</span></span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="fu">head</span>(HCE)</span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co">#&gt;   TRTP GROUP GROUPN     AVAL  AVAL0   ord</span></span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt; 1    A     C  40000 39997.79  -2.21 10000</span></span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co">#&gt; 2    P     C  40000 40017.06  17.06 10000</span></span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt; 3    A  TTE4  30000 30966.00 966.00 10000</span></span>
-<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt; 4    P  TTE4  30000 30352.00 352.00 10000</span></span>
-<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt; 5    A     C  40000 39987.55 -12.45 10000</span></span>
-<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co">#&gt; 6    P     C  40000 40044.62  44.62 10000</span></span></code></pre></div>
-</div>
-<div id="create-an-hce-object-from-a-data-frame" class="section level3">
-<h3>Create an <code>hce</code> object from a data frame</h3>
-<p>Consider the dataset <code>HCE1</code> which is part of the package
-<code>hce</code></p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">data</span>(HCE1, <span class="at">package =</span> <span class="st">&quot;hce&quot;</span>)</span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="fu">class</span>(HCE1)</span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; [1] &quot;data.frame&quot;</span></span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="fu">head</span>(HCE1)</span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt;   SUBJID GROUP GROUPN  AVAL0     AVAL TRTP</span></span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt; 1      1     C  40000  -2.21 39997.79    A</span></span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt; 2      2     C  40000  17.06 40017.06    P</span></span>
-<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt; 3      3  TTE4  30000 966.00 30966.00    A</span></span>
-<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="co">#&gt; 4      4  TTE4  30000 352.00 30352.00    P</span></span>
-<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co">#&gt; 5      5     C  40000 -12.45 39987.55    A</span></span>
-<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="co">#&gt; 6      6     C  40000  44.62 40044.62    P</span></span></code></pre></div>
-<p>This dataset has the appropriate structure of <code>hce</code>
-objects, but its class is <code>data.frame.</code> A generic way of
-coercing data structures to an <code>hce</code> object is to use the
-function <code>as_hce()</code> which, for given data structure, will
-perform checks (using internal validator function) and create an
-<code>hce</code> object from it (using an internal constructor
-function), if possible or will throw an error explaining the issue.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>dat1 <span class="ot">&lt;-</span> <span class="fu">as_hce</span>(HCE2)</span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="fu">str</span>(dat1)</span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="co">#&gt; Classes &#39;hce&#39; and &#39;data.frame&#39;:  1000 obs. of  6 variables:</span></span>
-<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="co">#&gt;  $ SUBJID: int  1 2 3 4 5 6 7 8 9 10 ...</span></span>
-<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="co">#&gt;  $ GROUP : chr  &quot;TTE1&quot; &quot;C&quot; &quot;C&quot; &quot;TTE1&quot; ...</span></span>
-<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="co">#&gt;  $ GROUPN: int  0 40000 40000 0 10000 20000 40000 10000 0 40000 ...</span></span>
-<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="co">#&gt;  $ AVAL0 : num  120 3.35 22.8 577 782 ...</span></span>
-<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="co">#&gt;  $ AVAL  : num  120 40003 40023 577 10782 ...</span></span>
-<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="co">#&gt;  $ TRTP  : chr  &quot;A&quot; &quot;P&quot; &quot;A&quot; &quot;P&quot; ...</span></span></code></pre></div>
-</div>
-<div id="simulate-hce-objects-using-simhce" class="section level3">
-<h3>Simulate <code>hce</code> objects using <code>simHCE()</code></h3>
-<p>To simulate values from a hierarchical composite endpoint we use the
-function <code>simHCE()</code>, which has the following arguments</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">args</span>(<span class="st">&quot;simHCE&quot;</span>)</span>
-<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="co">#&gt; function (n, n0 = n, TTE_A, TTE_P, CM_A, CM_P, CSD_A = 1, CSD_P = 1, </span></span>
-<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="co">#&gt;     fixedfy = 1, yeardays = 360, pat = 100, shape = 1, logC = FALSE, </span></span>
-<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="co">#&gt;     seed = NULL) </span></span>
-<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="co">#&gt; NULL</span></span></code></pre></div>
-<ul>
-<li><p>The vector arguments <code>TTE_A</code> and <code>TTE_P</code>
-show the event rates per year for time-to-event outcomes in the active
-and control groups, respectively. The function assumes Weibull survival
-function with the same shape parameter for simulating all time-to-event
-outcomes in both treatment groups (by default <code>shape = 1</code>
-hence assumes exponential survival function). These two vectors should
-have the same length and their length shows the number of time-to-event
-outcomes, which can be arbitrary.</p></li>
-<li><p>By default, the event rates are presented per 100 patient-years
-(<code>pat = 100</code>), which can be changed using the argument
-<code>pat</code>. The function simulates event times in days, hence
-<code>yeardays = 360</code> argument can be used to change the number of
-days in a year (for example, 365 or 365.25 can be used).</p></li>
-<li><p>The function simulates events during a fixed-follow-up time only,
-hence argument <code>fixedfy</code> can be used to change the length of
-the follow-up (in years).</p></li>
-<li><p>The function simulates the continuous outcome from a normal
-(default) or log-normal (if <code>logC = TRUE</code>) distribution with
-given means and standard deviations for two treatment groups.</p></li>
-</ul>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>Rates_A <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">1.72</span>, <span class="fl">1.74</span>, <span class="fl">0.58</span>, <span class="fl">1.5</span>, <span class="dv">1</span>) </span>
-<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>Rates_P <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">2.47</span>, <span class="fl">2.24</span>, <span class="fl">2.9</span>, <span class="dv">4</span>, <span class="dv">6</span>) </span>
-<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>dat3 <span class="ot">&lt;-</span> <span class="fu">simHCE</span>(<span class="at">n =</span> <span class="dv">2500</span>, <span class="at">n0 =</span> <span class="dv">1500</span>, <span class="at">TTE_A =</span> Rates_A, </span>
-<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>               <span class="at">TTE_P =</span> Rates_P, </span>
-<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>               <span class="at">CM_A =</span> <span class="sc">-</span><span class="dv">3</span>, <span class="at">CM_P =</span> <span class="sc">-</span><span class="dv">6</span>, </span>
-<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>               <span class="at">CSD_A =</span> <span class="dv">16</span>, <span class="at">CSD_P =</span> <span class="dv">15</span>, </span>
-<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a>               <span class="at">fixedfy =</span> <span class="dv">3</span>, <span class="at">seed =</span> <span class="dv">2023</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">class</span>(dat3)</span>
-<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;hce&quot;        &quot;data.frame&quot;</span></span>
-<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="fu">head</span>(dat3)</span>
-<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="co">#&gt;   ID TRTP GROUP GROUPN AVALT  AVAL0    AVAL seed PADY</span></span>
-<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="co">#&gt; 1  1    A     C   6480  1080  24.14 6564.04 2023 1080</span></span>
-<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="co">#&gt; 2  2    A     C   6480  1080   0.08 6539.98 2023 1080</span></span>
-<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="co">#&gt; 3  3    A     C   6480  1080 -16.89 6523.01 2023 1080</span></span>
-<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="co">#&gt; 4  4    A     C   6480  1080  -6.86 6533.04 2023 1080</span></span>
-<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="co">#&gt; 5  5    A  TTE2   2160   390 390.00 2550.00 2023 1080</span></span>
-<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a><span class="co">#&gt; 6  6    A     C   6480  1080   6.32 6546.22 2023 1080</span></span></code></pre></div>
-</div>
-</div>
-<div id="generics-for-hce-objects" class="section level2">
-<h2>Generics for <code>hce</code> objects</h2>
-<p>As we see, it creates an object of type <code>hce</code> which
-inherits from the built-in class <code>data.frame</code>. We can check
-all implemented methods for this new class as follows:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">methods</span>(<span class="at">class =</span> <span class="st">&quot;hce&quot;</span>)</span>
-<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="co">#&gt; [1] calcWINS  calcWO    summaryWO</span></span>
-<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="co">#&gt; see &#39;?methods&#39; for accessing help and source code</span></span></code></pre></div>
-<p>The function <code>calcWO()</code> calculates the win odds and its
-confidence interval, while <code>summaryWO()</code> provides more
-detailed calculation of win odds, providing also the number of wins,
-losses, and ties by <code>GROUP</code> categories.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>HCE <span class="ot">&lt;-</span> <span class="fu">hce</span>(<span class="at">GROUP =</span> HCE3<span class="sc">$</span>GROUP, <span class="at">TRTP =</span> HCE3<span class="sc">$</span>TRTP,</span>
-<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>           <span class="at">ORD =</span> <span class="fu">c</span>(<span class="st">&quot;TTE1&quot;</span>, <span class="st">&quot;TTE2&quot;</span>, <span class="st">&quot;TTE3&quot;</span>, <span class="st">&quot;TTE4&quot;</span>, <span class="st">&quot;C&quot;</span>))</span>
-<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="fu">calcWO</span>(HCE)</span>
-<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="co">#&gt;         WO      LCL      UCL         SE WOnull alpha       Pvalue       WP</span></span>
-<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="co">#&gt; 1 1.333635 1.160574 1.532502 0.07091636      1  0.05 3.852522e-05 0.571484</span></span>
-<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="co">#&gt;        SE_WP     SD_WP    N</span></span>
-<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a><span class="co">#&gt; 1 0.01736671 0.5491836 1000</span></span>
-<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a><span class="fu">summaryWO</span>(HCE)</span>
-<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a><span class="co">#&gt; $summary</span></span>
-<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a><span class="co">#&gt;   TRTP    WIN   LOSS   TIE  TOTAL        WR        WO</span></span>
-<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a><span class="co">#&gt; 1    A 110655  74913 64432 250000 1.4771135 1.3336352</span></span>
-<span id="cb16-12"><a href="#cb16-12" tabindex="-1"></a><span class="co">#&gt; 2    P  74913 110655 64432 250000 0.6769961 0.7498303</span></span>
-<span id="cb16-13"><a href="#cb16-13" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb16-14"><a href="#cb16-14" tabindex="-1"></a><span class="co">#&gt; $summary_by_GROUP</span></span>
-<span id="cb16-15"><a href="#cb16-15" tabindex="-1"></a><span class="co">#&gt;    TRTP GROUP   WIN  LOSS   TIE  TOTAL</span></span>
-<span id="cb16-16"><a href="#cb16-16" tabindex="-1"></a><span class="co">#&gt; 1     A     C 87780     0 45220 133000</span></span>
-<span id="cb16-17"><a href="#cb16-17" tabindex="-1"></a><span class="co">#&gt; 2     P     C 39780     0 45220  85000</span></span>
-<span id="cb16-18"><a href="#cb16-18" tabindex="-1"></a><span class="co">#&gt; 3     A  TTE1     0 36540  5460  42000</span></span>
-<span id="cb16-19"><a href="#cb16-19" tabindex="-1"></a><span class="co">#&gt; 4     P  TTE1     0 27040  5460  32500</span></span>
-<span id="cb16-20"><a href="#cb16-20" tabindex="-1"></a><span class="co">#&gt; 5     A  TTE2  3835 18703  6962  29500</span></span>
-<span id="cb16-21"><a href="#cb16-21" tabindex="-1"></a><span class="co">#&gt; 6     P  TTE2  9912 42126  6962  59000</span></span>
-<span id="cb16-22"><a href="#cb16-22" tabindex="-1"></a><span class="co">#&gt; 7     A  TTE3 10980 14400  4620  30000</span></span>
-<span id="cb16-23"><a href="#cb16-23" tabindex="-1"></a><span class="co">#&gt; 8     P  TTE3 11011 22869  4620  38500</span></span>
-<span id="cb16-24"><a href="#cb16-24" tabindex="-1"></a><span class="co">#&gt; 9     A  TTE4  8060  5270  2170  15500</span></span>
-<span id="cb16-25"><a href="#cb16-25" tabindex="-1"></a><span class="co">#&gt; 10    P  TTE4 14210 18620  2170  35000</span></span>
-<span id="cb16-26"><a href="#cb16-26" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb16-27"><a href="#cb16-27" tabindex="-1"></a><span class="co">#&gt; $WO</span></span>
-<span id="cb16-28"><a href="#cb16-28" tabindex="-1"></a><span class="co">#&gt;         WO         SE       WP      SE_WP</span></span>
-<span id="cb16-29"><a href="#cb16-29" tabindex="-1"></a><span class="co">#&gt; 1 1.333635 0.07091636 0.571484 0.01736671</span></span></code></pre></div>
 </div>
 <div id="references" class="section level2 unnumbered">
 <h2 class="unnumbered">References</h2>
 <div id="refs" class="references csl-bib-body hanging-indent">
-<div id="ref-beigel2020remdesivir" class="csl-entry">
-Beigel, John H, Kay M Tomashek, Lori E Dodd, Aneesh K Mehta, Barry S
-Zingman, Andre C Kalil, Elizabeth Hohmann, et al. 2020.
-<span>“Remdesivir for the Treatment of Covid-19.”</span> <em>New England
-Journal of Medicine</em> 383 (19): 1813–26. <a href="https://doi.org/10.1056/NEJMoa2007764">https://doi.org/10.1056/NEJMoa2007764</a>.
-</div>
 <div id="ref-hce" class="csl-entry">
 Gasparyan, Samvel B. 2023. <em><span class="nocase">hce</span>: Design
 and Analysis of Hierarchical Composite Endpoints</em>. <em>CRAN: The
 Comprehensive R Archive Network, R Package, Version 0.5.9</em>. <a href="https://CRAN.R-project.org/package=hce">https://CRAN.R-project.org/package=hce</a>.
 </div>
-<div id="ref-gasparyan2022design" class="csl-entry">
-Gasparyan, Samvel B, Joan Buenconsejo, Elaine K Kowalewski, Jan
-Oscarsson, Olof F Bengtsson, Russell Esterline, Gary G Koch, Otavio
-Berwanger, and Mikhail N Kosiborod. 2022. <span>“Design and Analysis of
-Studies Based on Hierarchical Composite Endpoints: Insights from the
-DARE-19 Trial.”</span> <em>Therapeutic Innovation &amp; Regulatory
-Science</em> 56 (5): 785–94. <a href="https://doi.org/10.1007/s43441-022-00420-1">https://doi.org/10.1007/s43441-022-00420-1</a>.
+<div id="ref-karpefors2023maraca" class="csl-entry">
+Karpefors, Martin, Daniel Lindholm, and Samvel B Gasparyan. 2023.
+<span>“The Maraca Plot: A Novel Visualization of Hierarchical Composite
+Endpoints.”</span> <em>Clinical Trials</em> 20 (1): 84–88. <a href="https://doi.org/10.1177/17407745221134949">https://doi.org/10.1177/17407745221134949</a>.
 </div>
-<div id="ref-gasparyan2021adjusted" class="csl-entry">
-Gasparyan, Samvel B, Folke Folkvaljon, Olof Bengtsson, Joan Buenconsejo,
-and Gary G Koch. 2021. <span>“Adjusted Win Ratio with Stratification:
-Calculation Methods and Interpretation.”</span> <em>Statistical Methods
-in Medical Research</em> 30 (2): 580–611. <a href="https://doi.org/10.1177/0962280220942558">https://doi.org/10.1177/0962280220942558</a>.
-</div>
-<div id="ref-gasparyan2021power" class="csl-entry">
-Gasparyan, Samvel B, Elaine K Kowalewski, Folke Folkvaljon, Olof
-Bengtsson, Joan Buenconsejo, John Adler, and Gary G Koch. 2021.
-<span>“Power and Sample Size Calculation for the Win Odds Test:
-Application to an Ordinal Endpoint in COVID-19 Trials.”</span>
-<em>Journal of Biopharmaceutical Statistics</em> 31 (6): 765–87. <a href="https://doi.org/10.1080/10543406.2021.1968893">https://doi.org/10.1080/10543406.2021.1968893</a>.
-</div>
-<div id="ref-gasparyan2022comments" class="csl-entry">
-Gasparyan, Samvel B, Elaine K Kowalewski, and Gary G Koch. 2022.
-<span>“Comments on <span>‘Sample Size Formula for a Win Ratio
-Endpoint’</span> by RX Yu and j. Ganju.”</span> <em>Statistics in
-Medicine</em> 41 (14): 2688–90. <a href="https://doi.org/10.1002/sim.9379">https://doi.org/10.1002/sim.9379</a>.
-</div>
-<div id="ref-khce2" class="csl-entry">
-Heerspink, Hiddo L, Niels Jongs, Patrick Schloemer, Dustin J Little,
-Meike Brinker, Christoph Taso, Martin Karpefors, et al. 2023.
-<span>“Development and Validation of a New HCE for Clinical Trials of
-Kidney Disease Progression.”</span> <em>Journal of the American Society
-of Nephrology</em>. <a href="https://doi.org/10.1681/ASN.0000000000000243">https://doi.org/10.1681/ASN.0000000000000243</a>.
-</div>
-<div id="ref-khce1" class="csl-entry">
-Little, Dustin J, Samvel B Gasparyan, Patrick Schloemer, Niels Jongs,
-Meike Brinker, Martin Karpefors, Christoph Taso, et al. 2023.
-<span>“Validity and Utility of a Hierarchical Composite Endpoint for
-Clinical Trials of Kidney Disease Progression: A Review.”</span>
-<em>Journal of the American Society of Nephrology</em>. <a href="https://doi.org/10.1681/ASN.0000000000000244">https://doi.org/10.1681/ASN.0000000000000244</a>.
-</div>
-<div id="ref-yu2022sample" class="csl-entry">
-Yu, Ron Xiaolong, and Jitendra Ganju. 2022. <span>“Sample Size Formula
-for a Win Ratio Endpoint.”</span> <em>Statistics in Medicine</em> 41
-(6): 950–63. <a href="https://doi.org/10.1002/sim.9297">https://doi.org/10.1002/sim.9297</a>.
+<div id="ref-maraca" class="csl-entry">
+Martin Karpefors, Samvel B. Gasparyan, and Monika Huhn. 2023.
+<em>Maraca: The Maraca Plot: Visualization of Hierarchical Composite
+Endpoints in Clinical Trials</em>. <a href="https://CRAN.R-project.org/package=maraca">https://CRAN.R-project.org/package=maraca</a>.
 </div>
 </div>
 </div>

@@ -38,7 +38,7 @@ powerWO(N = 500, WO = res$WO) # power with the default standard deviation for th
 powerWO(N = 1000, WO = 1.2, k = 0.75)
 }
 \references{
-Gasparyan, Samvel B., et al. "Power and sample size calculation for the win odds test: application to an ordinal endpoint in COVID-19 trials." Journal of Biopharmaceutical Statistics 31.6 (2021): 765-787. \url{doi:10.1080/10543406.2021.1968893}.
+Gasparyan SB et al. (2021) "Power and sample size calculation for the win odds test: application to an ordinal endpoint in COVID-19 trials." Journal of Biopharmaceutical Statistics 31.6 : 765-787. \url{doi:10.1080/10543406.2021.1968893}
 }
 \seealso{
 \code{\link[=sizeWO]{sizeWO()}}, \code{\link[=minWO]{minWO()}} for WO sample size or minimum detectable WO calculation.

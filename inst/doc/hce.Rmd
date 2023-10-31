@@ -1,6 +1,6 @@
 ---
 title: "Hierarchical composite endpoints"
-date: "`r format(as.Date('2023-08-14'), '%d %B, %Y')`"
+date: "`r format(as.Date('2023-11-01'), '%d %B, %Y')`"
 author:
   - name: "Samvel B. Gasparyan"
     affiliation: https://gasparyan.co/
@@ -55,7 +55,8 @@ Below a higher category signifies a better outcome. Patients are ranked into one
 
 ```{r echo=FALSE}
 HCE <- data.frame(Order = c("I", "II", "III", "IV", "V"), 
-                  Category = c("Death", "More than one new or worsened organ dysfunction events", 
+                  Category = c("Death", 
+                               "More than one new or worsened organ dysfunction events", 
                                "One new or worsened organ dysfunction event", 
                                "Hospitalized at the end of follow-up (Day 30)", 
                                "Discharged from hospital before Day 30")
@@ -64,5 +65,86 @@ HCE
 ```
 
 Patients in the category `I` are compared using the timing of the event, with an earlier event being a worse outcome (are assigned a lower rank). Similarly, in the category `III` the timing of the event is used for ranking patients within this category. In the category `II` patients are compared using the number of events with a higher number signifying a worse outcome. Patients in the category `IV` - hospitalized at the end of follow-up without previous worsening events - are further ranked according to oxygen support requirements at the hospital (`IV.1` on high flow oxygen devices, `IV.2` requiring supplemental oxygen, `IV.3` not requiring supplemental oxygen, with a higher rank being a better outcome). Patients in the category `V` are compared using the timing of the event, but, the hospital discharge being a favorable outcome, here the earlier event signifies a better outcome than the late event (reverse of the ranking in categories `I` and `III`).
+
+The simplest case of a COVID-19 HCE is an endpoint with ordinal scale outcomes assessed at a given timepoint. The endpoint uses 1-8 categories for assessing the physical limitations of hospitalized patients with COVID-19 after 15 or 30 days of treatment. But unlike the DARE-19 HCE, within each category it does not use the timing of events to reduce the ties in a paiwrise comparison of patients in the active group with patients in the control group. See, for example, `COVID-19` and `COVID-19b` datasest ordinal scale outcomes [@beigel2020remdesivir].
+
+```{r}
+table(COVID19)
+```
+
+The function `hce::summaryWO()` provides the number of wins, losses, and ties by categories. We can calculate the probability of ties from the provided numbers.
+
+```{r}
+COVID19HCE <- hce(GROUP = COVID19$GROUP, TRTP = COVID19$TRTP)
+SUM <- summaryWO(COVID19HCE, ref = "Placebo")$summary
+SUM$Ptie <- round(SUM$TIE/SUM$TOTAL, 2)
+SUM
+```
+
+### Kidney HCE
+
+The kidney HCE defined in @khce2 has the following ordinal outcomes (for the review of the topic see @khce1).
+
+
+```{r echo=FALSE}
+HCE2 <- data.frame(Order = c("I", "II", "III", "IV", "V", "VI", "VII"), 
+                  Category = c("Death", 
+                               "Dialysis or kidney transplantation", 
+                               "Sustained GFR < 15 ml/min per 1.73 m2", 
+                               "Sustained GFR decline from baseline of >= 57%", 
+                               "Sustained GFR decline from baseline of >= 50%",
+                               "Sustained GFR decline from baseline of >= 40%",
+                               "Individual GFR slope")
+)
+HCE2
+```
+
+The dataset `KHCE` contains data on a kidney HCE outcomes
+
+```{r}
+dat <- KHCE
+Order <- c("Death (adj)", "Chronic dialysis (adj) >=90 days", 
+           "Sustained eGFR<15 (mL/min/1.73 m2)", "Sustained >=57% decline in eGFR", 
+           "Sustained >=50% decline in eGFR", "Sustained >=40% decline in eGFR", "eGFR slope")   
+dat$GROUP <- factor(dat$GROUP, levels = Order)
+table(dat$GROUP, dat$TRTP)
+```
+
+This dataset is derived from `ADSL` which contains baseline characteristics, 
+
+```{r echo=FALSE}
+knitr::kable(head(ADSL), caption = "ADSL dataset structure\\label{adsl}")
+```
+
+`ADLB` laboratory measurements of kidney function, 
+
+```{r echo=FALSE}
+knitr::kable(head(ADLB), caption = "ADLB dataset structure\\label{adlb}")
+```
+
+and `ADET` for the time-to-event outcomes with their timing. 
+
+```{r echo=FALSE}
+knitr::kable(head(ADET), caption = "ADET dataset structure\\label{adet}")
+```
+
+For the detailed derivation see the [Technical Appendix](https://cdn-links.lww.com/permalink/jsn/e/jsn_2023_09_29_heerspink_1_sdc1.pdf) in @khce2.
+
+
+
+
+### Heart Failure
+
+In the Heart Failure population (see @kondo2023use) the following HCE was considered
+
+```{r echo=FALSE}
+HCE3 <- data.frame(Order = c("I", "II", "III", "IV"), 
+                  Category = c("Cardiovascular death", 
+                               "Total (first and recurrent) HF hospitalizations", 
+                               "Total urgent HF visits", 
+                               "Improvement/deterioration in KCCQ-TSS"))
+HCE3
+```
+
 
 ## References

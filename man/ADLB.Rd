@@ -18,7 +18,7 @@ a data frame with 13980 rows and 8 variables:
 }
 }
 \source{
-Heerspink HL et al "Development and validation of a new hierarchical composite endpoint for clinical trials of kidney disease progression." Journal of the American Society of Nephrology (2023).
+Heerspink HL et al "Development and validation of a new hierarchical composite endpoint for clinical trials of kidney disease progression." Journal of the American Society of Nephrology (2023): \url{doi:10.1681/ASN.0000000000000243}.
 }
 \usage{
 ADLB

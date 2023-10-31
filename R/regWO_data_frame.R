@@ -30,15 +30,17 @@
 #' @export
 #' @md
 #' @seealso [hce::regWO()].
-#' @references Gasparyan SB et al. "Adjusted win ratio with stratification: calculation methods and interpretation." Statistical Methods in Medical Research 30.2 (2021): 580-611. <doi:10.1177/0962280220942558>
+#' @references Gasparyan SB et al. (2021) "Adjusted win ratio with stratification: calculation methods and interpretation." Statistical Methods in Medical Research 30.2: 580-611. <doi:10.1177/0962280220942558>
 #' @examples
 #' # A baseline covariate that is highly correlated with the outcome
 #' set.seed(2023)
 #' dat <- COVID19
 #' n <- nrow(dat)
-#' dat$Severity <- ifelse(dat$GROUP > 4, rexp(n, 1), rexp(n, 10))
-#' res <- regWO(x = dat, AVAL = "GROUP", TRTP = "TRTP", COVAR = "Severity", ref = "Placebo")
-#' res
+#' dat$Severity <- ifelse(dat$GROUP > 4, rnorm(n, 0), rnorm(n, 100))
+#' tapply(dat$Severity, dat$TRTP, mean)
+#' regWO(x = dat, AVAL = "GROUP", TRTP = "TRTP", COVAR = "Severity", ref = "Placebo")
+#' # Without adjustment
+#' calcWO(x = dat, AVAL = "GROUP", TRTP = "TRTP", ref = "Placebo")
 regWO.data.frame <- function(x, AVAL, TRTP, COVAR, ref, alpha = 0.05, WOnull = 1, ...){
   data <- as.data.frame(x)
   alpha <- alpha[1]

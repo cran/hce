@@ -11,7 +11,7 @@
 #' @export
 #' @md
 #' @seealso [hce::powerWO()], [hce::minWO()] for WO power or minimum detectable WO calculation.
-#' @references Gasparyan, Samvel B., et al. "Power and sample size calculation for the win odds test: application to an ordinal endpoint in COVID-19 trials." Journal of Biopharmaceutical Statistics 31.6 (2021): 765-787. <doi:10.1080/10543406.2021.1968893>
+#' @references Gasparyan SB et al. (2021) "Power and sample size calculation for the win odds test: application to an ordinal endpoint in COVID-19 trials." Journal of Biopharmaceutical Statistics 31.6: 765-787. <doi:10.1080/10543406.2021.1968893>
 #' @examples
 #' sizeWO(WO = 1.25, power = 0.9)
 #' sizeWO(WO = 1.25, power = 0.9, k = 0.75)
