@@ -13,24 +13,29 @@
 #' @seealso [hce::sizeWO()] for WO sample size calculation.
 #' @references Yu RX, Ganju J. (2022) "Sample size formula for a win ratio endpoint." Statistics in Medicine, 41.6: 950-63. <doi:10.1002/sim.9297>.
 #' @examples
-#' sizeWR(WR = 1.36, Pties = 0.064, power = 0.9)
-#' sizeWR(WR = 1.36, WO = 1.333, power = 0.9)
+#' sizeWR(WR = 1.35, Pties = 0.125, power = 0.8)
+#' sizeWR(WR = 1.35, WO = 1.3, power = seq(0.5, 0.9, 0.05))
 
 sizeWR <- function(WR, power, WO = NULL, Pties = NULL, k = 0.5, alpha = 0.05){
   alpha <- alpha[1]
-  power <- power[1]
   k <- k[1]
   Ca <- stats::qnorm(1 - alpha/2)
   Cpow <- stats::qnorm(power)
   if(k < 0 | k > 1) stop("k should be between 0 and 1.")
-  if(!is.null(WO) & !is.null(Pties)) stop("Either win odds or the probability of ties `Pties` should be specified.")
+  if(is.null(WO) & is.null(Pties)) stop("Either win odds `WO` or the probability of ties `Pties` should be specified.")
+  if(!is.null(WO) & !is.null(Pties)) stop("Either win odds `WO` or the probability of ties `Pties` should be specified.")
   if(is.null(Pties)) {
     WP <- WO/(WO + 1)
     Pties <- 1 - (WR + 1)*(2 * WP - 1)/(WR - 1)
   }
+  if(is.null(WO)) {
+    NB <- (WR - 1)/(WR + 1)*(1 - Pties)
+    WP <- (NB + 1)/2
+    WO <- WP/(1 - WP)
+  }
   coef <- 4*(1 + Pties)/(3*k*(1 - k)*(1 - Pties))
   N <- coef * (Ca + Cpow)^2 / log(WR)^2
-  base::data.frame(WR = WR, Pties = Pties, power = power, 
+  base::data.frame(WR = WR, Pties = Pties, WO = WO, power = power, 
                    SampleSize = base::ceiling(N), 
                    alpha = alpha)
 }

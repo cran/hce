@@ -4,7 +4,7 @@
 \alias{propWINS}
 \title{Proportion of wins/losses/ties given the win odds and the win ratio}
 \usage{
-propWINS(WO, WR, Overall = 1)
+propWINS(WO, WR, Overall = 1, alpha = NULL, N = NULL)
 }
 \arguments{
 \item{WO}{win odds.}
@@ -14,9 +14,14 @@ propWINS(WO, WR, Overall = 1)
 \item{Overall}{number of comparisons, the sample size of
 the active treatment multiplied by the sample size of the placebo.
 The default is 1, hence gives the proportion.}
+
+\item{alpha}{significance level for the win ratio confidence interval. The default is \code{NULL} hence the confidence interval is not produced.}
+
+\item{N}{the combined sample size of two treatment groups. The default is \code{NULL}. If \code{alpha} is specified then either \code{N} should be specified or \code{Overall > 1}.
+For given \code{Overall}, the pooled sample size is calculated as \code{N = 2*sqrt(Overall)}.}
 }
 \value{
-a data frame with a number (or proportion if \code{Overall = 1}) of wins/losses/ties.
+a data frame with a number (or proportion if \code{Overall = 1}) of wins/losses/ties. If \code{alpha} is specified returns also \code{WR} confidence interval.
 }
 \description{
 Proportion of wins/losses/ties given the win odds and the win ratio
@@ -36,4 +41,15 @@ Overall <- res$summary$TOTAL
 propWINS(WR = WR, WO = WO, Overall = Overall)
 ## Verify 
 res$summary
+# Example 3 - Confidence interval
+ propWINS(WR = 1.4, WO = 1.3, alpha = 0.05, Overall = 2500)
+ propWINS(WR = 2, WO = 1.5, alpha = 0.01, N = 500)
+}
+\references{
+\itemize{
+\item For the relationship between win odds and win ratio see
+\cr \cr Gasparyan SB et al. "Hierarchical Composite Endpoints in COVID-19: The DARE-19 Trial". Case Studies in Innovative Clinical Trials, Chapter 7 (2023): 95-148. Chapman and Hall/CRC. \url{doi:10.1201/9781003288640-7}.
+\item The win ratio CI uses the standard error presented in
+\cr \cr Yu RX, Ganju J. (2022) "Sample size formula for a win ratio endpoint." Statistics in Medicine 41.6: 950-63. \url{doi:10.1002/sim.9297}.
+}
 }

@@ -37,6 +37,9 @@ dat <- simHCE(n = 500, TTE_A = Rates_A, TTE_P = Rates_P, CM_A = 1.25, CM_P = 1)
 calcWO(dat)
 calcWO(dat, ref = "A", WOnull = 1, alpha = 0.01)
 }
+\references{
+Gasparyan SB et al. "Adjusted win ratio with stratification: calculation methods and interpretation." Statistical Methods in Medical Research 30.2 (2021): 580-611. \url{doi:10.1177/0962280220942558}
+}
 \seealso{
 \code{\link[=calcWO]{calcWO()}}, \code{\link[=calcWO.formula]{calcWO.formula()}}, \code{\link[=calcWO.data.frame]{calcWO.data.frame()}}.
 }

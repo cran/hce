@@ -40,6 +40,6 @@ hce <- function(GROUP = character(), TRTP = character(), AVAL0 = 0, ORD = sort(u
   i <- which(ord < SEQ)[1]
   ord <- SEQ[i]
   GROUPN <- EVENTN*ord
-  d <- data.frame(TRTP = TRTP, GROUP = as.character(GROUP), GROUPN = GROUPN, AVAL = AVAL0 + GROUPN, AVAL0 = AVAL0, ord = ord)
+  d <- data.frame(TRTP = TRTP, GROUP = as.character(GROUP), GROUPN = GROUPN, AVAL = AVAL0 + GROUPN, AVAL0 = AVAL0, ORD = ord)
   as_hce(d)
 }

@@ -61,7 +61,7 @@ regWO(x = dat, AVAL = "GROUP", TRTP = "TRTP", COVAR = "Severity", ref = "Placebo
 calcWO(x = dat, AVAL = "GROUP", TRTP = "TRTP", ref = "Placebo")
 }
 \references{
-Gasparyan SB et al. (2021) "Adjusted win ratio with stratification: calculation methods and interpretation." Statistical Methods in Medical Research 30.2: 580-611. \url{doi:10.1177/0962280220942558}
+Gasparyan SB et al. (2021) "Adjusted win ratio with stratification: calculation methods and interpretation." Statistical Methods in Medical Research 30.2: 580-611. \url{doi:10.1177/0962280220942558}.
 }
 \seealso{
 \code{\link[=regWO]{regWO()}}.

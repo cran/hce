@@ -17,6 +17,7 @@
 #' @export
 #' @md
 #' @seealso [hce::calcWO()], [hce::calcWO.formula()], [hce::calcWO.data.frame()].
+#' @references Gasparyan SB et al. "Adjusted win ratio with stratification: calculation methods and interpretation." Statistical Methods in Medical Research 30.2 (2021): 580-611. <doi:10.1177/0962280220942558>
 #' @examples
 #' Rates_A <- c(1, 1.5) 
 #' Rates_P <- c(2, 2) 

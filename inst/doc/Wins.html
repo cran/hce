@@ -1604,8 +1604,8 @@ border-radius: 0px;
 <p>Load the package <code>hce</code> and check the version</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(hce)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">&quot;hce&quot;</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; [1] &#39;0.5.9&#39;</span></span></code></pre></div>
-<p>For citing the package run <code>citation(&quot;hce&quot;)</code> <span class="citation">(Samvel B. Gasparyan 2023)</span>.</p>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; [1] &#39;0.6.0&#39;</span></span></code></pre></div>
+<p>For citing the package run <code>citation(&quot;hce&quot;)</code> <span class="citation">(Samvel B. Gasparyan 2024)</span>.</p>
 </div>
 <div id="terminology" class="section level3">
 <h3>Terminology</h3>
@@ -1671,19 +1671,19 @@ number of wins and losses. <span class="math display">\[\begin{align*}
 \end{align*}\]</span></p>
 <p>The function <code>propWINS()</code> implements the formula above</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">args</span>(<span class="st">&quot;propWINS&quot;</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt; function (WO, WR, Overall = 1) </span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt; function (WO, WR, Overall = 1, alpha = NULL, N = NULL) </span></span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; NULL</span></span>
 <span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="fu">propWINS</span>(<span class="at">WO =</span> <span class="fl">1.5</span>, <span class="at">WR =</span> <span class="dv">2</span>)</span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt;   WIN LOSS TIE TOTAL</span></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; 1 0.4  0.2 0.4     1</span></span></code></pre></div>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt;   WIN LOSS TIE TOTAL WR  WO</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; 1   0    0   1     1  2 1.5</span></span></code></pre></div>
 <p>Suppose there are <span class="math inline">\(n_1=120\)</span>
 patients in the placebo group and <span class="math inline">\(n_2=150\)</span> in the active group. If win ratio
 is 1.5 and the win odds is 1.25, then the number of wins and losses for
 the active group can be calculated using the argument
 <code>Overall</code> for all possible comparisons.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">propWINS</span>(<span class="at">WO =</span> <span class="fl">1.25</span>, <span class="at">WR =</span> <span class="fl">1.5</span>, <span class="at">Overall =</span> <span class="dv">120</span><span class="sc">*</span><span class="dv">150</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt;    WIN LOSS  TIE TOTAL</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; 1 6000 4000 8000 18000</span></span></code></pre></div>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt;    WIN LOSS  TIE TOTAL  WR   WO</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; 1 6000 4000 8000 18000 1.5 1.25</span></span></code></pre></div>
 </div>
 </div>
 <div id="references" class="section level2 unnumbered">
@@ -1717,9 +1717,9 @@ Handling of Ties.”</span> <em>Statistics in Biopharmaceutical
 Research</em> 12 (1): 99–106. <a href="https://doi.org/10.1080/19466315.2019.1575279">https://doi.org/10.1080/19466315.2019.1575279</a>.
 </div>
 <div id="ref-hce" class="csl-entry">
-Gasparyan, Samvel B. 2023. <em><span class="nocase">hce</span>: Design
+Gasparyan, Samvel B. 2024. <em><span class="nocase">hce</span>: Design
 and Analysis of Hierarchical Composite Endpoints</em>. <em>CRAN: The
-Comprehensive R Archive Network, R Package, Version 0.5.9</em>. <a href="https://CRAN.R-project.org/package=hce">https://CRAN.R-project.org/package=hce</a>.
+Comprehensive R Archive Network, R Package, Version 0.6.0</em>. <a href="https://CRAN.R-project.org/package=hce">https://CRAN.R-project.org/package=hce</a>.
 </div>
 <div id="ref-gasparyan2021adjusted" class="csl-entry">
 Gasparyan, Samvel B, Folke Folkvaljon, Olof Bengtsson, Joan Buenconsejo,

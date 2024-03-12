@@ -25,7 +25,7 @@
 #' @export
 #' @md
 #' @seealso [hce::stratWO()].
-#' @references Gasparyan SB et al. (2021) "Adjusted win ratio with stratification: calculation methods and interpretation." Statistical Methods in Medical Research 30.2: 580-611. <doi:10.1177/0962280220942558>
+#' @references Gasparyan SB et al. (2021) "Adjusted win ratio with stratification: calculation methods and interpretation." Statistical Methods in Medical Research 30.2: 580-611. <doi:10.1177/0962280220942558>.
 #' @examples
 #' # Stratified win odds
 #' res <- stratWO(x = KHCE, AVAL = "AVAL", TRTP = "TRTP", 

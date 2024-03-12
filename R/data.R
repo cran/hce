@@ -73,7 +73,7 @@
 #'   \item{GROUP}{type of the event, ordinal outcomes 1-8, where a higher value means a better outcome}
 #'   \item{TRTP}{treatment values, A Active or P Placebo, character}
 #' }
-#' @source Beigel JH et al. "Remdesivir for the treatment of Covid-19-final report." New England Journal of Medicine 383.19 (2020): 1813-1836 <doi:10.1056/NEJMoa2007764>.
+#' @source Beigel JH et al. "Remdesivir for the treatment of Covid-19-final report." New England Journal of Medicine 383.19 (2020): 1813-1836. <doi:10.1056/NEJMoa2007764>.
 #' @examples
 #' #Frequencies
 #' table(COVID19)
@@ -95,7 +95,7 @@
 #'   \item{GROUP}{type of the event, ordinal outcomes 1-8, where a higher value means a better outcome}
 #'   \item{TRTP}{treatment values, Active or Placebo, character}
 #' }
-#' @source Beigel JH et al. "Remdesivir for the treatment of Covid-19-final report." New England Journal of Medicine 383.19 (2020): 1813-1836 <doi:10.1056/NEJMoa2007764>.
+#' @source Beigel JH et al. "Remdesivir for the treatment of Covid-19-final report." New England Journal of Medicine 383.19 (2020): 1813-1836. <doi:10.1056/NEJMoa2007764>.
 #' @examples
 #' #Frequencies
 #' table(COVID19b)

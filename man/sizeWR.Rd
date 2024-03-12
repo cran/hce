@@ -26,8 +26,8 @@ a data frame containing the sample size with input values.
 Sample size calculation for the win ratio test (with WR = 1 null hypothesis)
 }
 \examples{
-sizeWR(WR = 1.36, Pties = 0.064, power = 0.9)
-sizeWR(WR = 1.36, WO = 1.333, power = 0.9)
+sizeWR(WR = 1.35, Pties = 0.125, power = 0.8)
+sizeWR(WR = 1.35, WO = 1.3, power = seq(0.5, 0.9, 0.05))
 }
 \references{
 Yu RX, Ganju J. (2022) "Sample size formula for a win ratio endpoint." Statistics in Medicine, 41.6: 950-63. \url{doi:10.1002/sim.9297}.

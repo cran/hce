@@ -41,7 +41,7 @@ For citing the package run `citation("hce")` [@hce].
 
 ### Definitions
 
-Prioritized outcome composite endpoints (POCE) are a general class of endpoints combining different clinical outcomes of patients into a composite so as to preserve their different natures. A particular case of these endpoints is the hierarchical composite endpoint (HCE). It is evaluated in a fixed follow-up period and accounts for the patient’s clinically most important outcome for the analysis. HCEs are analyzed using win odds and other win statistics.
+Prioritized outcome composite endpoints (POCE) are a general class of endpoints combining different clinical outcomes of patients into a composite so as to preserve their different natures. A particular case of these endpoints is the hierarchical composite endpoint (HCE). It is evaluated in a fixed follow-up period and accounts for the patient’s clinically most important outcome for the analysis. HCEs are analyzed using win odds and other win statistics [@gasparyanhierarchical].
 
 ## Examples
 
