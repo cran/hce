@@ -4,6 +4,9 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
+## ----echo=FALSE---------------------------------------------------------------
+knitr::include_graphics("hex-hce.png", dpi = 500)
+
 ## ----setup--------------------------------------------------------------------
 library(hce)
 packageVersion("hce")

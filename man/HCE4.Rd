@@ -7,12 +7,14 @@
 \format{
 a data frame with 1000 rows and 6 variables:
 \describe{
-\item{SUBJID}{subject ID, numbers from 1 to 1000}
+\item{ID}{subject ID, numbers from 1 to 1000}
+\item{TRTP}{treatment values, A Active or P Placebo, character}
 \item{GROUP}{type of the event, either Time-To-Event (TTE) or Continuous (C), character}
 \item{GROUPN}{type of the event, for the ordering of outcomes in the \code{GROUP} variable, numeric}
-\item{AVAL}{\code{AVAL = AVAL0 + GROUPN}, ordinal analysis values for the HCE analysis, numeric, but caution NOT to apply numeric operations; will give meaningless results}
+\item{AVALT}{the timing of the time-to-event outcomes, numeric}
 \item{AVAL0}{original values for each type of the event, time for TTE outcomes, numeric values for Continuous outcomes, numeric}
-\item{TRTP}{treatment values, A Active or P Placebo, character}
+\item{AVAL}{\code{AVAL = AVAL0 + GROUPN}, ordinal analysis values for the HCE analysis. For the continuous outcome the values of \code{AVAL0} are shifted to start always from 0. Numeric, but caution NOT to apply numeric operations; will give meaningless results}
+\item{PADY}{ primary analysis day, the length of fixed follow-up in days, numeric}
 }
 }
 \usage{

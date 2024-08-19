@@ -30,6 +30,10 @@ knitr::opts_chunk$set(
 
 ### Setup
 
+```{r echo=FALSE}
+knitr::include_graphics("hex-hce.png", dpi = 500)
+```
+
 Load the package `hce` and check the version
 
 ```{r setup}
