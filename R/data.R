@@ -114,6 +114,24 @@
 "COVID19b"
 
 
+#' COVID-19 ordinal scale dataset for a combination therapy.
+#'
+#' A dataset with COVID-19 ordinal scale outcomes for 1033 patients.
+#'
+#' @format a data frame with 1033 rows and 4 variables:
+#' \describe{
+#'   \item{ID}{patient identifiers, numeric}
+#'   \item{TRTP}{treatment values, A Active or P Placebo, character}
+#'   \item{GROUP}{type of the event, ordinal outcomes 1-8, where a higher value means a better outcome}
+#'   \item{BASE}{baseline ordinal values}
+#' }
+#' @source Kalil AC et al. "Baricitinib plus Remdesivir for Hospitalized Adults with Covid-19." New England Journal of Medicine 384.9 (2021): 795-807. <doi:10.1056/NEJMoa2031994>.
+#' @examples
+#' COVID19HCE <- hce(GROUP = COVID19plus$GROUP, TRTP = COVID19plus$TRTP)
+#' # Summary wins, losses, and ties with win odds
+#' summaryWO(COVID19HCE, ref = "P")
+"COVID19plus"
+
 
 #' Kidney Hierarchical Composite Endpoint dataset.
 #'

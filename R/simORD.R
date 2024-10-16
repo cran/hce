@@ -19,6 +19,23 @@
 #' @examples
 #' # Example 1
 #' set.seed(2024)
+#' alpha1 <- 8
+#' beta1 <- 8
+#' alpha0 <- 4
+#' beta0 <- 5
+#' d <- simORD(n = 1500, n0 = 1500, M = 5, alpha1 = alpha1, beta1 = beta1, 
+#' alpha0 = alpha0, beta0 = beta0)
+#' x <- seq(0, 1, 0.01)
+#' plot(x, dbeta(x, shape1 = alpha1, shape2 = beta1), 
+#' type = "l", ylab = "Density of beta distribution", col = 2)
+#' lines(x, dbeta(x, shape1 = alpha0, shape2 = beta0), col = 3, lty = 2)
+#' legend("topleft", lty = c(1, 2), col = c(2, 3), legend = c("Control", "Active"))
+#' D <- hce(GROUP = d$GROUPN, TRTP = d$TRTP)
+#' table(D$TRTP, D$GROUPN)
+#' calcWO(D)
+
+#' # Example 2
+#' set.seed(2024)
 #' d <- simORD(n = 100, n0 = 50, M = 2)
 #' d_hce <- hce(GROUP = d$GROUPN, TRTP = d$TRTP)
 #' calcWO(d_hce)
@@ -38,7 +55,7 @@
 #' plot(N$n, N$WO, log = "y", ylim = c(0.5, 2), ylab = "Win Odds", xlab = "Sample size", type = "l")
 #' lines(N$n, N$tau, col = "darkgreen", lty = 2, lwd = 2)
 #' abline(h = 1, lty = 4, col = "red")
-#' legend("bottomright", legend = c("Null", "Theoretical Win Odds", "Win Odds Estimate"), 
+#' legend("bottomright", legend = c("Theoretical Win Odds", "Null", "Win Odds Estimate"), 
 #' lty = c(4, 2, 1), col = c("darkgreen", "red", "black"))
 #' title("Convergence of the win odds to its theoretical value")
 

@@ -4,7 +4,15 @@
 \alias{sizeWO}
 \title{Sample size calculation for the win odds test (no ties)}
 \usage{
-sizeWO(WO, power, SD = NULL, k = 0.5, alpha = 0.05, WOnull = 1)
+sizeWO(
+  WO,
+  power,
+  SD = NULL,
+  k = 0.5,
+  alpha = 0.05,
+  WOnull = 1,
+  alternative = c("shift", "max", "ordered")
+)
 }
 \arguments{
 \item{WO}{a numeric vector of win odds values.}
@@ -18,6 +26,8 @@ sizeWO(WO, power, SD = NULL, k = 0.5, alpha = 0.05, WOnull = 1)
 \item{alpha}{the significance level for the 2-sided test. Default is 0.05. A numeric vector of length 1.}
 
 \item{WOnull}{the win odds value of the null hypothesis (default is 1). A numeric vector of length 1.}
+
+\item{alternative}{a character string specifying the class of the alternative hypothesis, must be one of \code{"shift"} (default), \code{"max"} or \code{"ordered"}. You can specify just the initial letter.}
 }
 \value{
 a data frame containing the sample size with input values.
@@ -25,13 +35,39 @@ a data frame containing the sample size with input values.
 \description{
 Sample size calculation for the win odds test (no ties)
 }
+\details{
+\code{alternative = "max"} refers to the maximum variance of the win proportion across all possible
+alternatives. The maximum variance equals \code{WP*(1 - WP)/k} where the win probability is calculated as \verb{WP = WO/(WO + 1).}
+\code{alternative = "shift"} specifies the variance across alternatives from a shifted family of distributions (Wilcoxon test). The variance formula, as suggested by Noether, is calculated based on the null hypothesis as follows \verb{1/(12*k*(1 - k)).}
+\code{alternative = "ordered"} specifies the variance across alternatives from stochastically ordered distributions which include shifted distributions.
+}
 \examples{
 sizeWO(WO = 1.25, power = 0.9)
 sizeWO(WO = 1.25, power = 0.9, k = 0.75)
 sizeWO(WO = seq(1.05, 1.5, 0.05), power = 0.9)
+# Comparison of different alternatives
+x <- seq(1.05, 5, 0.05)
+N1 <- sizeWO(WO = x, power = 0.9, alternative = "m")$SampleSize
+N2 <- sizeWO(WO = x, power = 0.9, alternative = "o")$SampleSize
+N3 <- sizeWO(WO = x, power = 0.9, alternative = "s")$SampleSize
+d <- data.frame(WO = x, N_m = N1, N_o = N2, N_s = N3)
+## Check the power for the ordered alternative
+check <- c()
+for(i in seq_along(x)){
+check[i] <- powerWO(N = d[i, "N_o"], WO = d[i, "WO"], alternative = "o")$power
+}
+d$power_check_o <- check
+print(d)
 }
 \references{
-Gasparyan SB et al. (2021) "Power and sample size calculation for the win odds test: application to an ordinal endpoint in COVID-19 trials." Journal of Biopharmaceutical Statistics 31.6: 765-787. \url{doi:10.1080/10543406.2021.1968893}.
+\itemize{
+\item All formulas were presented in
+\cr \cr Bamber D (1975) "The area above the ordinal dominance graph and the area below the receiver operating characteristic graph." Journal of Mathematical Psychology 12.4: 387-415. \url{doi:10.1016/0022-2496(75)90001-2}.
+\item Noether's formula for shifted alternatives
+\cr \cr Noether GE (1987) "Sample size determination for some common nonparametric tests." Journal of the American Statistical Association 82.398: 645-7. \url{doi:10.1080/01621459.1987.10478478}.
+\item For shift alternatives see also
+\cr \cr Gasparyan SB et al. (2021) "Power and sample size calculation for the win odds test: application to an ordinal endpoint in COVID-19 trials." Journal of Biopharmaceutical Statistics 31.6: 765-787. \url{doi:10.1080/10543406.2021.1968893}.
+}
 }
 \seealso{
 \code{\link[=powerWO]{powerWO()}}, \code{\link[=minWO]{minWO()}} for WO power or minimum detectable WO calculation.

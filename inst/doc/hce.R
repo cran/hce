@@ -5,7 +5,7 @@ knitr::opts_chunk$set(
 )
 
 ## ----echo=FALSE---------------------------------------------------------------
-knitr::include_graphics("hex-hce.png", dpi = 500)
+knitr::include_graphics("hex-hce.png", dpi = 1000)
 
 ## ----setup--------------------------------------------------------------------
 library(hce)

@@ -1,6 +1,6 @@
 ---
 title: "Hierarchical composite endpoints"
-date: "`r format(as.Date('2023-11-01'), '%d %B, %Y')`"
+date: "`r format(as.Date('2024-10-15'), '%d %B, %Y')`"
 author:
   - name: "Samvel B. Gasparyan"
     affiliation: https://gasparyan.co/
@@ -31,10 +31,10 @@ knitr::opts_chunk$set(
 ### Setup
 
 ```{r echo=FALSE}
-knitr::include_graphics("hex-hce.png", dpi = 500)
+knitr::include_graphics("hex-hce.png", dpi = 1000)
 ```
 
-Load the package `hce` and check the version
+Load the package `hce` and check the version:
 
 ```{r setup}
 library(hce)

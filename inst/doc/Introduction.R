@@ -6,7 +6,7 @@ knitr::opts_chunk$set(
 R <- function() knitr::include_graphics("Rlogo.png", dpi = 5000)
 
 ## ----echo=FALSE---------------------------------------------------------------
-knitr::include_graphics("hex-hce.png", dpi = 500)
+knitr::include_graphics("hex-hce.png", dpi = 1000)
 
 ## ----eval=TRUE----------------------------------------------------------------
 library(hce)

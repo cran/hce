@@ -1,6 +1,6 @@
 ---
 title: "Visualization of HCE using maraca plots"
-date: "`r format(as.Date('2023-11-01'), '%d %B, %Y')`"
+date: "`r format(as.Date('2024-10-15'), '%d %B, %Y')`"
 author:
   - name: "Samvel B. Gasparyan"
     affiliation: https://gasparyan.co/
@@ -31,23 +31,23 @@ knitr::opts_chunk$set(
 ### Setup
 
 ```{r echo=FALSE}
-knitr::include_graphics("hex-hce.png", dpi = 500)
+knitr::include_graphics("hex-hce.png", dpi = 1000)
 ```
 
-Load the package `hce` and check the version
+Load the package `hce` and check the version:
 
 ```{r setup}
 library(hce)
 packageVersion("hce")
 ```
 
-For citing the package run `citation("hce")` [@hce].
+For citing the package, run `citation("hce")` [@hce].
 
-### The maraca plot
+### The Maraca Plot
 
-The *maraca* plot (named after its visual similarity to its namesake musical instrument) has been recently introduced [@karpefors2023maraca] for visualization of HCEs which combine multiple dichotomous outcomes with a single continuous endpoint. The maraca plot visualizes the contribution of components of a hierarchical composite endpoint (HCE) over time. It is formed by end-to-end adjoining, from left to right by declining severity of uniformly scaled Kaplan–Meier plots of times to each dichotomous outcome among those without more severe outcomes, with superimposed box/violin plot of the continuous outcome.
+The *maraca* plot (named for its visual similarity to the musical instrument) has been recently introduced [@karpefors2023maraca] for the visualization of HCEs, which combine multiple dichotomous outcomes with a single continuous endpoint. The maraca plot visualizes the contribution of components of a hierarchical composite endpoint (HCE) over time. It is formed by adjoining, from left to right, uniformly scaled Kaplan–Meier plots of times to each dichotomous outcome among those without more severe outcomes, with a superimposed box/violin plot of the continuous outcome.
 
-The maraca plot is implemented in the package @maraca which depends on the package `hce`. The maraca package has a `plot.hce()` method to visualize objects of the type `hce`. Consider the following example.
+The maraca plot is implemented in the `maraca` package [@maraca], which depends on the `hce` package. The `maraca` package includes a `plot.hce()` method to visualize objects of type `hce`. Consider the following example:
 
 ```{r eval=FALSE}
 library(maraca)
@@ -61,5 +61,7 @@ plot(dat)
 ```{r echo=FALSE}
 knitr::include_graphics("maraca.png", dpi = 100)
 ```
+
+The example illustrates a maraca plot with a single dishotomous outcome combined with a continuous outcome. The dischotmous outcomes over time are simulated from a Weibull distribution with `shape = 0.35` in both treatment groups. The `rate` parameter in the active group is 10 per 100 patients per year, and 15 in the control group (100 patients per year is the default value). 
 
 ## References

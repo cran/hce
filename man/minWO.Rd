@@ -29,8 +29,12 @@ Minimum detectable or WO for alternative hypothesis for given power (no ties)
 }
 \examples{
 minWO(N = 100, digits = 5)
-minWO(N = 1200, power = 0.9)
 minWO(N = 1200, power = 0.9, k = 0.75)
+# Compare the minimum detectable win odds from shifted alternatives to max and ordered alternatives
+WO <- minWO(N = 1200, k = 0.5, power = 0.67, digits = 7)$WO
+powerWO(N = 1200, WO = WO, k = 0.5, alternative = "shift")
+powerWO(N = 1200, WO = WO, k = 0.5, alternative = "ordered")
+powerWO(N = 1200, WO = WO, k = 0.5, alternative = "max")
 }
 \references{
 Gasparyan SB et al. (2021) "Power and sample size calculation for the win odds test: application to an ordinal endpoint in COVID-19 trials." Journal of Biopharmaceutical Statistics 31.6: 765-787. \url{doi:10.1080/10543406.2021.1968893}

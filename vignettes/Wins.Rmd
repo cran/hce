@@ -1,6 +1,6 @@
 ---
 title: "Win statistics"
-date: "`r format(as.Date('2023-08-14'), '%d %B, %Y')`"
+date: "`r format(as.Date('2024-10-15'), '%d %B, %Y')`"
 author:
   - name: "Samvel B. Gasparyan"
     affiliation: https://gasparyan.co/
@@ -25,43 +25,51 @@ knitr::opts_chunk$set(
 )
 ```
 
-## Win odds, win ratio, and net benefit
+## Win Odds, Win Ratio, and Net Benefit
 
 
 ### Setup
 
 ```{r echo=FALSE}
-knitr::include_graphics("hex-hce.png", dpi = 500)
+knitr::include_graphics("hex-hce.png", dpi = 1000)
 ```
 
-Load the package `hce` and check the version
+Load the package `hce` and check the version:
 
 ```{r setup}
 library(hce)
 packageVersion("hce")
 ```
 
-For citing the package run `citation("hce")` [@hce].
+For citing the package, run `citation("hce")` [@hce].
 
 ### Terminology
 
-The concept of win probability for the binary and continuous outcomes has been described in the paper by @buyse2010generalized as "proportion in favor of treatment" (see also @rauch2014opportunities), while in @verbeeck2020unbiasedness it is called "probabilistic index".
+The concept of win probability for binary and continuous outcomes has been described by @buyse2010generalized as the "proportion in favor of treatment" (see also @rauch2014opportunities), while in @verbeeck2020unbiasedness refers to it as the "probabilistic index".
 
-The concept of "win ratio" was introduced in @poc2012, which, unlike the win odds, does not account for ties, whereas the win odds is the odds of winning, following @dong2020 (see also @peng2020use; @brunner2021win; @gasparyan2021power). The same statistic was named as Mann-Whitney odds in @obrien2006. In @gasparyan2021adjusted the "win ratio" was used as a general term and included ties in the definition. @dong2022winwinnet suggested to consider win ratio, win odds, and net benefit together as win statistics.
+The concept of "win ratio" was introduced by @poc2012. Unlike the win odds, the win ratio does not account for ties. The win odds, however, is the odds of winning, as described by @dong2020 (see also @peng2020use; @brunner2021win; @gasparyan2021power). The same statistic was named as the Mann-Whitney odds by @obrien2006. In @gasparyan2021adjusted, the "win ratio" was used as a general term and included ties in the definition. @dong2022winwinnet suggested considering win ratio, win odds, and net benefit together as win statistics.
 
-The concept of winning for the active group is the same as concordance for the active group. For two variables, $X$ and $Y,$ this pair is concordant if the observation with the larger value of $X$ also has the better value of $Y$ [@agresti2013categorical]. If $X$ indicates the treatment group with the value 1 for the active group and the value 0 for the control group, and the variable $Y$ is the ordinal value for the analysis, then concordance means that a patient with the active treatment has a better value than a patient with the control, while the discordance means the patient in the active group has a worse value than the control patient. Therefore, the win ratio is the total number of concordances divided by the total number of discordances. The win ratio can be obtained from the Goodman-Kruskal gamma [@kruskal1954measures], $G$, as follows $WR=(1+G)/(1-G)$. The net benefit is  Somers' D C/R [@somers1962new], while the win odds is the Mann-Whitney odds [@mann1947test]. Estimation of win statistics in the absence of censoring can be done using the theory of *U*-statistics [@Hoeff].
+The concept of winning for the active group is the same as concordance for the active group. For two variables, $X$ and $Y,$ a pair is concordant if the observation with the larger value of $X$ also has the better value of $Y$ [@agresti2013categorical]. If $X$ indicates the treatment group with the value 1 for the active group and 0 for the control group, and $Y$ is the ordinal value for the analysis, then concordance means that a patient in the active treatment group has a better value than a patient in the control group. Discordance means the patient in the active group has a worse value than the control patient. Therefore, the win ratio is the total number of concordances divided by the total number of discordances. The win ratio can be obtained from the Goodman-Kruskal gamma [@kruskal1954measures], $G$, as follows: 
+
+$$WR=(1+G)/(1-G).$$
+
+The net benefit is  Somers' D C/R [@somers1962new], while the win odds is the Mann-Whitney odds [@mann1947test]. Estimation of win statistics in the absence of censoring can be done using the theory of *U*-statistics [@Hoeff].
 
 ### Definitions
 
-Two treatment groups are compared using an ordinal endpoint and each comparison results in a win, loss, or a tie for the patient in the active group compared to a patient in the placebo group. All possible (overall) combinations are denoted by $O$, with $W$ denoted the total wins for the active group, $L$ total losses, and $T$ the total ties, so that $O=W+L+T.$ Then the following quantities are called **win statistics**
+Two treatment groups are compared using an ordinal endpoint, and each comparison results in a win, loss, or tie for the patient in the active group compared to a patient in the placebo group. All possible (overall) combinations are denoted by $O$, with $W$ denoting the total wins for the active group, $L$ the total losses, and $T$ the total ties, so that $O=W+L+T.$ The following quantities are called **win statistics**:
 
-- **Win probability** defined as $WP=\frac{W+0.5T}{O}$, that is, the total number of wins, added half of the total number of ties, divided by the overall number of comparisons.
-- **Number needed to treat** defined as $NNT=\frac{1}{2WP-1}=\frac{O}{W-L}$ (rounded up to the nearest natural number for interpretation).
-- **Win ratio** defined as $WR=\frac{W}{L}$.
-- **Win odds** defined as $WO=\frac{W+0.5T}{L+0.5T} = \frac{WP}{1-WP}$.
+- **Win Probability** defined as $WP=\frac{W+0.5T}{O}$, which is the total number of wins, adding half of the total number of ties, divided by the overall number of comparisons.
+
+- **Number Needed to Treat** defined as $NNT=\frac{1}{2WP-1}=\frac{O}{W-L}$ (rounded up to the nearest natural number for interpretation).
+
+- **Win Ratio** defined as $WR=\frac{W}{L}$.
+
+- **Win Odds** defined as $WO=\frac{W+0.5T}{L+0.5T} = \frac{WP}{1-WP}$.
+
 - **Net Benefit** defined as $NB=\frac{W - L}{O}=2WP-1=\frac{1}{NNT}$.
 
-Given the overall number of comparisons $O,$ the win proportion $WP$ and the win ratio $WR$, it is possible to find the total number of wins and losses. 
+Given the overall number of comparisons $O,$ the win proportion $WP$, and the win ratio $WR$, it is possible to find the total number of wins and losses: 
 \begin{align*}
 &L = O*\frac{2WP-1}{WR-1},\nonumber\\
 &W = WR*L = WR*O*\frac{2WP-1}{WR-1},\nonumber\\
@@ -69,21 +77,21 @@ Given the overall number of comparisons $O,$ the win proportion $WP$ and the win
 \end{align*}
 
 
-The function `propWINS()` implements the formula above
+The function `propWINS()` implements the formula above:
 
 ```{r}
 args("propWINS")
 propWINS(WO = 1.5, WR = 2)
 ```
 
-Suppose there are $n_1=120$ patients in the placebo group and $n_2=150$ in the active group. If win ratio is 1.5 and the win odds is 1.25, then the number of wins and losses for the active group can be calculated using the argument `Overall` for all possible comparisons.
+Suppose there are $n_1=120$ patients in the placebo group and $n_2=150$ in the active group. If the win ratio is 1.5 and the win odds is 1.25, then the number of wins and losses for the active group can be calculated using the `Overall` argument, which represents all possible comparisons.
 
 ```{r}
 propWINS(WO = 1.25, WR = 1.5, Overall = 120*150)
 ```
 
 
-
+This function call will provide the number of wins, losses, and ties for the active group based on the specified win odds and win ratio.
 
 ## References
 

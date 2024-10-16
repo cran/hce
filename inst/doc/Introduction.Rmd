@@ -1,6 +1,6 @@
 ---
 title: "Introduction"
-date: "`r format(as.Date('2024-08-01'), '%d %B, %Y')`"
+date: "`r format(as.Date('2024-10-15'), '%d %B, %Y')`"
 author:
   - name: "Samvel B. Gasparyan"
     affiliation: https://gasparyan.co/
@@ -34,11 +34,16 @@ R <- function() knitr::include_graphics("Rlogo.png", dpi = 5000)
 
 
 ```{r echo=FALSE}
-knitr::include_graphics("hex-hce.png", dpi = 500)
+knitr::include_graphics("hex-hce.png", dpi = 1000)
 ```
 
-The purpose of the package is simulate and analyze hierarchical composite endpoints (HCEs). Win odds is the main analysis method, but other win statistics (win ratio, net benefit) are implemented as well in case of no censoring. The power and sample size calculation are based on Brunner-Munzel theorem [@brunner2000nonparametric] with the default value being based on the Noether's formula [@noether1987sample]. For the review of the ideas of designing HCEs in clinical trials see @gasparyan2022design, also @gasparyanhierarchical and @khce1. The *Basic Data Structure* conforming to the Analysis Data Model [@CDISC] principles for hierarchical composite endpoints is described in @gasp2024bds. For visualization of the HCE the *maraca* plot [@karpefors2023maraca] can be used.
+The purpose of the package is to simulate and analyze hierarchical composite endpoints (HCEs). The primary analysis method is win odds, but other win statistics (win ratio, net benefit)[@dong2023win] are also implemented, provided there is no censoring. Win odds uses the DeLong-DeLong-Clarke-Pearson fromula [@delong1988comparing] for the variance of the win proportion and is based on the Brunner-Munzel test [@brunner2000nonparametric]. 
 
+The power and sample size formulas consider different alternative classes ("shifted", "ordered", and "max" for the maximum value of the standard deviation). All formulas are derived from @bamber1975area. By default, Noether's formula [@noether1987sample] is used for shifted distributions. For more information on the power calculations for shifted distributions see also @gasparyan2021power, @gasparyan2022comments. 
+
+For a review of designing HCEs in clinical trials, see @gasparyan2022design, also @gasparyanhierarchical and @khce1. The *Basic Data Structure (BDS),* which conforms to the Analysis Data Model (ADaM) [@CDISC] principles for hierarchical composite endpoints, is detailed in @gasp2024bds. To visualize HCEs, the *maraca* plot [@karpefors2023maraca] can be utilized.
+
+The stratified and adjusted win odds are calculated based on the randomization-based covariate adjustment theory developed in @koch1998issues (for a review, see @gasparyan2021adjusted).
 
 ### Setup
 
@@ -53,7 +58,7 @@ packageVersion("hce")
 devtools::load_all()
 ```
 
-For citing the package run `citation("hce")` [@hce].
+For citing the package, run `citation("hce")` [@hce].
 
 ### Contents
 
@@ -67,42 +72,68 @@ In brief, the package contains the following:
 
 1. Datasets: use `data(package = "hce")` for the list of all datasets included in the package.
 
-- Simulated datasets - `HCE1 - HCE4` that contain two treatment groups and analysis values `AVAL` of an hierarchical composite endpoint. 
+- Simulated datasets - `HCE1 - HCE4` that contain two treatment groups and analysis values `AVAL` of a hierarchical composite endpoint. 
 
-- The datasets `COVID19`, `COVID19b` of COVID-19 ordinal scale outcomes [@beigel2020remdesivir].
+- The datasets `COVID19`, `COVID19b`, `COVID19plus` of COVID-19 ordinal scale outcomes [@beigel2020remdesivir; @kalil2021baricitinib].
 
-- The datasets `ADET` (event-time), `ADLB` (laboratory), `ADSL` (subject-level baseline characteristics) datasets, correspondingly, for kidney events and their timing, kidney related laboratory measurements of eGFR (estimated glomerular filtration rate), and, based on this, derived kidney hierarchical composite endpoint dataset `KHCE` for the same patients [@khce2].
+- The datasets `ADET` (event-time), `ADLB` (laboratory), `ADSL` (subject-level baseline characteristics) for kidney events and their timing, kidney-related laboratory measurements of eGFR (estimated glomerular filtration rate), and, based on this, the derived kidney hierarchical composite endpoint dataset `KHCE` for the same patients [@khce2].
 
-2. Functions to create `hce` objects - `hce(), as_hce(), simHCE()` (see @gasp2024bds). Auxiliary function `simADHCE()` works similar to `simHCE()` but provides source datasets as well used to produce the `hce` object. The function `simORD()` simulates ordinal outcomes by categorization of *beta* distributions.
-3. Win odds (win ratio with ties) calculation generic functions for hierarchical composite endpoints - `calcWO(), summaryWO()` (see @gasparyan2021adjusted, @gasparyan2021power).
-4. Win statistics (win odds, win ratio, net benefit, Goodman Kruskal's `gamma`) and their confidence intervals calculation function - `calcWINS()`. Back-calculation of number of wins, losses, and ties given the win odds and win ratio using the function `propWINS()`. 
-5. Adjusted win odds calculation for a single, numeric covariate using the function `regWO()`.
-6. Stratified win odds with a possible adjustment after stratification with a single, numeric covariate using the function `stratWO()`.
-7. Power, sample size, and minimum detectable win odds calculation functions - `powerWO(), sizeWO(), minWO()` (see @gasparyan2021power, @gasparyan2022comments). Win ratio sample size calculation formula `sizeWR()` [@yu2022sample]. By default uses the Noether's formula [@noether1987sample].
-8. Print and plot methods for `hce_results` objects, generated by functions `powerWO(), sizeWO(), minWO()`.
+2. Functions to create `hce` objects:
+
+- `hce(), as_hce(), simHCE()` (see @gasp2024bds). 
+
+- Auxiliary function `simADHCE()` works similarly to `simHCE()` but also provides source datasets used to produce the `hce` object. 
+
+- The function `simORD()` simulates ordinal outcomes by categorization of *beta* distributions.
+
+3. Win odds (win ratio with ties) calculation generic functions for hierarchical composite endpoints:
+
+- `calcWO(), summaryWO()` (see @gasparyan2021power).
+
+4. Win statistics (win odds, win ratio, net benefit, Goodman Kruskal's `gamma`) and their confidence intervals calculation function:
+
+- `calcWINS()` (see @gasparyanhierarchical). 
+
+- Back-calculation of number of wins, losses, and ties given the win odds and win ratio using the function `propWINS()`. 
+
+5. Adjusted win odds calculation for a single, numeric covariate:
+
+- `regWO()` (see @gasparyan2021adjusted; @gasparyanhierarchical).
+
+6. Stratified win odds with a possible adjustment after stratification with a single, numeric covariate:
+
+- `stratWO()` (see @gasparyan2021adjusted; @gasparyanhierarchical).
+
+7. Power, sample size, and minimum detectable win odds calculation functions:
+
+- `powerWO(), sizeWO(), minWO()` provide tools for the win odds power, sample size, and minimum detectable treatment effect calculation for different alternative classes ("shifted", "ordered", and "max" for the maximum value of the standard deviation) based on the win odds. All formulas are from @bamber1975area. By default, uses Noether's formula [@noether1987sample] for shifted distributions. For shifted distributions see also @gasparyan2021power, @gasparyan2022comments.
+
+- Win ratio sample size calculation formula `sizeWR()` [@yu2022sample]. 
+
+8. Print and plot methods for `hce_results` objects, generated by the functions `powerWO(), sizeWO(), minWO()`.
 
 
 
-## `hce` objects
+## `hce` Objects
 
 
-### `hce()` function
+### `hce()` Function
 
-The main objects in the package are called `hce` objects which are data frames with a specific structure, matching the design of *hierarchical composite endpoints (HCE)*, which are complex endpoints combining into a composite events of different clinical importance using a hierarchy for prioritizing in the analysis the clinically most important event of a patient. These endpoints are implemented in clinical trials in different therapeutic areas. See for example, @gasparyan2022design for an implementation in COVID-19 setting and some practical considerations for constructing hierarchical composite endpoints, for the Chronic Kidney Disease (CKD) outcomes see [@khce1; @khce2; @khce3]. 
+The main objects in the package are called `hce` objects, which are data frames with a specific structure matching the design of *hierarchical composite endpoints (HCE)*. These are complex endpoints that combine different clinical events into a composite, using a hierarchy to prioritize the clinically most important event for a patient. These endpoints are implemented in clinical trials across different therapeutic areas. See, for example, @gasparyan2022design for an implementation in a COVID-19 setting and some practical considerations for constructing hierarchical composite endpoints. For the Chronic Kidney Disease (CKD) outcomes see [@khce1; @khce2; @khce3]. 
 
-HCE are ordinal endpoints that can be thought of as having 'greater', 'less' or 'equal' defined for them but without having the definition by how much greater or less. In this sense the ordinal outcomes can be represented as numeric vectors *as long as numeric operations (e.g. sum or division) are not performed on them.*
+HCEs are ordinal endpoints that can be thought of as having 'greater', 'less', or 'equal' defined for them, but without a definition of how much greater or less. In this sense, the ordinal outcomes can be represented as numeric vectors *as long as numeric operations (e.g., sum or division) are not performed on them.*
 
-`hce` objects can be constructed using the helper function `hce()` which has three arguments
+`hce` objects can be constructed using the helper function `hce()`, which has three arguments:
 
 ```{r}
 args("hce")
 ```
  
-We see that the required arguments are `GROUP`, which specifies clinically the most important event of a patient to be included in the analysis and `TRTP` which specifies the (planned) treatment group of a patient (exactly two treatment groups should be present). Note that
+We see that the required arguments are `GROUP`, which specifies the clinically most important event of a patient to be included in the analysis, and `TRTP`, which specifies the (planned) treatment group of a patient (exactly two treatment groups should be present). Note that:
 
-- `hce` structure assumes that only one event per patient is present for the analysis, meaning that the resulting `hce` object created by the `hce()` function is a patient-level dataset. The function `hce()` does not do a selection of the clinically most important event of the patient but requires it to be already done when calling it.
+- The `hce` structure assumes that only one event per patient is present for the analysis, meaning that the resulting `hce` object created by the `hce()` function is a patient-level dataset. The function `hce()` does not select the clinically most important event of the patient but requires it to be already done when calling it.
 
-- argument `TRTP` should have exactly two levels.
+- The argument `TRTP` should have exactly two levels.
 
 Consider the following example of ordinal outcomes 'I', 'II', and 'III':
 
@@ -114,19 +145,19 @@ dat <- hce(GROUP = rep(x = c("I", "II", "III"), each = 100),
 class(dat)
 ```
 
-This dataset has the appropriate structure of `hce` objects, but its class inherits from an object of class `data.frame.` Meaning that all functions available for data frame can be applied to `hce` objects, for example the function `head()`
+This dataset has the appropriate structure of `hce` objects, but its class inherits from an object of class `data.frame.` This means that all functions available for data frames can be applied to `hce` objects, for example, the function `head()`:
 
 ```{r}
 head(dat)
 ```
 
-We see that the dataset has a very specific structure. The column `GROUPN` shows how the function `hce()` generated the order of given events (it uses usual alphabetic order for the unique values in `GROUP` column to determine the clinical importance of events)
+We see that the dataset has a very specific structure. The column `GROUPN` shows how the function `hce()` generated the order of given events (it uses usual alphabetic order for the unique values in the `GROUP` column to determine the clinical importance of events):
 
 ```{r}
 unique(dat[, c("GROUP", "GROUPN")])
 ```
 
-In the class `hce` the higher values for the ordering mean clinically less important event. For example, death which is the most important event always should get the lowest ordinal value. If there is a need to specify the order of outcomes, then the argument `ORD` can be used
+In the class `hce`, higher values for the ordering mean clinically less important events. For example, death, which is the most important event, should always get the lowest ordinal value. If there is a need to specify the order of outcomes, then the argument `ORD` can be used:
 
 ```{r}
 set.seed(2022)
@@ -136,9 +167,9 @@ dat <- hce(GROUP = rep(x = c("I", "II", "III"), each = 100),
 unique(dat[, c("GROUP", "GROUPN")])
 ```
 
-This means that the clinically most important event is 'III' instead of 'I'. The argument `AVAL0` is meant to help in the cases where we want to introduce sub-ordering within each `GROUP` category. For example, if two events in the group 'I' can be compared based on other parameters, then `AVAL0` argument can be specified to take that into account.
+This means that the clinically most important event is 'III' instead of 'I'. The argument `AVAL0` is meant to help in cases where we want to introduce sub-ordering within each `GROUP` category. For example, if two events in the group 'I' can be compared based on other parameters, then the `AVAL0` argument can be specified to take that into account.
 
-Below we use the built-in data frame `HCE1` to construct an `hce` object. Before specifying the order of events it is a good idea to check what are the unique events included in the `GROUP` column
+Below we use the built-in data frame `HCE1` to construct an `hce` object. Before specifying the order of events, it is a good idea to check what are the unique events included in the `GROUP` column:
 
 
 
@@ -147,7 +178,7 @@ data(HCE1)
 unique(HCE1$GROUP)
 ```
 
-Therefore, we can construct the following `hce` object
+Therefore, we can construct the following `hce` object:
 
 ```{r}
 HCE <- hce(GROUP = HCE1$GROUP, TRTP = HCE1$TRTP, AVAL0 = HCE1$AVAL0, 
@@ -157,9 +188,9 @@ head(HCE)
 ```
 
 
-### Create an `hce` object from a data frame
+### Create an `hce` Object from a Data Frame
 
-Consider the dataset `HCE1` which is part of the package `hce`
+Consider the dataset `HCE1`, which is part of the package `hce`:
 
 ```{r}
 data(HCE1, package = "hce")
@@ -167,7 +198,7 @@ class(HCE1)
 head(HCE1)
 ```
 
-This dataset has the appropriate structure of `hce` objects, but its class is `data.frame.` A generic way of coercing data structures to an `hce` object is to use the function `as_hce()` which, for given data structure, will perform checks (using internal validator function) and create an `hce` object from it (using an internal constructor function), if possible or will throw an error explaining the issue.
+This dataset has the appropriate structure of `hce` objects, but its class is `data.frame.` A generic way of coercing data structures to an `hce` object is to use the function `as_hce()`. This function performs checks (using an internal validator function) and creates an `hce` object from the given data structure (using an internal constructor function). If coercion is not possible, it will throw an error explaining the issue.
 
 ```{r}
 dat1 <- as_hce(HCE2)
@@ -175,19 +206,19 @@ str(dat1)
 ```
 
 
-### Simulate `hce` objects using `simHCE()`
+### Simulate `hce` Objects Using `simHCE()`
 
-To simulate values from a hierarchical composite endpoint we use the function `simHCE()`, which has the following arguments
+To simulate values from a hierarchical composite endpoint, we use the function `simHCE()`, which has the following arguments:
 
 ```{r}
 args("simHCE")
 ```
 
-- The vector arguments `TTE_A` and `TTE_P` show the event rates per year for time-to-event outcomes in the active and control groups, respectively. The function assumes Weibull survival function with the same shape parameter for simulating all time-to-event outcomes in both treatment groups (by default `shape = 1` hence assumes exponential survival function). These two vectors should have the same length and their length shows the number of time-to-event outcomes, which can be arbitrary. 
+- The vector arguments `TTE_A` and `TTE_P` specify the event rates per year for time-to-event outcomes in the active and control groups, respectively. The function assumes a Weibull survival function with the same shape parameter for simulating all time-to-event outcomes in both treatment groups (by default `shape = 1`, which assumes an exponential survival function). These two vectors should have the same length, which indicates the number of time-to-event outcomes. 
 
-- By default, the event rates are presented per 100 patient-years (`pat = 100`), which can be changed using the argument `pat`. The function simulates event times in days, hence `yeardays = 360` argument can be used to change the number of days in a year (for example, 365 or 365.25 can be used).
+- By default, the event rates are presented per 100 patient-years (`pat = 100`), which can be changed using the argument `pat`. The function simulates event times in days, and the `yeardays = 360` argument can be used to change the number of days in a year (e.g., 365 or 365.25).
 
-- The function simulates events during a fixed-follow-up time only, hence argument `fixedfy` can be used to change the length of the follow-up (in years).
+- The function simulates events during a fixed follow-up period only, and the `fixedfy` argument can be used to change the length of the follow-up (in years).
 
 - The function simulates the continuous outcome from a normal (default) or log-normal (if `logC = TRUE`) distribution with given means and standard deviations for two treatment groups.
 
@@ -209,14 +240,14 @@ head(dat3)
 
 
 
-## Generics for `hce` objects
+## Generics for `hce` Objects
 
-As we see, it creates an object of type `hce` which inherits from the built-in class `data.frame`. We can check all implemented methods for this new class as follows:
+As we see, the function `simHCE()` creates an object of type `hce`, which inherits from the built-in class `data.frame`. We can check all implemented methods for this new class as follows:
 ```{r}
 methods(class = "hce")
 ```
 
-The function `calcWO()` calculates the win odds and its confidence interval, while `summaryWO()` provides more detailed calculation of win odds, providing also the number of wins, losses, and ties by `GROUP` categories.
+The function `calcWO()` calculates the win odds and its confidence interval, while `summaryWO()` provides a more detailed calculation of win odds, including the number of wins, losses, and ties by `GROUP` categories.
 
 ```{r}
 HCE <- hce(GROUP = HCE3$GROUP, TRTP = HCE3$TRTP,
