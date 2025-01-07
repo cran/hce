@@ -12,6 +12,7 @@
 #' @param yeardays number of days in a year.
 #' @param pat scale of provided event rates (per `pat`-years).
 #' @param shape shape of the Weibull distribution for time-to-event outcomes. Default is exponential distribution with `shape = 1`.
+#' @param alpha Gumbel dependence coefficient of the Weibull distributions for time-to-event outcomes. Default is `alpha = 1` which assumes independence of time-to-event outcomes. Must be above or equal to 1.
 #' @param logC logical, whether to use log-normal distribution for the continuous outcome.
 #' @param seed for generating random numbers.
 #' @param dec decimal places for the continuous outcome used for rounding. The default is `dec = 2`.
@@ -43,10 +44,21 @@
 #' dat <- simHCE(n = 1000, n0 = 500, TTE_A = Rates_A, TTE_P = Rates_P, 
 #'               CM_A = 0.1, CM_P = 0, seed = 5, shape = 0.2, logC = TRUE, dec = 0)
 #' summaryWO(dat)
+#' 
+#' # Example 3: Comparison of dependent and independent outcomes
+#' Rates_A <- c(10, 20)
+#' Rates_P <- c(20, 20)
+#' dat1 <- simHCE(n = 2500, TTE_A = Rates_A, TTE_P = Rates_P, 
+#' CM_A = -3, CM_P = -6, CSD_A = 15, fixedfy = 3, alpha = 1, seed = 1)
+#' dat2 <- simHCE(n = 2500, TTE_A = Rates_A, TTE_P = Rates_P, 
+#' CM_A = -3, CM_P = -6, CSD_A = 15, fixedfy = 3, alpha = 10, seed = 1)
+#' calcWO(dat1)
+#' calcWO(dat2)
 
-simHCE <- function(n, n0 = n, TTE_A, TTE_P, CM_A, CM_P, CSD_A = 1, CSD_P = CSD_A, fixedfy = 1, yeardays = 360, pat = 100, shape = 1, logC = FALSE, seed = NULL, dec = 2 ){
+
+simHCE <- function(n, n0 = n, TTE_A, TTE_P, CM_A, CM_P, CSD_A = 1, CSD_P = CSD_A, fixedfy = 1, yeardays = 360, pat = 100, shape = 1, alpha = 1, logC = FALSE, seed = NULL, dec = 2 ){
   if(base::length(TTE_P) != base::length(TTE_A))
-    stop("Event rate vectors for active and placebo groups should have the same length")
+    stop("Event rate vectors for active and placebo groups should have the same length.")
   
   n <- n[1]
   n0 <- n0[1]
@@ -61,33 +73,59 @@ simHCE <- function(n, n0 = n, TTE_A, TTE_P, CM_A, CM_P, CSD_A = 1, CSD_P = CSD_A
   logC <- as.logical(logC[1])
   shape <- shape[1]
   dec <- dec[1]
+  alpha <- alpha[1]
 
   fixedf <- yeardays*fixedfy
   TTE_P <- TTE_P/yeardays/pat
   TTE_A <- TTE_A/yeardays/pat
-
   l <- base::length(TTE_A)
   if(is.null(seed)){
     seed <- base::as.numeric(base::Sys.time())
   }
   seed <- seed[1]
   base::set.seed(seed)
-
-
-  M_P <- base::sapply(1/TTE_P, stats::rweibull, n = n0, shape = shape)
+  if(alpha < 1)
+    stop("Alpha should be greater or equal to 1.")
+  rgumbel <- function(n, dim = 2, alpha = 1){
+    exprand <- matrix(stats::rexp(dim * n), c(n, dim))
+    unifpirand <- stats::runif(n, 0, pi)
+    exprand2 <- stats::rexp(n)
+    beta <- 1/alpha
+    stablerand <- sin((1 - beta) * unifpirand)^((1 - beta)/beta) * 
+      (sin(beta * unifpirand))/(sin(unifpirand))^(1/beta)
+    stablerand <- stablerand/(exprand2^(alpha - 1))
+    invphi <- function (t, alpha = 1){
+      exp(-t^(1/alpha))
+    } 
+    unifrand <- invphi(exprand/stablerand, alpha)
+    return(unifrand)  
+  }
+  
+  invW <- function(u, beta, gamma) {
+    beta * (- log( 1 - u))^(1/gamma)
+  }
+  
+  if(alpha == 1){
+    M_P <- base::sapply(1/TTE_P, stats::rweibull, n = n0, shape = shape)
+    M_A <- base::sapply(1/TTE_A, stats::rweibull, n = n, shape = shape)
+  } else if(alpha > 1){
+    Y <- rgumbel(n, alpha = alpha, dim = l)
+    X <- rgumbel(n0, alpha = alpha, dim = l)
+    Y1 <- lapply(Y, invW, beta = 1/TTE_A, gamma = shape)
+    M_A <- do.call(rbind, Y1)
+    X1 <- lapply(X, invW, beta = 1/TTE_P, gamma = shape)
+    M_P <- do.call(rbind, X1)
+  }
   M_P <- round(M_P)
   M_P <- base::as.data.frame(M_P)
   base::names(M_P) <- base::paste0("TTE", 1:l)
   M_P$TRTP <- "P"
   M_P$ID <- (n + 1):(n0 + n)
-
-  M_A <- base::sapply(1/TTE_A, stats::rweibull, n = n, shape = shape)
   M_A <- round(M_A)
   M_A <- base::as.data.frame(M_A)
   base::names(M_A) <- base::paste0("TTE", 1:l)
   M_A$TRTP <- "A"
   M_A$ID <- 1:n
-
   dat <- base::rbind(M_A, M_P)
   dat$PADY <- fixedf
   dat$seed <- seed

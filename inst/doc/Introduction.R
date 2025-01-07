@@ -5,15 +5,15 @@ knitr::opts_chunk$set(
 )
 R <- function() knitr::include_graphics("Rlogo.png", dpi = 5000)
 
-## ----echo=FALSE---------------------------------------------------------------
-knitr::include_graphics("hex-hce.png", dpi = 1000)
+## ----echo=FALSE, out.width = '25%'--------------------------------------------
+knitr::include_graphics("hex-hce.png")
 
 ## ----eval=TRUE----------------------------------------------------------------
 library(hce)
 packageVersion("hce")
 
 ## ----eval=FALSE, include=FALSE------------------------------------------------
-#  devtools::load_all()
+# devtools::load_all()
 
 ## -----------------------------------------------------------------------------
 ls("package:hce")

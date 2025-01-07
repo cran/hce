@@ -11,8 +11,10 @@
 #' * alpha two-sided significance level for calculating the confidence interval (specified in the `alpha` argument).
 #' * Pvalue p-value associated with testing the null hypothesis.
 #' * WP calculated win probability.
-#' * WP_SE standard error of the win probability.
-#' * WP_SD standard deviation of the win probability, calculated as `WP_SE` multiplied by `sqrt(N)`.
+#' * LCL_WP lower confidence limit for `WP`.
+#' * UCL_WP upper confidence limit for `WP`.
+#' * SE_WP standard error of the win probability.
+#' * SD_WP standard deviation of the win probability, calculated as `SE_WP` multiplied by `sqrt(N)`.
 #' * N total number of patients in the analysis.
 #' @export
 #' @md

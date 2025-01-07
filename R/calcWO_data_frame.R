@@ -17,8 +17,10 @@
 #' * alpha two-sided significance level for calculating the confidence interval (specified in the `alpha` argument).
 #' * Pvalue p-value associated with testing the null hypothesis.
 #' * WP calculated win probability.
-#' * WP_SE standard error of the win probability.
-#' * WP_SD standard deviation of the win probability, calculated as `WP_SE` multiplied by `sqrt(N)`.
+#' * LCL_WP lower confidence limit for `WP`.
+#' * UCL_WP upper confidence limit for `WP`.
+#' * SE_WP standard error of the win probability.
+#' * SD_WP standard deviation of the win probability, calculated as `SE_WP` multiplied by `sqrt(N)`.
 #' * N total number of patients in the analysis.
 #' @export
 #' @md
@@ -57,7 +59,6 @@ calcWO.data.frame <- function(x, AVAL, TRTP, ref, alpha = 0.05, WOnull = 1, ...)
   d$R <- d$R1 - d$R2
   d$R0 <- base::ifelse(d$TRTP == "A", d$R/n0, d$R/n1)
 
-
   WP0 <- base::tapply(d$R0, d$TRTP, base::mean)
   VAR <- base::tapply(d$R0, d$TRTP, function(x) (base::length(x)-1)*stats::var(x)/base::length(x))
   SE_WP <- base::sqrt(base::sum(VAR/n))
@@ -69,11 +70,13 @@ calcWO.data.frame <- function(x, AVAL, TRTP, ref, alpha = 0.05, WOnull = 1, ...)
   Ca <- stats::qnorm(1 - alpha/2)
   LCL <- WO*base::exp(-Ca*SE)
   UCL <- WO*base::exp(Ca*SE)
-
+  
+  LCL_WP <- WP - Ca*SE_WP
+  UCL_WP <- WP + Ca*SE_WP
   threshold <- base::abs(WP - WPnull)/SE_WP
   P <- 2*(1 - stats::pnorm(threshold))
 
-  out <- base::data.frame(WO = WO, LCL = LCL, UCL = UCL, SE = SE, WOnull = WOnull, alpha = alpha, Pvalue = P, WP = WP, SE_WP = SE_WP, SD_WP = SD_WP, N = N)
+  out <- base::data.frame(WO = WO, LCL = LCL, UCL = UCL, SE = SE, WOnull = WOnull, alpha = alpha, Pvalue = P, WP = WP, LCL_WP  = LCL_WP, UCL_WP = UCL_WP, SE_WP = SE_WP, SD_WP = SD_WP, N = N)
 
   return(out)
 }
