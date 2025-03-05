@@ -1,6 +1,6 @@
 ---
 title: "Hierarchical composite endpoints"
-date: "`r format(as.Date('2024-10-15'), '%d %B, %Y')`"
+date: "`r format(as.Date('2025-03-01'), '%d %B, %Y')`"
 author:
   - name: "Samvel B. Gasparyan"
     affiliation: https://gasparyan.co/
@@ -30,7 +30,7 @@ knitr::opts_chunk$set(
 
 ### Setup
 
-```{r echo=FALSE, out.width = '25%'}
+```{r echo=FALSE, out.width = '33%'}
 knitr::include_graphics("hex-hce.png")
 ```
 
@@ -45,7 +45,9 @@ For citing the package run `citation("hce")` [@hce].
 
 ### Definitions
 
-Prioritized outcome composite endpoints (POCE) are a general class of endpoints combining different clinical outcomes of patients into a composite so as to preserve their different natures. A particular case of these endpoints is the hierarchical composite endpoint (HCE). It is evaluated in a fixed follow-up period and accounts for the patient’s clinically most important outcome for the analysis. HCEs are analyzed using win odds and other win statistics [@gasparyanhierarchical].
+Hierarchical composite endpoints (HCE) are a general class of endpoints combining different clinical outcomes of patients into a composite so as to preserve their different natures. A particular case of these endpoints is defined in a fixed follow-up period and accounts for the patient’s clinically most important outcome for the analysis. HCEs are analyzed using win odds and other win statistics [@gasparyanhierarchical].
+
+
 
 ## Examples
 
@@ -114,27 +116,7 @@ dat$GROUP <- factor(dat$GROUP, levels = Order)
 table(dat$GROUP, dat$TRTP)
 ```
 
-This dataset is derived from `ADSL` which contains baseline characteristics, 
-
-```{r echo=FALSE}
-knitr::kable(head(ADSL), caption = "ADSL dataset structure\\label{adsl}")
-```
-
-`ADLB` laboratory measurements of kidney function, 
-
-```{r echo=FALSE}
-knitr::kable(head(ADLB), caption = "ADLB dataset structure\\label{adlb}")
-```
-
-and `ADET` for the time-to-event outcomes with their timing. 
-
-```{r echo=FALSE}
-knitr::kable(head(ADET), caption = "ADET dataset structure\\label{adet}")
-```
-
-For the detailed derivation see the [Technical Appendix](https://cdn-links.lww.com/permalink/jsn/e/jsn_2023_09_29_heerspink_1_sdc1.pdf) in @khce2.
-
-
+This dataset is derived from `ADSL` which contains baseline characteristics, `ADLB` laboratory measurements of kidney function, and `ADET` for the time-to-event outcomes with their timing. For the detailed derivation see the [Technical Appendix](https://cdn-links.lww.com/permalink/jsn/e/jsn_2023_09_29_heerspink_1_sdc1.pdf) in @khce2.
 
 
 ### Heart Failure
@@ -149,6 +131,95 @@ HCE3 <- data.frame(Order = c("I", "II", "III", "IV"),
                                "Improvement/deterioration in KCCQ-TSS"))
 HCE3
 ```
+
+
+## Dependent outcomes
+
+To model dependent outcomes, several methods are available:
+
+1. **Joint Distribution Modeling Using Copulas:** This method employs copulas to model the joint distribution of outcomes, capturing their dependence.
+
+2. **Random Frailty Modeling:** This approach captures patient-level dependence between outcomes using a random frailty model.
+
+3. **Conditional Distribution Specification Through Multi-State Modeling:** This technique uses multi-state models to describe the conditional distribution of outcomes.
+
+### Joint Distribution Modeling Using Copulas
+
+Sklar's theorem [@sklar1959fonctions] shows that multivariate distribution functions can be expressed using a copula and univariate distributions. For a random vector $X^d=(X_1,\cdots,X_d)$ with a multivariate distribution function $H(x_1,\cdots,x_d),$ Sklar's theorem states that there is a copula $C(\cdot)$ such that:
+$$H(x_1,\cdots,x_d)=C(F_1(x_1),\cdots,F_d(x_d)),$$
+where each component $X_j$ has the univariate distribution $F_j.$ A copula is essentially a multivariate distribution function where each univariate marginal distribution is uniform, describing the dependency structure of the multivariate distribution function $H(\cdot)$. To construct the multivariate distribution function, one combines each variable's univariate distributions $F_j$ with the copula. 
+
+If $X_j$ has distribution function $F_j,$ then $U_j=F_j(X_j)$ is uniformly distributed,  allowing random variables $X_j\sim F_j$ to be simulated by generating uniform random variables $U_j$ and applying the inverse transformation:
+
+$$F_j^{-1}(y)=\inf\{x\in {\mathbf R}: \ \ F_j(x)\geq y\}, \ \ \inf\varnothing=\infty.$$
+Thus, if one has simulated a uniform random vector $U^d=(U_1,\cdots, U_d)$ from the copula $C(\cdot)$, the random vector $X^d=(X_1,\cdots,X_d)$ can be simulated as:
+$$(X_1,\cdots,X_d)=(F_1^{-1}(U_1),\cdots,F_d^{-1} (U_d)).$$
+The main challenge remains in simulating from the given copula.
+
+An *Archimedean copula* [@nelsen2006introduction] is one where:
+
+$$C(u^d;\varphi)=\varphi(\varphi^{-1}(u_1)+\cdots+\varphi^{-1}(u_d)).$$
+The function $\varphi:[0,+\infty]\rightarrow [0,1]$ is a generator - continuous, decreasing, with $\varphi(0)=1$ and $\lim_{t\rightarrow+\infty}\varphi(t)=0.$ When $\varphi(t)=e^{-t^\theta},\ \ \theta>1,$ the copula is called a **Gumbel** copula.
+
+
+#### The Marshall-Olkin algorithm
+
+By Bernstein's theorem, completely monotone Archimedean generators coincide with Laplace-Stieltjes transforms of distribution functions $F,$ determined by $\varphi=LS[F].$ The **Marshall-Olkin** algorithm [@marshall1988families] for sampling from an Archimedean copula involves:
+
+1. Sampling $V\sim F=LS^{-1}[\varphi].$
+2. Sampling $R_j\sim Exp(1),\,j\in\{1,\cdots,d\}.$
+3. Setting $U_j=\varphi\left(\frac{R_j}{V}\right),\,j\in\{1,\cdots,d\}.$
+
+The vector $U=(U_1,\cdots, U_d)$ is then a random vector from the Archimedean copula with generator $\varphi$. For the Gumbel copula, one needs to use the inverse Laplace-Stieltjes transform of a stable distribution  [@nolan2020univariate; @hofert2011nested]:
+$$F\sim S(1/\theta, 1, \cos^\theta(\pi/(2\theta)), {\mathbf I}_{\{\theta=1\}},1)$$
+modifying the first step to sample from a stable distribution. 
+
+#### Chambers-Mallows-Stuck method for simulating stable random variables
+
+Chambers-Mallows-Stuck method [@chambers1976method] efficiently simulates stable variables with:
+
+1. Generating independent uniform and exponential random variables
+$$\Theta\sim U\left[-\frac{\pi}{2},\frac{\pi}{2}\right] \text{ and } W\sim Exp(1).$$ 
+2. Defining $\alpha=1/\theta,$ setting $b_{\tan}=\beta\tan\left(\frac{\alpha\pi}{2}\right),$ and $\theta_0=\arctan(b_{\tan})/\alpha,$ with
+$$C_{\tan}=(1+b_{\tan}^2)^\frac{1}{2\alpha}.$$
+
+3. Utilizing the transformations:
+$$Z(\theta) = \frac{\sin(a_0)  C_{\tan}}{\cos(\Theta)^\frac{1}{\alpha}}\left(\frac{\cos(a_0-\Theta)}{W}\right)^\frac{1-\alpha}{\alpha}, \ \ a_0=\alpha(\Theta+\theta_0),\,\theta>1.$$
+$$Z(1)=\frac{2}{\pi}\left(\pi_\beta\tan(\Theta)-\beta\log\left(\frac{\pi}{2}W\frac{\cos(\Theta)}{\pi_\beta}\right)\right), \ \ \pi_\beta=\frac{\pi}{2}+\beta\Theta.$$
+Finally, $\gamma Z + \delta$ has the desired distribution with $\gamma =[\cos(\pi/(2\theta))]^\theta$ and $\delta={\mathbf I}_{\{\theta=1\}}$ (and one needs to set $\beta=1$).
+
+#### Note
+
+In the original Chambers-Mallows-Stuck formula, the term $$\frac{1}{[\cos(\alpha\theta_0)\cos(\Theta)]^\frac{1}{\alpha}}$$ is replaced by
+$\frac{C_{\tan}}{[\cos(\Theta)]^\frac{1}{\alpha}},$
+as suggested by the `copula` package [@hofert2025copula], which is based on the fact that $C_{\tan} = 1/(\cos(\alpha\theta_0))^{1/\alpha}.$ Indeed, one needs to show that
+
+$$(1+b_{\tan}^2)^\frac{1}{2\alpha}=1/(\cos(\alpha\theta_0))^{1/\alpha},$$
+which is equivalent to showing that
+$$1+\left[\beta\tan\left(\frac{\alpha\pi}{2}\right)\right]^2=\frac{1}{[\cos(\alpha\theta_0)]^2}.$$
+And this is true because of the trigonometric identity 
+$$1+[\tan(y)]^2=\frac{1}{[\cos(y)]^2}.$$
+Here we have set $y=\alpha\theta_0=\arctan(b_{\tan})=\arctan\left(\beta\tan\left(\frac{\alpha\pi}{2}\right)\right)$ and hence $\tan(y)=\beta\tan\left(\frac{\alpha\pi}{2}\right).$
+
+
+#### Implementation
+
+The function `simHCE()` provides the implementation above with the argument `theta` specifying the dependence of outcomes.
+
+```{r}
+Rates_A <- c(10, 20)
+Rates_P <- c(20, 20)
+dat1 <- simHCE(n = 2500, TTE_A = Rates_A, TTE_P = Rates_P, 
+CM_A = -3, CM_P = -6, CSD_A = 15, fixedfy = 3, theta = 1, seed = 1)
+dat2 <- simHCE(n = 2500, TTE_A = Rates_A, TTE_P = Rates_P, 
+CM_A = -3, CM_P = -6, CSD_A = 15, fixedfy = 3, theta = 1.0001, seed = 1)
+dat3 <- simHCE(n = 2500, TTE_A = Rates_A, TTE_P = Rates_P, 
+CM_A = -3, CM_P = -6, CSD_A = 15, fixedfy = 3, theta = 10, seed = 1)
+calcWO(dat1)
+calcWO(dat2)
+calcWO(dat3)
+```
+
 
 
 ## References

@@ -30,7 +30,7 @@ knitr::opts_chunk$set(
 
 ### Setup
 
-```{r echo=FALSE, out.width = '25%'}
+```{r echo=FALSE, out.width = '33%'}
 knitr::include_graphics("hex-hce.png")
 ```
 

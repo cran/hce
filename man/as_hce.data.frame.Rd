@@ -21,3 +21,6 @@ Coerce a data frame to an \code{hce} object
 KHCE <- as_hce(KHCE)
 calcWO(KHCE)
 }
+\seealso{
+\code{\link[=as_hce]{as_hce()}}, \code{\link[=as_hce.default]{as_hce.default()}}.
+}

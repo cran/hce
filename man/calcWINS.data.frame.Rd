@@ -4,7 +4,16 @@
 \alias{calcWINS.data.frame}
 \title{Win statistics calculation using a data frame}
 \usage{
-\method{calcWINS}{data.frame}(x, AVAL, TRTP, ref, alpha = 0.05, WOnull = 1, ...)
+\method{calcWINS}{data.frame}(
+  x,
+  AVAL,
+  TRTP,
+  ref,
+  alpha = 0.05,
+  WOnull = 1,
+  SE_WP_Type = c("biased", "unbiased"),
+  ...
+)
 }
 \arguments{
 \item{x}{a data frame containing subject-level data.}
@@ -18,6 +27,8 @@
 \item{alpha}{2-sided significance level. The default is 0.05.}
 
 \item{WOnull}{the null hypothesis. The default is 1.}
+
+\item{SE_WP_Type}{biased or unbiased standard error for win probability. The default is biased.}
 
 \item{...}{additional parameters.}
 }
@@ -37,21 +48,51 @@ a list containing win statistics and their confidence intervals. It contains the
 \description{
 Win statistics calculation using a data frame
 }
+\details{
+When \code{SE_WP_Type = "unbiased"}, the calculations for win proportion, net benefit, and win odds utilize the unbiased standard error from Brunner-Konietschke (2025) paper which is a reformulation of the original formula proposed by Bamber (1975).
+}
 \examples{
 calcWINS(x = COVID19b, AVAL = "GROUP", TRTP = "TRTP", ref = "Placebo")
+## Biased vs unbiased
+n0 <- 10; n1 <- 20; p0 <- 0.2; p1 <- 0.5; x <- 1:20; delta <- 0.5
+WP0 <- (p1 - p0)/2 + 0.5
+DAT <- NULL
+for(i in x){
+  dat <- data.frame(AVAL = c(rbinom(n1, size = 1, p1), rbinom(n0, size = 1, p0)), 
+  TRTP = c(rep("A", n1), rep("P", n0)))
+  CL1 <- calcWINS(x = dat, AVAL = "AVAL", TRTP = "TRTP", ref = "P")$WP
+  CL1$Type <- "biased"
+  CL2 <- calcWINS(x = dat, AVAL = "AVAL", TRTP = "TRTP", 
+                  ref = "P", SE_WP_Type = "unbiased")$WP
+  CL2$Type <- "unbiased"
+  DAT <- rbind(DAT, CL1, CL2)
+}
+WP <- DAT$WP[DAT$Type == "unbiased"]
+plot(x, WP, pch = 19, xlab = "Simulations", ylab = "Win Probability", ylim = c(0., 1.))
+points(x + delta, WP, pch = 19)
+arrows(x, DAT$LCL[DAT$Type == "unbiased"], 
+       x, DAT$UCL[DAT$Type == "unbiased"], angle = 90, code = 3, length = 0.05, "green")
+arrows(x + delta, DAT$LCL[DAT$Type == "biased"], 
+       x + delta, DAT$UCL[DAT$Type == "biased"], angle = 90, code = 3, length = 0.05, col = "red")
+abline(h = WP0, col = "blue", lty = 3)
+legend("bottomleft", legend = c("True WP", "Biased", "Unbiased"), 
+                    col = c(4, 2, 3), lty = c(3, 1, 1 ), cex = 0.5)
 }
 \references{
-The theory of win statistics is covered in the following papers.
+The theory of win statistics is covered in the following papers:
 \itemize{
-\item For the win proportion CI calculation see
+\item Win proportion and win odds confidence interval calculation:
+\cr \cr Bamber D (1975) "The area above the ordinal dominance graph and the area below the receiver operating characteristic graph." Journal of Mathematical Psychology 12.4: 387-415. \url{doi:10.1016/0022-2496(75)90001-2}.
+\cr \cr DeLong ER et al. (1988) "Comparing the Areas Under Two or More Correlated Receiver Operating Characteristic Curves: A Nonparametric Approach." Biometrics 44.3: 837-845. \url{doi:10.2307/2531595}.
+\cr \cr Brunner E et al. (2021) "Win odds: an adaptation of the win ratio to include ties." Statistics in Medicine 40.14: 3367-3384. \url{doi:10.1002/sim.8967}.
 \cr \cr Gasparyan SB et al. (2021) "Adjusted win ratio with stratification: calculation methods and interpretation." Statistical Methods in Medical Research 30.2: 580-611. \url{doi:10.1177/0962280220942558}.
-\item The win odds CI is calculated using the formula in
 \cr \cr Gasparyan SB et al. (2021) "Power and sample size calculation for the win odds test: application to an ordinal endpoint in COVID-19 trials." Journal of Biopharmaceutical Statistics 31.6: 765-787. \url{doi:10.1080/10543406.2021.1968893}.
-\item The win ratio the first CI uses the standard error derived from the standard error of the \code{gamma} statistic presented in
-\cr \cr Gasparyan SB, Kowalewski EK, Buenconsejo J, Koch GG. (2023) “Hierarchical Composite Endpoints in COVID-19: The DARE-19 Trial.” In Case Studies in Innovative Clinical Trials, Chapter 7, 95–148. Chapman; Hall/CRC. \url{doi:10.1201/9781003288640-7}.
-\item The win ratio the second CI uses the standard error presented in
+\cr \cr Brunner E, Konietschke F. (2025) "An unbiased rank-based estimator of the Mann–Whitney variance including the case of ties." Statistical Papers 66.20. \url{doi:10.1007/s00362-024-01635-0}.
+\item Win ratio: the first CI utilizes the standard error derived from the \code{gamma} statistic standard error as outlined by:
+\cr \cr Gasparyan SB, Kowalewski EK, Buenconsejo J, Koch GG. (2023) "Hierarchical Composite Endpoints in COVID-19: The DARE-19 Trial." In Case Studies in Innovative Clinical Trials, Chapter 7, 95–148. Chapman; Hall/CRC. \url{doi:10.1201/9781003288640-7}.
+\item Win ratio: the second CI utilizes the standard error presented by:
 \cr \cr Yu RX, Ganju J. (2022) "Sample size formula for a win ratio endpoint." Statistics in Medicine 41.6: 950-63. \url{doi:10.1002/sim.9297}.
-\item The Goodman Kruskal's \code{gamma} and its CI match those in \code{DescTools::GoodmanKruskalGamma()} and are based on
+\item Goodman Kruskal's \code{gamma} and CI: matches implementation in \code{DescTools::GoodmanKruskalGamma()} and based on:
 \cr \cr Agresti A. (2002) Categorical Data Analysis. John Wiley & Sons, pp. 57-59. \url{doi:10.1002/0471249688}.
 \cr \cr Brown MB, Benedetti JK. (1977) "Sampling Behavior of Tests for Correlation in Two-Way Contingency Tables." Journal of the American Statistical Association 72, 309-315. \url{doi:10.1080/01621459.1977.10480995}.
 \cr \cr Goodman LA, Kruskal WH. (1954) "Measures of association for cross classifications." Journal of the American Statistical Association 49, 732-764. \url{doi:10.1080/01621459.1954.10501231}.

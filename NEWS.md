@@ -1,6 +1,15 @@
+# hce 0.7.0
+
+* `plot()` method for `hce` objects (created by the function `as_hce()`) is updated to include a `fill` argument for filling the area above the graph.
+* `calcWINS()` is updated to include the `SE_WP_Type` argument with default `"biased"` (original implementation) and a new `"unbiased"` implementation of the Bamber-Brunner-Konietschke (see Bamber (1975), Brunner and Konietschke (2025)) standard error for the win proportion.
+* New function `IWP()` is added to calculated patient-level individual win proportions.
+* Default method for the generic `as_hce()` is added.
+* The vignette on hierarchical composite endpoints is updated to include the theoretical framework for the simulation of dependent outcomes using the given copula.
+*  The function `simHCE()` is updated to correct for the copula implementation so that `theta = 1` (case of independence) and `theta` close to 1 now give similar results (as expected).
+
 # hce 0.6.7
 
-* The function `simHCE()` is updated to include a new `alpha` argument for Gumbel dependence coefficient of the Weibull distributions for time-to-event outcomes. Default is `alpha = 1` which assumes independence of time-to-event outcomes. The argument is still experimental.
+* The function `simHCE()` is updated to include a new `theta` argument for Gumbel dependence coefficient of the Weibull distributions for time-to-event outcomes. Default is `theta = 1` which assumes independence of time-to-event outcomes. The argument is still experimental.
 * `calcWO()` is updated to return the confidence interval for the win probability as well.
 * `plot()` method for `hce` objects (created by the function `as_hce()`) is implemented to provide the ordinal dominance graph as suggested by Bamber (1975).
 

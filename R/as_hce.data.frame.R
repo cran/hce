@@ -5,7 +5,8 @@
 #'
 #' @return an `hce` object.
 #' @export
-#'
+#' @md
+#' @seealso [hce::as_hce()], [hce::as_hce.default()].
 #' @examples
 #' KHCE <- as_hce(KHCE)
 #' calcWO(KHCE)
@@ -15,15 +16,15 @@ as_hce.data.frame <- function(x, ...){
     x <- base::as.data.frame(x)
     Names <- base::names(x)
     if(base::any(base::dim(x) == 0))
-      stop("The dimension of the dataset should be non-zero")
+      stop("The dimension of the dataset should be non-zero.")
     if(!"AVAL" %in% Names)
-      stop("The dataset should contain the column AVAL for the analysis values")
+      stop("The dataset should contain the column AVAL for the analysis values.")
     if(! "TRTP" %in% Names)
-      stop("The dataset should contain the column TRTP for the planned treatment")
+      stop("The dataset should contain the column TRTP for the planned treatment.")
     if(base::length(base::unique(x$TRTP)) != 2)
-      stop("The TRTP column should have exactly 2 levels")
+      stop("The TRTP column should have exactly 2 levels.")
     if(!is.numeric(x$AVAL))
-      stop("AVAL must be numeric")
+      stop("AVAL must be numeric.")
     x
   }
   ## Constructor function for hce objects

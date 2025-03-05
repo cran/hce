@@ -5,7 +5,7 @@ knitr::opts_chunk$set(
 )
 R <- function() knitr::include_graphics("Rlogo.png", dpi = 5000)
 
-## ----echo=FALSE, out.width = '25%'--------------------------------------------
+## ----echo=FALSE, out.width = '33%'--------------------------------------------
 knitr::include_graphics("hex-hce.png")
 
 ## ----eval=TRUE----------------------------------------------------------------
@@ -84,4 +84,8 @@ HCE <- hce(GROUP = HCE3$GROUP, TRTP = HCE3$TRTP,
            ORD = c("TTE1", "TTE2", "TTE3", "TTE4", "C"))
 calcWO(HCE)
 summaryWO(HCE)
+calcWINS(HCE)  
+HCE$TRTP <- factor(HCE$TRTP, levels = c("P", "A"))
+plot(HCE, fill = TRUE, col = "#865A4F", type = 'l', lwd = 2)
+abline(a = 0, b = 1, lwd = 2, col = "#999999", lty = 2)
 

@@ -198,7 +198,7 @@
 #'   \item{AVAL}{measurement value, numeric}
 #'   \item{ADAY}{measurement day in the study, numeric}
 #'   \item{AVISITN}{hospital visit number, numeric}
-#'   \item{PARAM}{name of the event, GFR measurments, character}
+#'   \item{PARAM}{name of the event, GFR measurements, character}
 #'   \item{PARAMCD}{coded name of the event, GFR, character}
 #'   \item{PARAMN}{type of the event is set to 7 for all measurements, numeric}
 #' }

@@ -4,10 +4,12 @@
 \alias{plot.hce}
 \title{A plot method for \code{hce} objects}
 \usage{
-\method{plot}{hce}(x, ...)
+\method{plot}{hce}(x, fill = FALSE, ...)
 }
 \arguments{
 \item{x}{an object of class \code{hce} created by \code{as_hce()}.}
+
+\item{fill}{logical; if \code{TRUE} fill the area above the graph.}
 
 \item{...}{additional arguments to be passed to \code{\link[base:plot]{base::plot()}} function.}
 }
@@ -15,14 +17,20 @@
 no return value, called for plotting.
 }
 \description{
-A plot method for \code{hce} objects
+Ordinal dominance graph for \code{hce} objects
 }
 \examples{
 d <- as_hce(KHCE)
+d$TRTP <- factor(d$TRTP, levels = c("P", "A"))
 res <- calcWO(AVAL ~ TRTP, data = d)
-plot(d, col = 2, type = 'l', ylab = "Active", xlab = "Control", lwd = 2)
-polygon(c(0, 1, 1, 0), c(1, 1, 1, 0), col = 2)
+# Ordinal Dominance Graph
+plot(d, col = 3, type = 'l')
+grid()
+# Area above the Ordinal Dominance Graph
+plot(d, fill = TRUE, col = "#865A4F", type = 'l', 
+     lwd = 2, xlab = "Control", ylab = "Active")
 legend("bottomright", legend = paste0("WP = ", round(res$WP, 5)))
+abline(a = 0, b = 1, lwd = 2, lty = 2, col = "#999999")
 }
 \references{
 Bamber D. "The area above the ordinal dominance graph and the area below the receiver operating characteristic graph." Journal of Mathematical Psychology 12.4 (1975): 387-415. \url{doi:10.1016/0022-2496(75)90001-2}

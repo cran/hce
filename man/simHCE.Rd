@@ -17,7 +17,7 @@ simHCE(
   yeardays = 360,
   pat = 100,
   shape = 1,
-  alpha = 1,
+  theta = 1,
   logC = FALSE,
   seed = NULL,
   dec = 2
@@ -48,7 +48,7 @@ simHCE(
 
 \item{shape}{shape of the Weibull distribution for time-to-event outcomes. Default is exponential distribution with \code{shape = 1}.}
 
-\item{alpha}{Gumbel dependence coefficient of the Weibull distributions for time-to-event outcomes. Default is \code{alpha = 1} which assumes independence of time-to-event outcomes. Must be above or equal to 1.}
+\item{theta}{Gumbel dependence coefficient of the Weibull distributions for time-to-event outcomes. Default is \code{theta = 1} which assumes independence of time-to-event outcomes. Must be above or equal to 1.}
 
 \item{logC}{logical, whether to use log-normal distribution for the continuous outcome.}
 
@@ -93,9 +93,9 @@ summaryWO(dat)
 Rates_A <- c(10, 20)
 Rates_P <- c(20, 20)
 dat1 <- simHCE(n = 2500, TTE_A = Rates_A, TTE_P = Rates_P, 
-CM_A = -3, CM_P = -6, CSD_A = 15, fixedfy = 3, alpha = 1, seed = 1)
+CM_A = -3, CM_P = -6, CSD_A = 15, fixedfy = 3, theta = 1, seed = 1)
 dat2 <- simHCE(n = 2500, TTE_A = Rates_A, TTE_P = Rates_P, 
-CM_A = -3, CM_P = -6, CSD_A = 15, fixedfy = 3, alpha = 10, seed = 1)
+CM_A = -3, CM_P = -6, CSD_A = 15, fixedfy = 3, theta = 1.0001, seed = 1)
 calcWO(dat1)
 calcWO(dat2)
 }
