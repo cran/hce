@@ -1,3 +1,8 @@
+# hce 0.7.2
+
+* `regWO()` and `stratWO()` are updated to return the confidence interval for the adjusted and stratified (or adjusted/stratified) win probability as well.
+* Added the formula implementation of `regWO().`
+
 # hce 0.7.0
 
 * `plot()` method for `hce` objects (created by the function `as_hce()`) is updated to include a `fill` argument for filling the area above the graph.

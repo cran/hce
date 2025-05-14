@@ -6,7 +6,7 @@
 #' @return a data frame containing calculated values.
 #' @export
 #' @md
-#' @seealso [hce::regWO.data.frame()]  methods.
+#' @seealso [hce::regWO.data.frame()], [hce::regWO.formula()] methods.
 regWO <- function(x, ...) {
   UseMethod("regWO")
 }

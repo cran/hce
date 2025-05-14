@@ -1,14 +1,16 @@
-#' Win odds regression using a data frame
+#' Win Odds Regression Using a Data Frame
+#'
+#' This function performs regression analysis for the win odds using a single numeric covariate.
 #'
 #' @param x a data frame containing subject-level data.
-#' @param AVAL variable in the data with ordinal analysis values.
+#' @param AVAL a variable in the data with ordinal analysis values.
 #' @param TRTP the treatment variable in the data.
 #' @param COVAR a numeric covariate.
 #' @param ref the reference treatment group.
-#' @param alpha significance level. The default is 0.05.
-#' @param WOnull the null hypothesis. The default is 1.
+#' @param alpha the significance level, with a default value of 0.05.
+#' @param WOnull the null hypothesis value for win odds. The default is 1.
 #' @param ... additional parameters.
-#' @returns a data frame containing the win odds and its confidence interval. 
+#' @returns a data frame containing the calculated win odds and its confidence interval, including: 
 #' * WO_beta adjusted win odds.
 #' * LCL lower confidence limit for adjusted WO.
 #' * UCL upper confidence limit for adjusted WO.
@@ -18,6 +20,8 @@
 #' * Pvalue p-value associated with testing the null hypothesis.
 #' * N total number of patients in the analysis.
 #' * beta adjusted win probability.
+#' * LCL_beta lower confidence limit for adjusted win probability.
+#' * UCL_beta upper confidence limit for adjusted win probability.
 #' * SE_beta standard error for the adjusted win probability.
 #' * SD_beta standard deviation for the adjusted win probability.
 #' * WP (non-adjusted) win probability.
@@ -29,7 +33,7 @@
 #' * COVAR_COV covariance between the response and the numeric covariate.
 #' @export
 #' @md
-#' @seealso [hce::regWO()].
+#' @seealso [hce::regWO()], [hce::regWO.formula()].
 #' @references Gasparyan SB et al. (2021) "Adjusted win ratio with stratification: calculation methods and interpretation." Statistical Methods in Medical Research 30.2: 580-611. <doi:10.1177/0962280220942558>.
 #' @examples
 #' # A baseline covariate that is highly correlated with the outcome
@@ -55,10 +59,16 @@ regWO.data.frame <- function(x, AVAL, TRTP, COVAR, ref, alpha = 0.05, WOnull = 1
   data$AVAL <- data[, base::names(data) == AVAL]
   data$TRTP <- data[, base::names(data) == TRTP]
   data$COVAR <- data[, base::names(data) == COVAR]
-  if(length(unique(data$TRTP)) != 2) stop("The dataset should contain two treatment groups.")
+  if(length(unique(data$TRTP)) != 2) {
+    message1 <- base::paste("The variable", TRTP, "should have exactly 2 unique values, but has", length(unique(data$TRTP)))
+    stop(message1)
+  }
   if(!ref %in% unique(data$TRTP)) stop("Choose the reference from the values in TRTP.")
   data$TRTP <- base::ifelse(data$TRTP == ref, "P", "A")
-  if(!is.numeric(data$COVAR)) stop("COVAR should be numeric.")  
+  if(!is.numeric(data$COVAR)) {
+    message2 <- base::paste("The variable", COVAR, "should be numeric.")
+    stop(message2)
+  }
  
   A <- base::rank(c(data$AVAL[data$TRTP == "A"], data$AVAL[data$TRTP == "P"]), ties.method = "average")
   B <- base::tapply(data$AVAL, data$TRTP, base::rank, ties.method = "average")
@@ -98,7 +108,8 @@ regWO.data.frame <- function(x, AVAL, TRTP, COVAR, ref, alpha = 0.05, WOnull = 1
   out <- base::data.frame(WO_beta = WO_beta, LCL = LCL, UCL = UCL, 
                           SE = SE, WOnull = WOnull, 
                           alpha = alpha, Pvalue = P, N = N,
-                          beta = beta, SE_beta = SE_beta, SD_beta = SE_beta*sqrt(N),
+                          beta = beta, LCL_beta = beta - Ca*SE_beta, UCL_beta = beta + Ca*SE_beta, 
+                          SE_beta = SE_beta, SD_beta = SE_beta*sqrt(N),
                           WP = WP, SE_WP = SE_WP, SD_WP = SE_WP*sqrt(N), WO = WP/(1 - WP))
   
   out$COVAR_MEAN_DIFF <- MEAN_COVAR["A"] - MEAN_COVAR["P"]

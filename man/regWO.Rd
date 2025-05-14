@@ -18,5 +18,5 @@ a data frame containing calculated values.
 A generic function for win odds regression
 }
 \seealso{
-\code{\link[=regWO.data.frame]{regWO.data.frame()}}  methods.
+\code{\link[=regWO.data.frame]{regWO.data.frame()}}, \code{\link[=regWO.formula]{regWO.formula()}} methods.
 }

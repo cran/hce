@@ -30,7 +30,6 @@
 #' data(HCE4)
 #' calcWO(x = HCE4, AVAL = "AVAL", TRTP = "TRTP", ref = "P")
 calcWO.data.frame <- function(x, AVAL, TRTP, ref, alpha = 0.05, WOnull = 1, ...){
-
   data <- as.data.frame(x)
   alpha <- alpha[1]
   WOnull <- WOnull[1]
@@ -44,7 +43,10 @@ calcWO.data.frame <- function(x, AVAL, TRTP, ref, alpha = 0.05, WOnull = 1, ...)
     stop(paste0("The variable ", TRTP, " is not in the dataset."))
   data$AVAL <- data[, base::names(data) == AVAL]
   data$TRTP <- data[, base::names(data) == TRTP]
-  if(length(unique(data$TRTP)) != 2) stop("The dataset should contain two treatment groups.")
+  if(length(unique(data$TRTP)) != 2) {
+    message1 <- base::paste("The variable", TRTP, "should have exactly 2 unique values, but has", length(unique(data$TRTP)))
+    stop(message1)
+  }
   if(!ref %in% unique(data$TRTP)) stop("Choose the reference from the values in TRTP.")
   data$TRTP <- base::ifelse(data$TRTP == ref, "P", "A")
 
@@ -77,7 +79,6 @@ calcWO.data.frame <- function(x, AVAL, TRTP, ref, alpha = 0.05, WOnull = 1, ...)
   P <- 2*(1 - stats::pnorm(threshold))
 
   out <- base::data.frame(WO = WO, LCL = LCL, UCL = UCL, SE = SE, WOnull = WOnull, alpha = alpha, Pvalue = P, WP = WP, LCL_WP  = LCL_WP, UCL_WP = UCL_WP, SE_WP = SE_WP, SD_WP = SD_WP, N = N)
-
   return(out)
 }
 

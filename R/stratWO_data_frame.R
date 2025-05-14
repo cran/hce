@@ -18,6 +18,8 @@
 #' * alpha two-sided significance level for calculating the confidence interval (specified in the `alpha` argument).
 #' * Pvalue p-value associated with testing the null hypothesis.
 #' * WP adjusted (or adjusted/stratified) win probability.
+#' * LCL_WP lower confidence limit for adjusted (or adjusted/stratified) WP.
+#' * UCL_WP upper confidence limit for adjusted (or adjusted/stratified) WP.
 #' * SE_WP standard error for the adjusted (or adjusted/stratified) win probability.
 #' * SD_WP standard deviation of the adjusted (or adjusted/stratified) win probability.
 #' * N total number of patients in the analysis.
@@ -29,14 +31,33 @@
 #' @examples
 #' # Stratified win odds
 #' res <- stratWO(x = KHCE, AVAL = "AVAL", TRTP = "TRTP", 
-#' STRATA = "STRATAN", ref = "P")
+#'                STRATA = "STRATAN", ref = "P")
 #' res
+#' ## Compare with the non-stratified win odds
+#' res0 <- calcWO(AVAL ~ TRTP, data = KHCE,  ref = "P")
+#' res0
 #' ## Compare with the win odds in each stratum separately
-#' lapply(split(KHCE, KHCE$STRATAN), calcWO, AVAL = "AVAL", TRTP = "TRTP", ref = "P")
+#' l <- lapply(split(KHCE, KHCE$STRATAN), calcWO, AVAL = "AVAL", TRTP = "TRTP", ref = "P")
+#' l <- do.call(rbind, l)
+#' l <- l[, c("WO", "LCL", "UCL", "N")]
+#' l$STRATA <- as.numeric(row.names(l))
+#' plot(y = l$WO, x = l$STRATA, ylim = c(0.5, 2.5), log = "y", xlim = c(0, 6),
+#'       ylab = "Win Odds", xlab = "", xaxt = "n")
+#' axis(1, at = 1:6, labels = c(paste0("STR = ", l$STRATA), "Stratified", "Non-stratified"))
+#' arrows(l$STRATA, l$LCL, l$STRATA, 
+#'        l$UCL, angle = 90, code = 3, length = 0.05, col = "darkgreen")
+#' points(5, res$WO)
+#' arrows(5, res$LCL, 5, res$UCL, angle = 90, code = 3, 
+#'        length = 0.05, col = "darkblue")
+#' abline(h = c(1, res$WO), col = "red", lty = 4)
+#' points(6, res0$WO)
+#' arrows(6, res0$LCL, 6, res0$UCL, angle = 90, code = 3, 
+#'        length = 0.05, col = "darkred")
 #' # Stratified and adjusted win odds
 #' res <- stratWO(x = KHCE, AVAL = "AVAL", COVAR = "EGFRBL", 
-#' TRTP = "TRTP", STRATA = "STRATAN", ref = "P")
+#'               TRTP = "TRTP", STRATA = "STRATAN", ref = "P")
 #' res
+#' 
 stratWO.data.frame <- function(x, AVAL, TRTP, STRATA, ref, COVAR = NULL, alpha = 0.05, WOnull = 1, ...){
   data <- as.data.frame(x)
   alpha <- alpha[1]
@@ -107,7 +128,7 @@ stratWO.data.frame <- function(x, AVAL, TRTP, STRATA, ref, COVAR = NULL, alpha =
     UCL <- WO*exp(Ca *SE)
     
     res <- data.frame( WO = WO, LCL = LCL, UCL = UCL, SE = SE, WOnull = WOnull, alpha = alpha, Pvalue = P, 
-                       WP = WP, SE_WP = SE_WP, SD_WP = SE_WP*sqrt(sum(STR0$N)), N = sum(STR0$N))
+                       WP = WP, LCL_WP = WP - Ca*SE_WP, UCL_WP = WP + Ca*SE_WP, SE_WP = SE_WP, SD_WP = SE_WP*sqrt(sum(STR0$N)), N = sum(STR0$N))
     res$Type <- "STRATIFIED/ADJUSTED"
     
   } else{
@@ -135,7 +156,7 @@ stratWO.data.frame <- function(x, AVAL, TRTP, STRATA, ref, COVAR = NULL, alpha =
     UCL_str <- WO_str*exp(Ca*SE_str)
     
     res <- data.frame( WO = WO_str, LCL = LCL_str, UCL = UCL_str, SE = SE_str, WOnull = WOnull, alpha = alpha, Pvalue = P, 
-                       WP = WP_str, SE_WP = SE_WP_str, SD_WP = SE_WP_str*sqrt(sum(STR0$N)), N = sum(STR0$N))
+                       WP = WP_str, LCL_WP = WP_str - Ca*SE_WP_str, UCL_WP = WP_str + Ca*SE_WP_str, SE_WP = SE_WP_str, SD_WP = SE_WP_str*sqrt(sum(STR0$N)), N = sum(STR0$N))
     res$Type <- "STRATIFIED"
   }
   

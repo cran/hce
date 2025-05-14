@@ -42,7 +42,7 @@
 #' @examples
 #' calcWINS(x = COVID19b, AVAL = "GROUP", TRTP = "TRTP", ref = "Placebo")
 #' ## Biased vs unbiased
-#' n0 <- 10; n1 <- 20; p0 <- 0.2; p1 <- 0.5; x <- 1:20; delta <- 0.5
+#' n0 <- 5; n1 <- 7; p0 <- 0.2; p1 <- 0.5; x <- 1:20; delta <- 0.5
 #' WP0 <- (p1 - p0)/2 + 0.5
 #' DAT <- NULL
 #' for(i in x){
@@ -56,15 +56,15 @@
 #'   DAT <- rbind(DAT, CL1, CL2)
 #' }
 #' WP <- DAT$WP[DAT$Type == "unbiased"]
-#' plot(x, WP, pch = 19, xlab = "Simulations", ylab = "Win Probability", ylim = c(0., 1.))
+#' plot(x, WP, pch = 19, xlab = "Simulations", ylab = "Win Probability", ylim = c(0., 1.1))
 #' points(x + delta, WP, pch = 19)
 #' arrows(x, DAT$LCL[DAT$Type == "unbiased"], 
 #'        x, DAT$UCL[DAT$Type == "unbiased"], angle = 90, code = 3, length = 0.05, "green")
 #' arrows(x + delta, DAT$LCL[DAT$Type == "biased"], 
 #'        x + delta, DAT$UCL[DAT$Type == "biased"], angle = 90, code = 3, length = 0.05, col = "red")
-#' abline(h = WP0, col = "blue", lty = 3)
+#' abline(h = c(WP0, 1), col = "blue", lty = 3)
 #' legend("bottomleft", legend = c("True WP", "Biased", "Unbiased"), 
-#'                     col = c(4, 2, 3), lty = c(3, 1, 1 ), cex = 0.5)
+#'                     col = c(4, 2, 3), lty = c(3, 1, 1 ), cex = 0.75)
 
 calcWINS.data.frame <- function(x, AVAL, TRTP, ref, alpha = 0.05, WOnull = 1, SE_WP_Type = c("biased", "unbiased"), ...){
   SE_WP_Type <- match.arg(SE_WP_Type)
@@ -112,7 +112,9 @@ calcWINS.data.frame <- function(x, AVAL, TRTP, ref, alpha = 0.05, WOnull = 1, SE
   if(SE_WP_Type == "unbiased"){
     nA <- sum(res2$N[res2$TRTP=="A"])
     nP <- sum(res2$N[res2$TRTP=="P"])
-    SE_WP <- sqrt(res0$SE_WP^2 - (res0[, "WP"]*(1 - res0[, "WP"]) - 0.25*Pties)/(nA*nP))
+    K <- nA*nP/((nA - 1) * (nP - 1)) 
+    BBK <- K*(res0$SE_WP^2 - (res0[, "WP"]*(1 - res0[, "WP"]) - 0.25*Pties)/(nA*nP))
+    SE_WP <- sqrt(BBK)
     threshold_WP <- base::abs(res0[, "WP"] - WPnull)/SE_WP
     P_WP <- 2 * (1 - stats::pnorm(threshold_WP))
   } else {
