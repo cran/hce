@@ -34,5 +34,5 @@ Win odds summary for a data frame
 summaryWO(x = HCE3, AVAL = "AVAL", TRTP = "TRTP", ref = "P", GROUP = "GROUP")
 }
 \seealso{
-\code{\link[=calcWO]{calcWO()}}, \code{\link[=summaryWO]{summaryWO()}}, \code{\link[=summaryWO.data.frame]{summaryWO.data.frame()}}  methods.
+\code{\link[=calcWO]{calcWO()}}, \code{\link[=summaryWO]{summaryWO()}}, \code{\link[=summaryWO.formula]{summaryWO.formula()}}, \code{\link[=summaryWO.hce]{summaryWO.hce()}}   methods.
 }

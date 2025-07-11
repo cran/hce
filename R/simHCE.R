@@ -16,6 +16,7 @@
 #' @param logC logical, whether to use log-normal distribution for the continuous outcome.
 #' @param seed for generating random numbers.
 #' @param dec decimal places for the continuous outcome used for rounding. The default is `dec = 2`.
+#' @param all_data logical, whether to return source datasets `ADET` (an event-time dataset for all time-to-event outcomes per patient) and `BDS` (a basic data structure for the continuous outcome for all patients).
 #' @return an object of class `hce` containing the following columns:
 #' * ID subject identifier.
 #' * TRTP planned treatment group - "A" for active, "P" for Placebo.
@@ -27,6 +28,8 @@
 #' * AVAL analysis values derived as `AVAL0 + GROUPN`. For the continuous outcome the values of `AVAL0` are shifted to start always from 0.
 #' * seed the seed of the random sample. If not specified in `seed` argument will be selected based on system time.
 #' * PADY primary analysis day, the length of fixed follow-up in days calculated as `yeardays` multiplied by `fixedfy`.
+#' 
+#' If `all_data = TRUE`, the function returns a list containing the `hce` dataset, along with its source datasets: `ADET` (an event-time dataset for all time-to-event outcomes per patient) and `BDS` (a basic data structure for the continuous outcome for all patients).
 #' @export
 #' @md
 #' @seealso [hce::hce()], [hce::as_hce()] for the helper a coerce function to `hce` objects.
@@ -56,7 +59,7 @@
 #' calcWO(dat2)
 
 
-simHCE <- function(n, n0 = n, TTE_A, TTE_P, CM_A, CM_P, CSD_A = 1, CSD_P = CSD_A, fixedfy = 1, yeardays = 360, pat = 100, shape = 1, theta = 1, logC = FALSE, seed = NULL, dec = 2 ){
+simHCE <- function(n, n0 = n, TTE_A, TTE_P, CM_A, CM_P, CSD_A = 1, CSD_P = CSD_A, fixedfy = 1, yeardays = 360, pat = 100, shape = 1, theta = 1, logC = FALSE, seed = NULL, dec = 2, all_data = FALSE){
   if(base::length(TTE_P) != base::length(TTE_A))
     stop("Event rate vectors for active and placebo groups should have the same length.")
   stopifnot("`theta` must be greater than or equal to 1." = theta >= 1)
@@ -71,6 +74,7 @@ simHCE <- function(n, n0 = n, TTE_A, TTE_P, CM_A, CM_P, CSD_A = 1, CSD_P = CSD_A
   pat <- pat[1]
   seed <- seed[1]
   logC <- as.logical(logC[1])
+  all_data <- as.logical(all_data[1])
   shape <- shape[1]
   dec <- dec[1]
   theta <- theta[1]
@@ -103,10 +107,6 @@ simHCE <- function(n, n0 = n, TTE_A, TTE_P, CM_A, CM_P, CSD_A = 1, CSD_P = CSD_A
     d0 <- lapply(split(d, d$TTE), function(x) invW(x[, 1], scale = 1/x[, 2], shape = shape))
     M_P <- do.call(cbind, d0)
     dimnames(M_P) <- NULL
-    #Y1 <- lapply(Y, invW, scale = 1/TTE_A, shape = shape)
-    #M_A <- do.call(rbind, Y1)
-    #X1 <- lapply(X, invW, scale = 1/TTE_P, shape = shape)
-    #M_P <- do.call(rbind, X1)
   }
   M_P <- round(M_P)
   M_P <- base::as.data.frame(M_P)
@@ -144,13 +144,38 @@ simHCE <- function(n, n0 = n, TTE_A, TTE_P, CM_A, CM_P, CSD_A = 1, CSD_P = CSD_A
     dat[dat$TRTP == "A", "AVAL0"] <- XA
     dat[dat$TRTP == "P", "AVAL0"] <- XP
   }
+  ## Needed only for all_data = TRUE
+  BDS <- dat[, c("ID", "TRTP", "AVAL0")]
+  names(BDS)[names(BDS) == "AVAL0"] <- "AVAL"
+  ###############
   dat[dat$GROUP != "C", "AVAL0"] <- dat[dat$GROUP != "C", "AVALT"]
   mcont <- min(dat[dat$GROUP == "C", "AVAL0"])
   dat$AVAL <- ifelse(dat$GROUP != "C", dat$AVAL0 + dat$GROUPN, dat$AVAL0 - mcont + 1 + dat$GROUPN)
-  dat <- dat[, c("ID", "TRTP", "GROUP", "GROUPN", "AVALT", "AVAL0", "AVAL", "seed")]
-  dat$PADY <- fixedf
-  dat <- as_hce(dat)
-  return(dat)
+  if(!all_data){
+    dat <- dat[, c("ID", "TRTP", "GROUP", "GROUPN", "AVALT", "AVAL0", "AVAL", "seed")]
+    dat$PADY <- fixedf
+    dat <- as_hce(dat)
+    return(dat)  
+  } else{
+    TRANSPOSE <- function(x) {
+      d <- as.data.frame(t(x))
+      d$ID <- as.numeric(names(d))
+      names(d)[1] <- "AVAL"
+      d$EVENT <- row.names(d)
+      row.names(d) <- NULL
+      d  
+    }
+    l <- lapply(split(dat[, base::startsWith(names(dat), "TTE"), drop = FALSE], dat$ID), TRANSPOSE)
+    res <- do.call(rbind, l)
+    row.names(res) <- NULL
+    res <- res[res$AVAL <= fixedf, c("ID", "AVAL", "EVENT")]
+    res$PADY <- fixedf
+    dat <- dat[, c("ID", "TRTP", "GROUP", "GROUPN", "AVALT", "AVAL0", "AVAL", "seed")]
+    dat$PADY <- fixedf
+    dat <- as_hce(dat)
+    l <- list(ADET = res, BDS = BDS, HCE = dat)
+    return(l)
+  }
 }
 
 phi <- function(t, theta = 1) {

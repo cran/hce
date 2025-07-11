@@ -15,7 +15,7 @@
 #' * theta the theoretical win probability.
 #' @export
 #' @md
-#' @seealso [hce::simHCE()], [hce::simADHCE()] for simulating `hce` objects.
+#' @seealso [hce::simHCE()] for simulating `hce` objects.
 #' @examples
 #' # Example 1
 #' set.seed(2024)

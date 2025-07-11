@@ -77,5 +77,5 @@ lty = c(4, 2, 1), col = c("darkgreen", "red", "black"))
 title("Convergence of the win odds to its theoretical value")
 }
 \seealso{
-\code{\link[=simHCE]{simHCE()}}, \code{\link[=simADHCE]{simADHCE()}} for simulating \code{hce} objects.
+\code{\link[=simHCE]{simHCE()}} for simulating \code{hce} objects.
 }

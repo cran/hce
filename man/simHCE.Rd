@@ -20,7 +20,8 @@ simHCE(
   theta = 1,
   logC = FALSE,
   seed = NULL,
-  dec = 2
+  dec = 2,
+  all_data = FALSE
 )
 }
 \arguments{
@@ -55,6 +56,8 @@ simHCE(
 \item{seed}{for generating random numbers.}
 
 \item{dec}{decimal places for the continuous outcome used for rounding. The default is \code{dec = 2}.}
+
+\item{all_data}{logical, whether to return source datasets \code{ADET} (an event-time dataset for all time-to-event outcomes per patient) and \code{BDS} (a basic data structure for the continuous outcome for all patients).}
 }
 \value{
 an object of class \code{hce} containing the following columns:
@@ -70,6 +73,8 @@ Only one continuous outcome is possible, but no restriction on the number of "TT
 \item seed the seed of the random sample. If not specified in \code{seed} argument will be selected based on system time.
 \item PADY primary analysis day, the length of fixed follow-up in days calculated as \code{yeardays} multiplied by \code{fixedfy}.
 }
+
+If \code{all_data = TRUE}, the function returns a list containing the \code{hce} dataset, along with its source datasets: \code{ADET} (an event-time dataset for all time-to-event outcomes per patient) and \code{BDS} (a basic data structure for the continuous outcome for all patients).
 }
 \description{
 Simulate \code{hce} object with given event rates of time-to-event outcomes (Weibull), mean and SD of the continuous outcome (normal or log-normal) by treatment group

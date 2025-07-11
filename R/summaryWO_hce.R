@@ -8,7 +8,7 @@
 #' * WO calculated WO (win odds) and WP (win probability) and their standard errors.
 #' @export
 #' @md
-#' @seealso [hce::calcWO()], [hce::summaryWO()], [hce::summaryWO.data.frame()] methods.
+#' @seealso [hce::calcWO()], [hce::summaryWO()], [hce::summaryWO.data.frame()], [hce::summaryWO.formula()] methods.
 #' @examples
 #' dat <- as_hce(HCE4)
 #' summaryWO(dat, ref = "P")

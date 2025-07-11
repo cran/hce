@@ -1,6 +1,6 @@
 ---
 title: "Introduction"
-date: "`r format(as.Date('2025-03-01'), '%d %B, %Y')`"
+date: "`r format(as.Date('2025-07-01'), '%d %B, %Y')`"
 author:
   - name: "Samvel B. Gasparyan"
     affiliation: https://gasparyan.co/
@@ -82,7 +82,7 @@ In brief, the package contains the following:
 
 - `hce(), as_hce(), simHCE()` (see @gasp2024bds). 
 
-- Auxiliary function `simADHCE()` works similarly to `simHCE()` but also provides source datasets used to produce the `hce` object. 
+- The function `simKHCE()` simulates continuous eGFR (estimated Glomerular Filtration Rate) values over time and derives an `hce` object for the kidney HCE [@khce2]. 
 
 - The function `simORD()` simulates ordinal outcomes by categorization of *beta* distributions.
 

@@ -27,5 +27,5 @@ dat <- as_hce(HCE4)
 summaryWO(dat, ref = "P")
 }
 \seealso{
-\code{\link[=calcWO]{calcWO()}}, \code{\link[=summaryWO]{summaryWO()}}, \code{\link[=summaryWO.data.frame]{summaryWO.data.frame()}} methods.
+\code{\link[=calcWO]{calcWO()}}, \code{\link[=summaryWO]{summaryWO()}}, \code{\link[=summaryWO.data.frame]{summaryWO.data.frame()}}, \code{\link[=summaryWO.formula]{summaryWO.formula()}} methods.
 }

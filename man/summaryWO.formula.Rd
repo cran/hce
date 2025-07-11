@@ -29,3 +29,6 @@ Win odds summary using formula syntax
 summaryWO(data = COVID19, GROUP ~ TRTP)
 summaryWO(data = COVID19, GROUP ~ TRTP, GROUP = "GROUP", ref = "Placebo")
 }
+\seealso{
+\code{\link[=calcWO]{calcWO()}}, \code{\link[=summaryWO]{summaryWO()}}, \code{\link[=summaryWO.data.frame]{summaryWO.data.frame()}}, \code{\link[=summaryWO.hce]{summaryWO.hce()}}  methods.
+}

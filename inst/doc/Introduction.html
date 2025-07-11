@@ -1592,7 +1592,7 @@ border-radius: 0px;
 <h1 class="title toc-ignore">Introduction</h1>
 <h4 class="author">Samvel B. Gasparyan</h4>
 <address class="author_afil">
-<a href="https://gasparyan.co/" class="uri">https://gasparyan.co/</a><br><h4 class="date">01 March,
+<a href="https://gasparyan.co/" class="uri">https://gasparyan.co/</a><br><h4 class="date">01 July,
 2025</h4>
 
 </div>
@@ -1637,7 +1637,7 @@ randomization-based covariate adjustment theory developed in <span class="citati
 <p>Load the package <code>hce</code> and check the version</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(hce)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">&quot;hce&quot;</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; [1] &#39;0.7.2&#39;</span></span></code></pre></div>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; [1] &#39;0.8.0&#39;</span></span></code></pre></div>
 <p>For citing the package, run <code>citation(&quot;hce&quot;)</code> <span class="citation">(Samvel B. Gasparyan 2025)</span>.</p>
 </div>
 <div id="contents" class="section level3">
@@ -1648,7 +1648,7 @@ randomization-based covariate adjustment theory developed in <span class="citati
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt;  [6] &quot;COVID19plus&quot; &quot;HCE1&quot;        &quot;HCE2&quot;        &quot;HCE3&quot;        &quot;HCE4&quot;       </span></span>
 <span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; [11] &quot;IWP&quot;         &quot;KHCE&quot;        &quot;as_hce&quot;      &quot;calcWINS&quot;    &quot;calcWO&quot;     </span></span>
 <span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; [16] &quot;hce&quot;         &quot;minWO&quot;       &quot;powerWO&quot;     &quot;propWINS&quot;    &quot;regWO&quot;      </span></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; [21] &quot;simADHCE&quot;    &quot;simHCE&quot;      &quot;simORD&quot;      &quot;sizeWO&quot;      &quot;sizeWR&quot;     </span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; [21] &quot;simHCE&quot;      &quot;simKHCE&quot;     &quot;simORD&quot;      &quot;sizeWO&quot;      &quot;sizeWR&quot;     </span></span>
 <span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; [26] &quot;stratWO&quot;     &quot;summaryWO&quot;</span></span></code></pre></div>
 <p>In brief, the package contains the following:</p>
 <ol style="list-style-type: decimal">
@@ -1674,9 +1674,9 @@ on this, the derived kidney hierarchical composite endpoint dataset
 </ol>
 <ul>
 <li><p><code>hce(), as_hce(), simHCE()</code> (see <span class="citation">Samvel B. Gasparyan et al. (2024)</span>).</p></li>
-<li><p>Auxiliary function <code>simADHCE()</code> works similarly to
-<code>simHCE()</code> but also provides source datasets used to produce
-the <code>hce</code> object.</p></li>
+<li><p>The function <code>simKHCE()</code> simulates continuous eGFR
+(estimated Glomerular Filtration Rate) values over time and derives an
+<code>hce</code> object for the kidney HCE <span class="citation">(Heerspink et al. 2023)</span>.</p></li>
 <li><p>The function <code>simORD()</code> simulates ordinal outcomes by
 categorization of <em>beta</em> distributions.</p></li>
 </ul>
@@ -1894,15 +1894,16 @@ coercion is not possible, it will throw an error explaining the
 issue.</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>dat1 <span class="ot">&lt;-</span> <span class="fu">as_hce</span>(HCE2)</span>
 <span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="fu">str</span>(dat1)</span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="co">#&gt; Classes &#39;hce&#39; and &#39;data.frame&#39;:  1000 obs. of  8 variables:</span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="co">#&gt; Classes &#39;adhce&#39;, &#39;hce&#39; and &#39;data.frame&#39;: 1000 obs. of  9 variables:</span></span>
 <span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="co">#&gt;  $ ID    : int  1 2 3 4 5 6 7 8 9 10 ...</span></span>
 <span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="co">#&gt;  $ TRTP  : chr  &quot;A&quot; &quot;P&quot; &quot;A&quot; &quot;P&quot; ...</span></span>
-<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="co">#&gt;  $ GROUP : chr  &quot;TTE1&quot; &quot;C&quot; &quot;C&quot; &quot;TTE1&quot; ...</span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="co">#&gt;  $ GROUP : Factor w/ 5 levels &quot;TTE1&quot;,&quot;TTE2&quot;,..: 1 5 5 1 2 3 5 2 1 5 ...</span></span>
 <span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="co">#&gt;  $ GROUPN: num  1080 5400 5400 1080 2160 3240 5400 2160 1080 5400 ...</span></span>
 <span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="co">#&gt;  $ AVALT : num  120 1080 1080 577 782 985 1080 293 313 1080 ...</span></span>
 <span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="co">#&gt;  $ AVAL0 : num  120 3.35 22.8 577 782 ...</span></span>
 <span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a><span class="co">#&gt;  $ AVAL  : num  1200 5461 5480 1657 2942 ...</span></span>
-<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="co">#&gt;  $ PADY  : num  1080 1080 1080 1080 1080 1080 1080 1080 1080 1080 ...</span></span></code></pre></div>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="co">#&gt;  $ PADY  : num  1080 1080 1080 1080 1080 1080 1080 1080 1080 1080 ...</span></span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a><span class="co">#&gt;  $ PARAMN: num  1 5 5 1 2 3 5 2 1 5 ...</span></span></code></pre></div>
 </div>
 <div id="simulate-hce-objects-using-simhce" class="section level3">
 <h3>Simulate <code>hce</code> Objects Using <code>simHCE()</code></h3>
@@ -1911,7 +1912,7 @@ function <code>simHCE()</code>, which has the following arguments:</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">args</span>(<span class="st">&quot;simHCE&quot;</span>)</span>
 <span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="co">#&gt; function (n, n0 = n, TTE_A, TTE_P, CM_A, CM_P, CSD_A = 1, CSD_P = CSD_A, </span></span>
 <span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="co">#&gt;     fixedfy = 1, yeardays = 360, pat = 100, shape = 1, theta = 1, </span></span>
-<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="co">#&gt;     logC = FALSE, seed = NULL, dec = 2) </span></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="co">#&gt;     logC = FALSE, seed = NULL, dec = 2, all_data = FALSE) </span></span>
 <span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="co">#&gt; NULL</span></span></code></pre></div>
 <ul>
 <li><p>The vector arguments <code>TTE_A</code> and <code>TTE_P</code>
@@ -1942,15 +1943,15 @@ given means and standard deviations for two treatment groups.</p></li>
 <span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>               <span class="at">CSD_A =</span> <span class="dv">16</span>, <span class="at">CSD_P =</span> <span class="dv">15</span>, </span>
 <span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a>               <span class="at">fixedfy =</span> <span class="dv">3</span>, <span class="at">seed =</span> <span class="dv">2023</span>)</span></code></pre></div>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">class</span>(dat3)</span>
-<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;hce&quot;        &quot;data.frame&quot;</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;adhce&quot;      &quot;hce&quot;        &quot;data.frame&quot;</span></span>
 <span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="fu">head</span>(dat3)</span>
-<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="co">#&gt;   ID TRTP GROUP GROUPN AVALT  AVAL0    AVAL seed PADY</span></span>
-<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="co">#&gt; 1  1    A     C   6480  1080  -9.32 6526.85 2023 1080</span></span>
-<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="co">#&gt; 2  2    A     C   6480  1080   0.11 6536.28 2023 1080</span></span>
-<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="co">#&gt; 3  3    A     C   6480  1080  27.06 6563.23 2023 1080</span></span>
-<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="co">#&gt; 4  4    A     C   6480  1080  -4.78 6531.39 2023 1080</span></span>
-<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="co">#&gt; 5  5    A  TTE2   2160   390 390.00 2550.00 2023 1080</span></span>
-<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a><span class="co">#&gt; 6  6    A     C   6480  1080   4.56 6540.73 2023 1080</span></span></code></pre></div>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="co">#&gt;   ID TRTP GROUP GROUPN AVALT  AVAL0    AVAL seed PADY PARAMN</span></span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="co">#&gt; 1  1    A     C   6480  1080  -9.32 6526.85 2023 1080      6</span></span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="co">#&gt; 2  2    A     C   6480  1080   0.11 6536.28 2023 1080      6</span></span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="co">#&gt; 3  3    A     C   6480  1080  27.06 6563.23 2023 1080      6</span></span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="co">#&gt; 4  4    A     C   6480  1080  -4.78 6531.39 2023 1080      6</span></span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="co">#&gt; 5  5    A  TTE2   2160   390 390.00 2550.00 2023 1080      2</span></span>
+<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a><span class="co">#&gt; 6  6    A     C   6480  1080   4.56 6540.73 2023 1080      6</span></span></code></pre></div>
 </div>
 </div>
 <div id="generics-for-hce-objects" class="section level2">
@@ -2089,7 +2090,7 @@ Strength of the Treatment Effect on Time-to-Event Outcomes.”</span>
 <div id="ref-hce" class="csl-entry">
 Gasparyan, Samvel B. 2025. <em><span class="nocase">hce</span>: Design
 and Analysis of Hierarchical Composite Endpoints</em>. <em>CRAN: The
-Comprehensive R Archive Network, R Package, Version 0.7.2</em>. <a href="https://doi.org/10.32614/CRAN.package.hce">https://doi.org/10.32614/CRAN.package.hce</a>.
+Comprehensive R Archive Network, R Package, Version 0.8.0</em>. <a href="https://doi.org/10.32614/CRAN.package.hce">https://doi.org/10.32614/CRAN.package.hce</a>.
 </div>
 <div id="ref-gasparyan2022design" class="csl-entry">
 Gasparyan, Samvel B, Joan Buenconsejo, Elaine K Kowalewski, Jan

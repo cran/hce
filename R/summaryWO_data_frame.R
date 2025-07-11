@@ -12,7 +12,7 @@
 #' * WO calculated WO (win odds) and WP (win probability) and their standard errors.
 #' @export
 #' @md
-#' @seealso [hce::calcWO()], [hce::summaryWO()], [hce::summaryWO.data.frame()]  methods.
+#' @seealso [hce::calcWO()], [hce::summaryWO()], [hce::summaryWO.formula()], [hce::summaryWO.hce()]   methods.
 #' @examples
 #' summaryWO(x = HCE3, AVAL = "AVAL", TRTP = "TRTP", ref = "P", GROUP = "GROUP")
 summaryWO.data.frame <- function(x, AVAL, TRTP, ref, GROUP = NULL, ...){

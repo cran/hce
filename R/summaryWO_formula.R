@@ -9,7 +9,8 @@
 #' * formula returning the specified formula in the `x` argument.
 #' * ref showing how the reference group was selected. Can be modifying by specifying the `ref` argument.
 #' @export
-#'
+#' @md
+#' @seealso [hce::calcWO()], [hce::summaryWO()], [hce::summaryWO.data.frame()], [hce::summaryWO.hce()]  methods.
 #' @examples
 #' summaryWO(data = COVID19, GROUP ~ TRTP)
 #' summaryWO(data = COVID19, GROUP ~ TRTP, GROUP = "GROUP", ref = "Placebo")
@@ -33,7 +34,7 @@ summaryWO.formula <- function(x, data, ...){
                                         base::paste(Level, collapse = ", ")))
   if(!base::is.null(Args[["GROUP"]])) {
     GROUP <- Args[["GROUP"]]
-    mf$GROUP <- data[, "GROUP", drop = T]
+    mf$GROUP <- data[, GROUP, drop = T]
   }
   else GROUP <- NULL
   res <- summaryWO.data.frame(x = mf, AVAL = formulavars[1], TRTP = formulavars[2], ref = ref, GROUP = GROUP)
