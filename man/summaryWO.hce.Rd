@@ -15,7 +15,6 @@
 a list containing the summary of wins, losses, and ties. It contains the following named objects:
 \itemize{
 \item summary a data frame containing number of wins, losses, and ties by treatment group and the overall number of comparisons.
-\item summary_by_GROUP (if \code{GROUP} variable is specified) a summary data frame by \code{GROUP}.
 \item WO calculated WO (win odds) and WP (win probability) and their standard errors.
 }
 }

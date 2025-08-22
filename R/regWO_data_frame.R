@@ -78,7 +78,7 @@ regWO.data.frame <- function(x, AVAL, TRTP, COVAR, ref, alpha = 0.05, WOnull = 1
   N <- n0 + n1
   d <- base::data.frame(R1 = A, R2 = base::c(B$A, B$P), 
                         TRTP = base::c(base::rep("A", n1), base::rep("P", n0)), 
-                        COVAR = data$COVAR)
+                        COVAR = c(data$COVAR[data$TRTP == "A"], data$COVAR[data$TRTP == "P"]))
   d$R <- d$R1 - d$R2
   d$R0 <- base::ifelse(d$TRTP == "A", d$R/n0, d$R/n1)
   

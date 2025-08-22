@@ -1,45 +1,57 @@
 #' Helper function for `hce` objects
 #'
-#' @param GROUP a character vector of the same length as `AVAL` containing events.
-#' @param TRTP a character vector of the same length as `AVAL` containing assigned treatment groups.
-#' @param AVAL0 a numeric vector of analysis values within each category. The default is 0.
-#' @param ORD a character vector containing ordered unique values of the `GROUP` variable for determining the hierarchy of events.
-#' @returns an object of class `hce`. Its is a subject-level data frame (each row corresponds to one subject), containing the following columns:
-#' * SUBJID subject ID.
-#' * GROUP a character vector specifying the type of the outcome the patient experienced - either a TTE (time-to-event) or C (continuous).
-#' * GROUPN a numeric vector version of the `GROUP` column.
-#' * AVAL0 original analysis values - time of the time-to-event outcomes or the continuous outcome.
-#' * AVAL derived analysis value `AVAL = AVAL0 + GROUPN`.
-#' * TRTP assigned treatment groups.
+#' @param GROUP a character vector or a factor containing events. 
+#' If a factor, its levels are used to define the hierarchy. Otherwise, the vector is
+#' converted to a factor.
+#' @param TRTP a character vector of the same length as `GROUP`, indicating assigned treatment groups.
+#' @param AVAL0 a numeric vector of the same length as `GROUP`, indicating containing analysis values within each category. The default is 0.
+#' @param PADY numeric specifying the length of follow-up in years.
+#' @returns an object of class `hce` or `adhce` (if `AVAL0` is provided). The result 
+#' is a subject-level data frame, where each row corresponds to one subject, 
 #' @export
 #' @md
 #' @seealso [hce::as_hce()] for coercing to `hce` objects.
 #' @examples
-#' # Example 1
+#' # Example 1 - Both `AVAL0` and `PADY` are provided. The output is an `adhce` object.
+#' GROUP <- COVID19$GROUP
+#' TRTP <- rep(c("A", "P"), each = 531)
+#' dat <- hce(GROUP, TRTP, PADY = 10, AVAL0 = rnorm(1062))
+#' class(dat)
+#' calcWO(dat)
+#' summaryWO(dat) # Uses the `GROUP` variable for summary.
+#' # Example 2 - Only `AVAL0` is provided, `PADY` is calculated as the maximum of `AVAL0`. 
+#' # The output is an `adhce` object.
 #' set.seed(2022)
 #' d <- hce(GROUP = sample(x = c("A", "B", "C"), size = 10, replace = TRUE), 
 #' TRTP = rep(c("Active", "Control"), each = 5), 
-#' AVAL0 = c(rnorm(5, mean = 1), rnorm(5)), ORD = c("A", "B", "C"))
+#' AVAL0 = c(rnorm(5, mean = 1), rnorm(5)))
 #' calcWO(d, ref = "Control")
-
-hce <- function(GROUP = character(), TRTP = character(), AVAL0 = 0, ORD = sort(unique(GROUP))){
-  if(length(TRTP) == 0)
+#' ## modify the hierarchy by proving a factor for the GROUP variable. 
+#' ## calcWO() applied to an hce rederives `AVAL` based on the `GROUP` variable.
+#' d$GROUP <- factor(d$GROUP, levels = c("C", "B", "A"))
+#' calcWO(d, ref = "Control")
+#' # Example 3 - Provide only `PADY` and not `AVAL0` will not make any difference.
+#' GROUP <- COVID19$GROUP
+#' TRTP <- rep(c("A", "P"), each = 531)
+#' dat <- hce(GROUP, TRTP, PADY = 10)
+#' class(dat)
+#' calcWO(dat)
+#' dat <- hce(GROUP, TRTP)
+#' class(dat)
+#' calcWO(dat)
+hce <- function (GROUP, TRTP, AVAL0 = NULL, PADY = NULL) 
+{
+  if (length(TRTP) == 0) 
     stop("TRTP is required.")
-  if(length(GROUP) == 0)
+  if (length(GROUP) == 0) 
     stop("GROUP is required.")
-  
-  if(!any(ORD %in% GROUP))
-    stop("ORD should contain events from the variable GROUP")
-  
-  ORD <- ORD[ORD %in% GROUP]
-  EVENT <- ordered(GROUP, levels = ORD) 
-  
-  EVENTN <- as.numeric(EVENT) - 1
-  ord <- length(ORD)*max(abs(AVAL0))
-  SEQ <- c(0, 1, 10, 100, 1000, 1000, 10000, 10^5, 10^6, 10^7, 10^8, 10^9, 10^10)
-  i <- which(ord < SEQ)[1]
-  ord <- SEQ[i]
-  GROUPN <- EVENTN*ord
-  d <- data.frame(TRTP = TRTP, GROUP = as.character(GROUP), GROUPN = GROUPN, AVAL = AVAL0 + GROUPN, AVAL0 = AVAL0, ORD = ord)
+  d <- data.frame(TRTP = TRTP, GROUP = GROUP)
+  PADY <- PADY[1]
+  d$AVAL0 <- AVAL0
+  if(is.null(PADY) & !is.null(AVAL0))
+    PADY <- max(AVAL0)
+  d$GROUP <- as.factor(d$GROUP)
+  d$AVAL <- d$PARAMN <- as.numeric(d$GROUP)
+  d$PADY <- PADY
   as_hce(d)
 }

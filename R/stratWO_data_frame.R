@@ -87,9 +87,7 @@ stratWO.data.frame <- function(x, AVAL, TRTP, STRATA, ref, COVAR = NULL, alpha =
   if (!ref %in% unique(data$TRTP)) 
     stop("Choose the reference from the values in TRTP.")
   data$TRTP <- base::ifelse(data$TRTP == ref, "P", "A")
-  
-  
-  
+
   l <- split(data, data$STRATA)
   
   if(!is.null(COVAR)){

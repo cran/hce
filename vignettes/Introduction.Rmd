@@ -1,6 +1,6 @@
 ---
 title: "Introduction"
-date: "`r format(as.Date('2025-07-01'), '%d %B, %Y')`"
+date: "`r format(as.Date('2025-08-14'), '%d %B, %Y')`"
 author:
   - name: "Samvel B. Gasparyan"
     affiliation: https://gasparyan.co/
@@ -49,12 +49,12 @@ All implementations are rank-based. For the review of methodology see [@brunner2
 
 Load the package `hce` and check the version
 
-```{r eval=TRUE}
+```{r eval = TRUE}
 library(hce)
 packageVersion("hce")
 ```
 
-```{r eval=FALSE, include=FALSE}
+```{r eval = FALSE, include = FALSE}
 devtools::load_all()
 ```
 
@@ -125,7 +125,7 @@ The main objects in the package are called `hce` objects, which are data frames 
 
 HCEs are ordinal endpoints that can be thought of as having 'greater', 'less', or 'equal' defined for them, but without a definition of how much greater or less. In this sense, the ordinal outcomes can be represented as numeric vectors *as long as numeric operations (e.g., sum or division) are not performed on them.*
 
-`hce` objects can be constructed using the helper function `hce()`, which has three arguments:
+`hce` objects can be constructed using the helper function `hce()`, which has the following arguments:
 
 ```{r}
 args("hce")
@@ -147,26 +147,28 @@ dat <- hce(GROUP = rep(x = c("I", "II", "III"), each = 100),
 class(dat)
 ```
 
-This dataset has the appropriate structure of `hce` objects, but its class inherits from an object of class `data.frame.` This means that all functions available for data frames can be applied to `hce` objects, for example, the function `head()`:
+This dataset has the appropriate structure of `hce` objects, but its class inherits from an object of class `data.frame`. This means that all functions available for data frames can be applied to `hce` objects, for example, the function `head()`:
 
 ```{r}
 head(dat)
 ```
 
-We see that the dataset has a very specific structure. The column `GROUPN` shows how the function `hce()` generated the order of given events (it uses usual alphabetic order for the unique values in the `GROUP` column to determine the clinical importance of events):
+We see that the dataset has a very specific structure. The column `PARAMN` shows how the function `hce()` generated the order of given events (it uses usual alphabetic order for the unique values in the `GROUP` column to determine the clinical importance of events):
 
 ```{r}
-unique(dat[, c("GROUP", "GROUPN")])
+unique(dat[, c("GROUP", "PARAMN")])
 ```
 
-In the class `hce`, higher values for the ordering mean clinically less important events. For example, death, which is the most important event, should always get the lowest ordinal value. If there is a need to specify the order of outcomes, then the argument `ORD` can be used:
+In the class `hce`, higher values for the ordering mean clinically less important events. For example, death, which is the most important event, should always get the lowest ordinal value. If there is a need to specify the order of outcomes, then the `GROUP` argument can be provided as a factor with the levels specifying the necessary order:
 
 ```{r}
 set.seed(2022)
 n <- 100
-dat <- hce(GROUP = rep(x = c("I", "II", "III"), each = 100), 
-           TRTP = sample(x = c("A", "P"), size = n*3, replace = TRUE), ORD = c("III", "II", "I"))
-unique(dat[, c("GROUP", "GROUPN")])
+GROUP = rep(x = c("I", "II", "III"), each = 100) 
+GROUP <- factor(GROUP, levels = c("III", "II", "I"))
+dat <- hce(GROUP = GROUP, 
+           TRTP = sample(x = c("Active", "Control"), size = n*3, replace = TRUE))
+unique(dat[, c("GROUP", "PARAMN")])
 ```
 
 This means that the clinically most important event is 'III' instead of 'I'. The argument `AVAL0` is meant to help in cases where we want to introduce sub-ordering within each `GROUP` category. For example, if two events in the group 'I' can be compared based on other parameters, then the `AVAL0` argument can be specified to take that into account.
@@ -174,21 +176,21 @@ This means that the clinically most important event is 'III' instead of 'I'. The
 Below we use the built-in data frame `HCE1` to construct an `hce` object. Before specifying the order of events, it is a good idea to check what are the unique events included in the `GROUP` column:
 
 
-
 ```{r}
 data(HCE1)
 unique(HCE1$GROUP)
 ```
 
-Therefore, we can construct the following `hce` object:
+Therefore, we can construct the following object using the `hce()` function:
 
 ```{r}
-HCE <- hce(GROUP = HCE1$GROUP, TRTP = HCE1$TRTP, AVAL0 = HCE1$AVAL0, 
-           ORD = c("TTE1", "TTE2", "TTE3", "TTE4", "C"))
+HCE <- hce(GROUP = factor(HCE1$GROUP, levels = c("TTE1", "TTE2", "TTE3", "TTE4", "C")), 
+           TRTP = HCE1$TRTP, AVAL0 = HCE1$AVAL0, PADY = 1080)
 class(HCE)
 head(HCE)
 ```
 
+The object's class is `adhce`, which inherits from `hce`. This design indicates that the object includes additional columns.
 
 ### Create an `hce` Object from a Data Frame
 
@@ -252,16 +254,26 @@ methods(class = "hce")
 The function `calcWO()` calculates the win odds and its confidence interval, while `summaryWO()` provides a more detailed calculation of win odds, including the number of wins, losses, and ties by `GROUP` categories.
 
 ```{r}
-HCE <- hce(GROUP = HCE3$GROUP, TRTP = HCE3$TRTP,
-           ORD = c("TTE1", "TTE2", "TTE3", "TTE4", "C"))
+HCE <- hce(GROUP = factor(HCE3$GROUP, levels = c("TTE1", "TTE2", "TTE3", "TTE4", "C")), 
+           TRTP = HCE3$TRTP, AVAL0 = HCE3$AVAL0, PADY = 1080)
 calcWO(HCE)
-summaryWO(HCE)
 calcWINS(HCE)  
 HCE$TRTP <- factor(HCE$TRTP, levels = c("P", "A"))
 plot(HCE, fill = TRUE, col = "#865A4F", type = 'l', lwd = 2)
 abline(a = 0, b = 1, lwd = 2, col = "#999999", lty = 2)
 ```
 
+To check the generic functions available for the `adhce` class by running the following command:
+
+```{r}
+methods(class = "adhce")
+```
+
+The main difference between `summaryWO.hce()` and `summaryWO.adhce()` is that `summaryWO.adhce()` also provides a group-wise summary, in addition to the overall summary:
+
+```{r}
+summaryWO(HCE)
+```
 
 ## References
 

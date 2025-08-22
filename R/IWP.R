@@ -34,8 +34,6 @@ IWP <- function(data, AVAL, TRTP, ref){
   if (!ref %in% unique(data$TRTP)) 
     stop("Choose the reference from the values in TRTP.")
   data$TRTP <- base::ifelse(data$TRTP == ref, "P", "A")
-  data$ID <- 1:nrow(data)
-  ID0 <- c(data$ID[data$TRTP == "A"], data$ID[data$TRTP == "P"])
   A <- base::rank(c(data$AVAL[data$TRTP == "A"], data$AVAL[data$TRTP == 
                                                              "P"]), ties.method = "average")
   B <- base::tapply(data$AVAL, data$TRTP, base::rank, ties.method = "average")
@@ -46,8 +44,9 @@ IWP <- function(data, AVAL, TRTP, ref){
                                                                                  n1), base::rep("P", n0)))
   d$R <- d$R1 - d$R2
   d$R0 <- base::ifelse(d$TRTP == "A", d$R/n0, d$R/n1)
-  data[ID0, paste0(AVAL, "_")] <- d$R0
-  data
+  data <- rbind(data[data$TRTP == "A", ], data[data$TRTP == "P", ])
+  data[ , paste0(AVAL, "_")] <- d$R0
+  data[order(as.numeric(row.names(data))),]
 }
 
 

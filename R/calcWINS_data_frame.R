@@ -24,6 +24,7 @@
 #' @references
 #' The theory of win statistics is covered in the following papers: 
 #' * Win proportion and win odds confidence interval calculation: 
+#' \cr \cr Somers RH (1962) “A New Asymmetric Measure of Association for Ordinal Variables." American Sociological Review 27.6: 799-811. <doi:10.2307/2090408>.
 #' \cr \cr Bamber D (1975) "The area above the ordinal dominance graph and the area below the receiver operating characteristic graph." Journal of Mathematical Psychology 12.4: 387-415. <doi:10.1016/0022-2496(75)90001-2>.
 #' \cr \cr DeLong ER et al. (1988) "Comparing the Areas Under Two or More Correlated Receiver Operating Characteristic Curves: A Nonparametric Approach." Biometrics 44.3: 837-845. <doi:10.2307/2531595>.
 #' \cr \cr Brunner E et al. (2021) "Win odds: an adaptation of the win ratio to include ties." Statistics in Medicine 40.14: 3367-3384. <doi:10.1002/sim.8967>.
@@ -40,8 +41,29 @@
 #' \cr \cr Goodman LA, Kruskal WH. (1954) "Measures of association for cross classifications." Journal of the American Statistical Association 49, 732-764. <doi:10.1080/01621459.1954.10501231>.
 #' \cr \cr Goodman LA, Kruskal WH. (1963) "Measures of association for cross classifications III: Approximate sampling theory." Journal of the American Statistical Association 58, 310-364. <doi:10.1080/01621459.1963.10500850>.
 #' @examples
+#' # Example 1 - Simple use
 #' calcWINS(x = COVID19b, AVAL = "GROUP", TRTP = "TRTP", ref = "Placebo")
-#' ## Biased vs unbiased
+#' # Example 2 - Different variance estimators  
+#' FREQ <- c(16, 5, 0, 1, 0, 4, 1, 5, 7, 2)
+#' dat0 <- data.frame(AVAL = rep(5:1, 2), TRTP = rep(c('A', 'P'), each = 5))
+#' dat <- dat0[rep(row.names(dat0), FREQ),]
+#' ## By default, the variance estimator applies a 1/n weighting to the coefficients
+#' ## This approach matches the Somers' D (C|R) estimator, where `C|R` indicates that 
+#' ## the column variable Y is treated as the independent variable and the row
+#' ## variable X is treated as the dependent variable.
+#' calcWINS(AVAL ~ TRTP, data = dat)$WP
+#' ## The Brunner-Konietschke estimator
+#' UNB <- calcWINS(AVAL ~ TRTP, data = dat,  SE_WP_Type = "unbiased")
+#' cbind(UNB$WP, SE = UNB$SE$WP_SE)
+#' ## The Brunner-Munzel test, based on the DeLong-Clarke-Pearson formula for the variance estimation,
+#' ## applies 1/(n - 1) weighting to the coefficients.
+#' dat1 <- IWP(data = dat, AVAL = "AVAL", TRTP = "TRTP", ref = "P")
+#' WP <- tapply(dat1$AVAL_, dat1$TRTP, mean)
+#' VAR <- tapply(dat1$AVAL_, dat1$TRTP, var)
+#' N <- tapply(dat1$AVAL_, dat1$TRTP, length)
+#' SE <- sqrt(sum(VAR/N))
+#' c(WP = WP[[1]], SE = SE)
+#' # Example 3 - Simulations: Biased vs unbiased
 #' n0 <- 5; n1 <- 7; p0 <- 0.2; p1 <- 0.5; x <- 1:20; delta <- 0.5
 #' WP0 <- (p1 - p0)/2 + 0.5
 #' DAT <- NULL
@@ -136,8 +158,8 @@ calcWINS.data.frame <- function(x, AVAL, TRTP, ref, alpha = 0.05, WOnull = 1, SE
                         UCL2 = WR * exp(Ca * logWR_SE2), Pvalue2 = P2)
   out$gamma <- data.frame(gamma = gamma, LCL = gamma - Ca * 
                             gamma_SE, UCL = gamma + Ca * gamma_SE, Pvalue = P0)
-  out$SE <- data.frame(WP_SE = res0[, "SE_WP"], NetBenefit_SE = 2 * 
-                         res0[, "SE_WP"], logWR_SE1 = logWR_SE1, logWR_SE2 = logWR_SE2, 
+  out$SE <- data.frame(WP_SE = SE_WP, NetBenefit_SE = 2 * 
+                         SE_WP, logWR_SE1 = logWR_SE1, logWR_SE2 = logWR_SE2, 
                        gamma_SE = gamma_SE)
   return(out)
 }

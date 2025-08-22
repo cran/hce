@@ -17,7 +17,19 @@
 #' @param m number of equidistant visits.
 #' @param theta coefficient of dependence of eGFR values and the risk of KFRT.
 #' @param phi coefficient of proportionality (between 0 and 1) of the treatment effect. The case of 0 corresponds to the uniform treatment effect.
-#' @return a list containing the dataset `GFR` for longitudinal measurements of eGFR and the competing KFRT events, the dataset `ADET` for the time-to-event kidney outcomes (sustained declines or sustained low levels of eGFR), and the combined `HCE` dataset for the kidney hierarhical composite endpoint.
+#' @details
+#' The default setting is `TTE_A = TTE_P` because, conditional on eGFR level, 
+#' the treatment effect does not influence the event rate of KFRT. In this model,
+#' the effect of treatment on KFRT operates entirely through its impact on eGFR decline.
+#' 
+#' The parameters `TTE_A` and `theta` are chosen so that when GFR is 10, the event rate 
+#' is 1 per year, and when GFR is 30, the event rate is 0.01 per year. These
+#' parameter values are obtained by solving the equation `rate0*exp(GFR*theta) = rate` for `rate0`
+#' and `theta`.
+#' @return a list containing the dataset `GFR` for longitudinal measurements of 
+#' eGFR and the competing KFRT events, the dataset `ADET` for the time-to-event 
+#' kidney outcomes (sustained declines or sustained low levels of eGFR), 
+#' and the combined `HCE` dataset for the kidney hierarchical composite endpoint.
 #' @export
 #' @md
 #' @seealso [hce::simHCE()] for a general function of simulating `hce` datasets.
@@ -58,9 +70,11 @@ simKHCE <- function(n, CM_A, CM_P = - 4, n0 = n, TTE_A = 10, TTE_P = TTE_A,
   # Patient ID and treatment group
   d <- data.frame(ID = 1:N, TRTPN = c( rep(1, n),  rep(0, n0)))
   # Random patient-level slope with a given between-patient variability Sigma^2
-  d$SLOPE <- b0 + b1*d$TRTPN + stats::rnorm(N, sd = Sigma)
+  d$SLOPE <- b0 + stats::rnorm(N, mean = 0, sd = Sigma)
   # Implement proportionality for patients in the active group and negative (true) random slope
   d$SLOPE <- ifelse(d$TRTPN == 1 & d$SLOPE < 0, d$SLOPE*(1 - phi), d$SLOPE)
+  # Implement additive effect (slope difference) for the patients in the active group
+  d$SLOPE <-  d$SLOPE + b1*d$TRTPN 
   # Uniform random (true) baseline GFR from a given range. The observed baseline BASE will be different because of the sampling error (within-patient variability).
   d$BASE0 <- stats::runif(N, Emin, Emax)
   # Equidistant visit times. The number of visits is m + 1. Includes both the baseline visit and the visit at the end of the timeframe.
@@ -152,7 +166,10 @@ simKHCE <- function(n, CM_A, CM_P = - 4, n0 = n, TTE_A = 10, TTE_P = TTE_A,
   E3 <- do.call(rbind, l)
   l <- lapply(split(d, d$ID), sustained, x = "E15")
   E4 <- do.call(rbind, l)
-  
+  ADET0 <- rbind(E1, E2, E3, E4)
+  if(!is.null(ADET0)){
+    names(ADET0) <- c("ID", "AVAL0", "PARAMCD")  
+  }
   E3 <- E3[!E3$ID %in% E4$ID, ]
   E2 <- E2[!E2$ID %in% c(E3$ID, E4$ID), ]
   E1 <- E1[!E1$ID %in% c(E2$ID, E3$ID, E4$ID), ]
@@ -171,6 +188,7 @@ simKHCE <- function(n, CM_A, CM_P = - 4, n0 = n, TTE_A = 10, TTE_P = TTE_A,
   
   d1 <- rbind(d0, E)
   d2 <- unique(d[d$EVENT == 1, c("ID", "AVALT")])
+  
   if(nrow(d2) > 0){
     d2$PARAMCD <- "KFRT"
     names(d2) <- c("ID", "AVAL0", "PARAMCD")  
@@ -182,13 +200,14 @@ simKHCE <- function(n, CM_A, CM_P = - 4, n0 = n, TTE_A = 10, TTE_P = TTE_A,
   d5 <- unique(d[, c("ID", "TRTPN", "PADY", "BASE")])
   d6 <- merge(d5, d4, by = "ID")
   ADLB$TRTP <- ifelse(ADLB$TRTPN == 1, "A", "P")
-  ADET <- d4
   HCE <- d6
   HCE$TRTP <- ifelse(HCE$TRTPN == 1, "A", "P")
   HCE$GROUP <- factor(HCE$PARAMCD, levels = c("KFRT", "E15", "E40", "E50", "E57", "GFR"))
   levels(HCE$GROUP) <- c("Kidney Failure Replacement Therapy", "Sustained eGFR < 15 (mL/min/1.73 m2)", 
                          "Sustained >= 57% decline in eGFR", "Sustained >= 50% decline in eGFR", 
                          "Sustained >= 40% decline in eGFR", "eGFR slope")
+  ADET <- rbind(ADET0, d2)
+  ADET <- ADET[order(ADET$ID), ]
   L <- list(GFR = ADLB, ADET = ADET, HCE = as_hce(HCE))
   return(L)
 }

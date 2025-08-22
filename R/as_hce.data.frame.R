@@ -8,8 +8,17 @@
 #' @md
 #' @seealso [hce::as_hce()], [hce::as_hce.default()].
 #' @examples
+#' # The case when all required variables `AVAL0`, `GROUP`, `PADY`, and `TRTP` are present.
 #' KHCE <- as_hce(KHCE)
+#' ## Converts to an `adhce` object
+#' class(KHCE)
 #' calcWO(KHCE)
+#' # The case when only `AVAL` and `TRTP`.
+#' ## Converts to an `hce` object
+#' dat <- KHCE[, c("TRTP", "AVAL")]
+#' dat <- as_hce(dat)
+#' class(dat)
+#' summaryWO(dat)
 as_hce.data.frame <- function(x, ...){
   ## Validator function for hce objects
   .validate_hce <- function(x){
@@ -32,7 +41,7 @@ as_hce.data.frame <- function(x, ...){
     Names <- base::names(x)
     C1 <- c("GROUP") %in% Names & is.numeric(x$AVAL0) & is.numeric(x$PADY) & length(unique(x$PADY)) == 1
     if(C1) {
-      C0 <- !is.factor(x$GROUP) && all(startsWith(x$GROUP[x$GROUP != "C"], "TTE")) && any(x$GROUP == "C")
+      C0 <- !is.factor(x$GROUP) && is.character(x$GROUP) &&  all(startsWith(x$GROUP[x$GROUP != "C"], "TTE")) && any(x$GROUP == "C")
       if(C0){
         x$GROUP <- as.factor(x$GROUP)
         UNIQ <- unique(x$GROUP)
@@ -45,7 +54,7 @@ as_hce.data.frame <- function(x, ...){
       LEVELS <- levels(x$GROUP)
       LAST <- LEVELS[length(LEVELS)]
       stopifnot("All timepoints in `AVAL0` for the time-to-event endpoints should be less than or equal to the evaluation timeframe specified in `PADY`." = all(x$AVAL0[x$GROUP != LAST] <= x$PADY[x$GROUP != LAST]))
-      m <- min(x$AVAL0[x$GROUP == LAST])
+      m <- min(x$AVAL0[x$GROUP == LAST], na.rm = TRUE)
       x$GROUPN <- x$PARAMN*x$PADY
       x$AVAL <- ifelse(x$GROUP != LAST, x$AVAL0 + x$GROUPN, x$AVAL0 - m + 1 + x$GROUPN)
       return(x)

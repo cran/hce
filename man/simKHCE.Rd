@@ -51,11 +51,24 @@ simKHCE(
 \item{phi}{coefficient of proportionality (between 0 and 1) of the treatment effect. The case of 0 corresponds to the uniform treatment effect.}
 }
 \value{
-a list containing the dataset \code{GFR} for longitudinal measurements of eGFR and the competing KFRT events, the dataset \code{ADET} for the time-to-event kidney outcomes (sustained declines or sustained low levels of eGFR), and the combined \code{HCE} dataset for the kidney hierarhical composite endpoint.
+a list containing the dataset \code{GFR} for longitudinal measurements of
+eGFR and the competing KFRT events, the dataset \code{ADET} for the time-to-event
+kidney outcomes (sustained declines or sustained low levels of eGFR),
+and the combined \code{HCE} dataset for the kidney hierarchical composite endpoint.
 }
 \description{
 Simulate a kidney disease \code{hce} dataset, capturing eGFR (Estimated Glomerular Filtration Rate) progression over time, along with
 a competing and dependent terminal event: KFRT (Kidney Failure Replacement Therapy)
+}
+\details{
+The default setting is \code{TTE_A = TTE_P} because, conditional on eGFR level,
+the treatment effect does not influence the event rate of KFRT. In this model,
+the effect of treatment on KFRT operates entirely through its impact on eGFR decline.
+
+The parameters \code{TTE_A} and \code{theta} are chosen so that when GFR is 10, the event rate
+is 1 per year, and when GFR is 30, the event rate is 0.01 per year. These
+parameter values are obtained by solving the equation \code{rate0*exp(GFR*theta) = rate} for \code{rate0}
+and \code{theta}.
 }
 \examples{
 # Example 1

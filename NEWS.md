@@ -1,4 +1,13 @@
-# hce 0.7.5
+# hce 0.8.5
+
+* Added an implementation `summaryWO.adhce()` to provide the summaries by `GROUP`, as opposed to `summaryWO.hce()`, which works without grouping by this variable.
+* Details have been added regarding the implementation of the `simKHCE()` function. The function has been updated to return all time-to-event outcomes for each patient in the `ADET` dataset.
+* A bug has been fixed in `regWO()`, which previously caused the results to depend on the order of the input dataset. This issue also affected the `stratWO()` function, since it calls `regWO()`. A similar issue in the `IWP()` has also been fixed. The bug was reported by Cyrill Scheidegger. 
+* The `hce()` function has been for consistency with the `as_hce()` function. Two new arguments, `PADY` and `AVAL0`, have been added. The `PADY` argument serves a similar purpose as now-deprecated `ORD` argument. With these updates, `hce()` can produce outputs of class `adhce` when the `AVAL0` argument is provided.
+* Examples have been added to the `calcWINS()` implementation to illustrate the differences between the following formulas for the standard error of the win proportion:
+the Bamber-Brunner-Konietschke formula (see Bamber, 1975; Brunner and Konietschke, 2025), Brunner-Munzel test (Brunner and Munzel, 2000) based on the DeLong-Clarke-Pearson (1988) formula, and the Somers (1962) formula.
+
+# hce 0.8.0
 
 * Fixed a bug in `summaryWO.formula()` that previously caused errors when `GROUP` values were used.
 * The function `simADHCE()` has been replaced by the `all_data = TRUE` implementation in `simHCE()`.

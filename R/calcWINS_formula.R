@@ -19,6 +19,7 @@
 #' @references
 #' The theory of win statistics is covered in the following papers: 
 #' * Win proportion and win odds confidence interval calculation: 
+#' \cr \cr Somers RH (1962) “A New Asymmetric Measure of Association for Ordinal Variables." American Sociological Review 27.6: 799-811. <doi:10.2307/2090408>.
 #' \cr \cr Bamber D (1975) "The area above the ordinal dominance graph and the area below the receiver operating characteristic graph." Journal of Mathematical Psychology 12.4: 387-415. <doi:10.1016/0022-2496(75)90001-2>.
 #' \cr \cr DeLong ER et al. (1988) "Comparing the Areas Under Two or More Correlated Receiver Operating Characteristic Curves: A Nonparametric Approach." Biometrics 44.3: 837-845. <doi:10.2307/2531595>.
 #' \cr \cr Brunner E et al. (2021) "Win odds: an adaptation of the win ratio to include ties." Statistics in Medicine 40.14: 3367-3384. <doi:10.1002/sim.8967>.

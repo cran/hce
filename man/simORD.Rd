@@ -49,7 +49,7 @@ type = "l", ylab = "Density of beta distribution", col = 2)
 lines(x, dbeta(x, shape1 = alpha0, shape2 = beta0), col = 3, lty = 2)
 legend("topleft", lty = c(1, 2), col = c(2, 3), legend = c("Control", "Active"))
 D <- hce(GROUP = d$GROUPN, TRTP = d$TRTP)
-table(D$TRTP, D$GROUPN)
+table(D$TRTP, D$GROUP)
 calcWO(D)
 # Example 2
 set.seed(2024)

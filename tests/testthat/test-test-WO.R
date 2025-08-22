@@ -65,4 +65,65 @@ test_that("SE for gamma for WP for KHCE, SAS", {
   expect_equal(calcWINS(as_hce(KHCE))$SE$gamma_SE, 0.0295069564073)
 })
 
+test_that("Order does not affect the WO regression", {
+  expect_equal(regWO(x = KHCE, AVAL = "GROUP", TRTP = "TRTP", COVAR = "EGFRBL", ref = "P"), 
+               regWO(x = KHCE[sample(1:nrow(KHCE), replace = FALSE), ], AVAL = "GROUP", TRTP = "TRTP", COVAR = "EGFRBL", ref = "P"))
+})
 
+test_that("Order does not affect the WO stratified regression", {
+  expect_equal(stratWO(x = KHCE, AVAL = "AVAL", COVAR = "EGFRBL", 
+                       TRTP = "TRTP", STRATA = "STRATAN", ref = "P"), 
+               stratWO(x = KHCE[sample(1:nrow(KHCE), replace = FALSE),], AVAL = "AVAL", COVAR = "EGFRBL", 
+                       TRTP = "TRTP", STRATA = "STRATAN", ref = "P"))
+})
+
+
+test_that("Order does not affect the WO stratification", {
+  expect_equal(stratWO(x = KHCE, AVAL = "AVAL",  
+                       TRTP = "TRTP", STRATA = "STRATAN", ref = "P"), 
+               stratWO(x = KHCE[sample(1:nrow(KHCE), replace = FALSE),], AVAL = "AVAL", 
+                       TRTP = "TRTP", STRATA = "STRATAN", ref = "P"))
+})
+
+test_that("Order does not affect the IWP calculations", {
+  expect_equal(
+    IWP(data = KHCE, AVAL = "EGFRBL", TRTP = "TRTPN", ref = 2),
+    IWP(data = KHCE[sample(1:nrow(KHCE), replace = FALSE),], 
+                AVAL = "EGFRBL", TRTP = "TRTPN", ref = 2)
+  )
+})
+
+test_that("WP based on the IWP calculation matches the calcWO results", {
+  expect_equal(
+    mean(IWP(data = KHCE, AVAL = "EGFRBL", TRTP = "TRTPN", ref = 2)$EGFRBL_[IWP(data = KHCE, AVAL = "EGFRBL", TRTP = "TRTPN", ref = 2)$TRTP=="A"]),
+    calcWO(EGFRBL ~ TRTP, data = KHCE)[c("WP", "SE_WP")]$WP
+  )
+})
+
+
+
+test_that("SE for the adjusted WP comparison to the sanon package", {
+  expect_equal(
+    regWO(AVAL ~ TRTP + EGFRBL, data = KHCE[sample(1:nrow(KHCE), replace = FALSE),])$SE_beta*sqrt(nrow(KHCE)/(nrow(KHCE) - 1)),
+    0.0147476911574
+  )
+})
+
+
+test_that("Adjusted WP comparison to the sanon package", {
+  expect_equal(
+    regWO(AVAL ~ TRTP + EGFRBL, data = KHCE)$beta,
+    0.569107747079
+  )
+})
+
+FREQ <- c(16, 5, 0, 1, 0, 4, 1, 5, 7, 2)
+dat0 <- data.frame(AVAL = rep(5:1, 2), TRTP = rep(c('A', 'P'), each = 5))
+dat <- dat0[rep(row.names(dat0), FREQ),]
+
+test_that("Brunner-Konietschke variance comparison with a published value", {
+  expect_equal(
+    calcWINS(AVAL ~ TRTP, data = dat,  SE_WP_Type = "unbiased")$SE$WP_SE^2,
+    0.0041708562
+  )
+})
