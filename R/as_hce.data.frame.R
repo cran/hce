@@ -22,6 +22,8 @@
 as_hce.data.frame <- function(x, ...){
   ## Validator function for hce objects
   .validate_hce <- function(x){
+    # This step applies to objects that inherit from data frames.
+    # It removes other types to ensure only 'data.frame' remains as the class.
     x <- base::as.data.frame(x)
     Names <- base::names(x)
     if(base::any(base::dim(x) == 0))

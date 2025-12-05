@@ -11,6 +11,46 @@ knitr::include_graphics("hex-hce.png")
 library(hce)
 packageVersion("hce")
 
+## -----------------------------------------------------------------------------
+table(COVID19)
+
+## -----------------------------------------------------------------------------
+COVID19HCE <- hce(GROUP = COVID19$GROUP, TRTP = COVID19$TRTP)
+SUM0 <- summaryWO(COVID19HCE, ref = "Placebo")
+SUM <- SUM0$summary
+SUM$Ptie <- round(SUM$TIE/SUM$TOTAL, 2)
+SUM
+
+## -----------------------------------------------------------------------------
+WO <- calcWO(COVID19HCE, ref = "Placebo")[, c("WO", "LCL", "UCL")]
+round(WO, 2)
+
+## -----------------------------------------------------------------------------
+set.seed(1)
+n <- 100
+dat0 <- data.frame(TRTP = rep(c("A", "P"), each = n), 
+                  DEATH = c(rbinom(n = n, size = 1, prob = 0.6), 
+                            rbinom(n = n, size = 1, prob = 0.8)),
+                  HOSP = c(rbinom(n = n, size = 1, prob = 0.5), 
+                            rbinom(n = n, size = 1, prob = 0.8)))
+
+## -----------------------------------------------------------------------------
+dat1 <- dat0
+dat1$AVAL <- ifelse(dat1$DEATH == 1, 1, ifelse(dat1$HOSP == 1, 2, 3))
+dat1 <- as_hce(dat1)
+summaryWO(dat1)$summary
+
+## -----------------------------------------------------------------------------
+dat2 <- dat0
+dat2$ORD <- 2*dat2$DEATH + dat2$HOSP
+unique(dat2[, c("DEATH", "HOSP", "ORD")])
+
+## -----------------------------------------------------------------------------
+dat2$AVAL <- max(dat2$ORD) - dat2$ORD 
+dat2 <- as_hce(dat2)
+unique(dat2[, c("DEATH", "HOSP", "ORD", "AVAL")])
+summaryWO(dat2)$summary
+
 ## ----echo=FALSE---------------------------------------------------------------
 HCE <- data.frame(Order = c("I", "II", "III", "IV", "V"), 
                   Category = c("Death", 
@@ -20,15 +60,6 @@ HCE <- data.frame(Order = c("I", "II", "III", "IV", "V"),
                                "Discharged from hospital before Day 30")
 )
 HCE
-
-## -----------------------------------------------------------------------------
-table(COVID19)
-
-## -----------------------------------------------------------------------------
-COVID19HCE <- hce(GROUP = COVID19$GROUP, TRTP = COVID19$TRTP)
-SUM <- summaryWO(COVID19HCE, ref = "Placebo")$summary
-SUM$Ptie <- round(SUM$TIE/SUM$TOTAL, 2)
-SUM
 
 ## ----echo=FALSE---------------------------------------------------------------
 HCE2 <- data.frame(Order = c("I", "II", "III", "IV", "V", "VI", "VII"), 

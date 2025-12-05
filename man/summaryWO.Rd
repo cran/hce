@@ -18,5 +18,5 @@ a data frame containing calculated values.
 A generic function for summarizing win odds
 }
 \seealso{
-\code{\link[=summaryWO.hce]{summaryWO.hce()}}, \code{\link[=summaryWO.formula]{summaryWO.formula()}}, \code{\link[=summaryWO.data.frame]{summaryWO.data.frame()}}  methods.
+\code{\link[=summaryWO.adhce]{summaryWO.adhce()}}, \code{\link[=summaryWO.hce]{summaryWO.hce()}}, \code{\link[=summaryWO.formula]{summaryWO.formula()}}, \code{\link[=summaryWO.data.frame]{summaryWO.data.frame()}}  methods.
 }

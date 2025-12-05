@@ -22,9 +22,9 @@ a list containing the summary of wins, losses, and ties. It contains the followi
 Win odds summary for \code{hce} objects
 }
 \examples{
-dat <- as_hce(HCE4)
-summaryWO(dat, ref = "P")
+COVID19HCE <- hce(GROUP = COVID19$GROUP, TRTP = COVID19$TRTP)
+summaryWO(COVID19HCE, ref = "Placebo")
 }
 \seealso{
-\code{\link[=calcWO]{calcWO()}}, \code{\link[=summaryWO]{summaryWO()}}, \code{\link[=summaryWO.data.frame]{summaryWO.data.frame()}}, \code{\link[=summaryWO.formula]{summaryWO.formula()}} methods.
+\code{\link[=calcWO]{calcWO()}}, \code{\link[=summaryWO]{summaryWO()}}, \code{\link[=summaryWO.data.frame]{summaryWO.data.frame()}}, \code{\link[=summaryWO.formula]{summaryWO.formula()}}, \code{\link[=summaryWO.adhce]{summaryWO.adhce()}} methods.
 }

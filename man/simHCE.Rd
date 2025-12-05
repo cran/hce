@@ -2,7 +2,7 @@
 % Please edit documentation in R/simHCE.R
 \name{simHCE}
 \alias{simHCE}
-\title{Simulate \code{hce} object with given event rates of time-to-event outcomes (Weibull), mean and SD of the continuous outcome (normal or log-normal) by treatment group}
+\title{Simulate an \code{hce} object}
 \usage{
 simHCE(
   n,
@@ -77,7 +77,7 @@ Only one continuous outcome is possible, but no restriction on the number of "TT
 If \code{all_data = TRUE}, the function returns a list containing the \code{hce} dataset, along with its source datasets: \code{ADET} (an event-time dataset for all time-to-event outcomes per patient) and \code{BDS} (a basic data structure for the continuous outcome for all patients).
 }
 \description{
-Simulate \code{hce} object with given event rates of time-to-event outcomes (Weibull), mean and SD of the continuous outcome (normal or log-normal) by treatment group
+Simulate an \code{hce} object with multiple, possibly correlated (Hougaard copula) Weibull time‑to‑event outcomes and a single continuous endpoint (normal or log‑normal)
 }
 \examples{
 # Example 1

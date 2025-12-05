@@ -8,7 +8,7 @@
 #' @param WOnull the null hypothesis. The default is 1.
 #' @param SE_WP_Type biased or unbiased standard error for win probability. The default is biased.
 #' @param ... additional parameters.
-#' @details When `SE_WP_Type = "unbiased"`, the calculations for win proportion, net benefit, and win odds utilize the unbiased standard error from Brunner-Konietschke (2025) paper which is a reformulation of the original formula proposed by Bamber (1975).
+#' @details When `SE_WP_Type = "unbiased"`, the calculations for win proportion, net benefit, and win odds utilize the unbiased standard error from Brunner-Konietschke (2025) paper which is a reformulation of the original formula proposed by Bamber (1975). In this case, Wilson-type confidence intervals are calculated for the win probability, net benefit, and win odds, following the approach proposed by Schüürhuis, Konietschke, and Brunner (2025).
 #' @returns a list containing win statistics and their confidence intervals. It contains the following named data frames: 
 #' * summary a data frame containing number of wins, losses, and ties of the active treatment group and the overall number of comparisons. 
 #' * WP a data frame containing the win probability and its confidence interval. 
@@ -18,6 +18,11 @@
 #' * WR2 a data frame containing the win ratio and its confidence interval, using the standard error calculated using `Pties`. 
 #' * gamma a data frame containing Goodman Kruskal's `gamma` and its confidence interval. 
 #' * SE a data frame containing standard errors used to calculated the Confidence intervals for win statistics. 
+#' 
+#' When `SE_WP_Type = "unbiased"`, the `WP`, `WO` and `NetBenefit` estimators use the unbiased variance estimator of `WP`. Additionally, a Wilson-type range-preserving confidence interval is provided: 
+#' * WP_W a data frame containing the win probability and its range-preserving confidence interval. 
+#' * NetBenefit_W a data frame containing the net benefit and its range-preserving confidence interval. 
+#' * WO_W a data frame containing the win odds and its range-preserving confidence interval. 
 #' @export
 #' @md
 #' @seealso [hce::calcWINS()], [hce::calcWINS.hce()], [hce::calcWINS.formula()].
@@ -40,9 +45,13 @@
 #' \cr \cr Brown MB, Benedetti JK. (1977) "Sampling Behavior of Tests for Correlation in Two-Way Contingency Tables." Journal of the American Statistical Association 72, 309-315. <doi:10.1080/01621459.1977.10480995>.
 #' \cr \cr Goodman LA, Kruskal WH. (1954) "Measures of association for cross classifications." Journal of the American Statistical Association 49, 732-764. <doi:10.1080/01621459.1954.10501231>.
 #' \cr \cr Goodman LA, Kruskal WH. (1963) "Measures of association for cross classifications III: Approximate sampling theory." Journal of the American Statistical Association 58, 310-364. <doi:10.1080/01621459.1963.10500850>.
+#' * Unbiased variance estimator for `WP` and Wilson-type range -preserving confidence intervals are based on:
+#' \cr \cr Brunner E, Konietschke F. (2025) "An unbiased rank-based estimator of the Mann–Whitney variance including the case of ties." Statistical Papers 66: 20. <doi:10.1007/s00362-024-01635-0>.
+#' \cr \cr Schüürhuis S, Konietschke F, Brunner E. (2025) "A New Approach to the Nonparametric Behrens–Fisher Problem With Compatible Confidence Intervals." Biometrical Journal 67.6. <doi:10.1002/bimj.70096>.
 #' @examples
 #' # Example 1 - Simple use
 #' calcWINS(x = COVID19b, AVAL = "GROUP", TRTP = "TRTP", ref = "Placebo")
+#' calcWINS(x = COVID19b, AVAL = "GROUP", TRTP = "TRTP", ref = "Placebo", SE_WP_Type = "unbiased")
 #' # Example 2 - Different variance estimators  
 #' FREQ <- c(16, 5, 0, 1, 0, 4, 1, 5, 7, 2)
 #' dat0 <- data.frame(AVAL = rep(5:1, 2), TRTP = rep(c('A', 'P'), each = 5))
@@ -63,8 +72,9 @@
 #' N <- tapply(dat1$AVAL_, dat1$TRTP, length)
 #' SE <- sqrt(sum(VAR/N))
 #' c(WP = WP[[1]], SE = SE)
-#' # Example 3 - Simulations: Biased vs unbiased
-#' n0 <- 5; n1 <- 7; p0 <- 0.2; p1 <- 0.5; x <- 1:20; delta <- 0.5
+#' # Example 3 - Simulations: Biased vs unbiased vs Wilson confidence intervals for Win Probability
+#' set.seed(1)
+#' n0 <- 5; n1 <- 7; p0 <- 0.2; p1 <- 0.5; x <- 1:20; delta <- 0.15
 #' WP0 <- (p1 - p0)/2 + 0.5
 #' DAT <- NULL
 #' for(i in x){
@@ -72,23 +82,35 @@
 #'   TRTP = c(rep("A", n1), rep("P", n0)))
 #'   CL1 <- calcWINS(x = dat, AVAL = "AVAL", TRTP = "TRTP", ref = "P")$WP
 #'   CL1$Type <- "biased"
-#'   CL2 <- calcWINS(x = dat, AVAL = "AVAL", TRTP = "TRTP", 
-#'                   ref = "P", SE_WP_Type = "unbiased")$WP
+#'   fit <- calcWINS(x = dat, AVAL = "AVAL", TRTP = "TRTP", 
+#'                 ref = "P", SE_WP_Type = "unbiased")
+#'   CL2 <- fit$WP
 #'   CL2$Type <- "unbiased"
-#'   DAT <- rbind(DAT, CL1, CL2)
-#' }
+#'   CL3 <- fit$WP_W
+#'   CL3$Type <- "Wilson"
+#'   DAT <- rbind(DAT, CL1, CL2, CL3)
+#'   }
 #' WP <- DAT$WP[DAT$Type == "unbiased"]
-#' plot(x, WP, pch = 19, xlab = "Simulations", ylab = "Win Probability", ylim = c(0., 1.1))
+#' plot(x, WP, pch = 19, xlab = "Simulations", ylab = "Win Probability", 
+#'             ylim = c(0., 1.1), xlim = c(0, max(x) + 1))
 #' points(x + delta, WP, pch = 19)
+#' points(x + 2*delta, WP, pch = 19)
 #' arrows(x, DAT$LCL[DAT$Type == "unbiased"], 
 #'        x, DAT$UCL[DAT$Type == "unbiased"], angle = 90, code = 3, length = 0.05, "green")
-#' arrows(x + delta, DAT$LCL[DAT$Type == "biased"], 
-#'        x + delta, DAT$UCL[DAT$Type == "biased"], angle = 90, code = 3, length = 0.05, col = "red")
-#' abline(h = c(WP0, 1), col = "blue", lty = 3)
-#' legend("bottomleft", legend = c("True WP", "Biased", "Unbiased"), 
-#'                     col = c(4, 2, 3), lty = c(3, 1, 1 ), cex = 0.75)
-
+#'        arrows(x + delta, DAT$LCL[DAT$Type == "biased"], 
+#'        x + delta, DAT$UCL[DAT$Type == "biased"], angle = 90, code = 3, 
+#'        length = 0.05, col = "orange")
+#' arrows(x + 2*delta, DAT$LCL[DAT$Type == "Wilson"], 
+#'        x + 2*delta, DAT$UCL[DAT$Type == "Wilson"], angle = 90, code = 3, 
+#'        length = 0.05, col = "blue")
+#' abline(h = c(WP0, 1), col = c("darkgreen", "darkred"), lty = c(3, 4))
+#' legend("bottomleft", legend = c("True WP", "UnBiased", "Biased", "Wilson", "Null"), 
+#'        col = c("darkgreen", "green", "orange", "blue", "darkred"), 
+#'        lty = c(3, 1, 1, 1, 4), cex = 0.75, ncol = 3)
+#'        title("Win Probability: Biased vs Unbiased vs Wilson CI")
+#' # End of Example 3
 calcWINS.data.frame <- function(x, AVAL, TRTP, ref, alpha = 0.05, WOnull = 1, SE_WP_Type = c("biased", "unbiased"), ...){
+  #The function relies on calcWO() for the win odds calculation, and summaryWO() for the win counts by group.
   SE_WP_Type <- match.arg(SE_WP_Type)
   data <- as.data.frame(x)
   alpha <- alpha[1]
@@ -96,12 +118,16 @@ calcWINS.data.frame <- function(x, AVAL, TRTP, ref, alpha = 0.05, WOnull = 1, SE
   WOnull <- WOnull[1]
   WPnull <- WOnull/(WOnull + 1)
   gammanull <- (WOnull - 1)/(WOnull + 1)
-  data$AVAL <- data[, base::names(data) == AVAL]
-  data$TRTP <- data[, base::names(data) == TRTP]
+  data$AVAL <- data[[AVAL]]
+  data$TRTP <- data[[TRTP]]
   if (length(unique(data$TRTP)) != 2) 
     stop("The dataset should contain two treatment groups.")
   if (!ref %in% unique(data$TRTP)) 
     stop("Choose the reference from the values in TRTP.")
+   stopifnot("The significance level `alpha` should be between 0 and 1." 
+            = all(alpha > 0 & alpha < 1))
+   stopifnot("The null hypothesis for the win odds should be positive." 
+             = WOnull > 0)
   data$TRTP <- base::ifelse(data$TRTP == ref, "P", "A")
   res0 <- calcWO(x = data, AVAL = "AVAL", TRTP = "TRTP", ref = "P", 
                  alpha = alpha, WOnull = WOnull)
@@ -130,37 +156,78 @@ calcWINS.data.frame <- function(x, AVAL, TRTP, ref, alpha = 0.05, WOnull = 1, SE
   P1 <- 2 * (1 - stats::pnorm(threshold1))
   threshold2 <- base::abs(log(WR) - log(WOnull))/logWR_SE2
   P2 <- 2 * (1 - stats::pnorm(threshold2))
-  
-  if(SE_WP_Type == "unbiased"){
-    nA <- sum(res2$N[res2$TRTP=="A"])
-    nP <- sum(res2$N[res2$TRTP=="P"])
-    K <- nA*nP/((nA - 1) * (nP - 1)) 
-    BBK <- K*(res0$SE_WP^2 - (res0[, "WP"]*(1 - res0[, "WP"]) - 0.25*Pties)/(nA*nP))
+  if (SE_WP_Type == "unbiased") {
+    WP <- res0[, "WP"]
+    WO <- WP/(1 - WP)
+    nA <- sum(res2$N[res2$TRTP == "A"])
+    nP <- sum(res2$N[res2$TRTP == "P"])
+    K <- nA * nP/((nA - 1) * (nP - 1))
+    BBK <- K * (res0$SE_WP^2 - (WP * (1 - WP) - 0.25 * Pties)/(nA * nP))
     SE_WP <- sqrt(BBK)
-    threshold_WP <- base::abs(res0[, "WP"] - WPnull)/SE_WP
+    threshold_WP <- base::abs(WP - WPnull)/SE_WP
     P_WP <- 2 * (1 - stats::pnorm(threshold_WP))
-  } else {
+    SE <- SE_WP/(WP * (1 - WP))
+    LCL <- WO * base::exp(-Ca * SE)
+    UCL <- WO * base::exp(Ca * SE)
+  }
+  else {
     SE_WP <- res0[, "SE_WP"]
-    threshold_WP <- base::abs(res0[, "WP"] - WPnull)/SE_WP
-    P_WP <- 2 * (1 - stats::pnorm(threshold_WP))
+    P_WP <- res0[, "Pvalue"]
   }
   out <- list()
   out$summary <- data.frame(WIN = P/2, LOSS = Q/2, TIE = Res$summary$TIE[1], 
                             TOTAL = Res$summary$TOTAL[1], Pties = Pties)
-  out$WP <- data.frame(WP = res0[, "WP"], LCL = res0[, "WP"] - Ca * SE_WP, UCL = res0[, "WP"] + Ca * SE_WP, Pvalue = P_WP)
-  out$NetBenefit <- data.frame(NetBenefit = 2 * res0[, "WP"] - 1, 
-                               LCL = 2 * (res0[, "WP"] - Ca * SE_WP) - 1, 
-                               UCL = 2 * (res0[, "WP"] + Ca * SE_WP) - 1, Pvalue = P_WP)
-  out$WO <- res0[, c("WO", "LCL", "UCL", "Pvalue")]
+  out$WP <- data.frame(WP = res0[, "WP"], LCL = res0[, "WP"] - 
+                         Ca * SE_WP, UCL = res0[, "WP"] + Ca * SE_WP, Pvalue = P_WP)
+  out$NetBenefit <- data.frame(NetBenefit = 2 * res0[, "WP"] - 
+                                 1, LCL = 2 * (res0[, "WP"] - Ca * SE_WP) - 1, UCL = 2 * 
+                                 (res0[, "WP"] + Ca * SE_WP) - 1, Pvalue = P_WP)
+  
+  if(SE_WP_Type == "unbiased"){
+    out$WO <- data.frame(WO = WO, LCL = LCL, 
+                         UCL = UCL, Pvalue =  P_WP)
+  } else {
+    out$WO <- res0[, c("WO", "LCL", "UCL", "Pvalue")]  
+  }
+  
   out$WR1 <- data.frame(WR = WR, LCL1 = WR * exp(-Ca * logWR_SE1), 
                         UCL1 = WR * exp(Ca * logWR_SE1), Pvalue1 = P1)
   out$WR2 <- data.frame(WR = WR, LCL2 = WR * exp(-Ca * logWR_SE2), 
                         UCL2 = WR * exp(Ca * logWR_SE2), Pvalue2 = P2)
   out$gamma <- data.frame(gamma = gamma, LCL = gamma - Ca * 
                             gamma_SE, UCL = gamma + Ca * gamma_SE, Pvalue = P0)
-  out$SE <- data.frame(WP_SE = SE_WP, NetBenefit_SE = 2 * 
-                         SE_WP, logWR_SE1 = logWR_SE1, logWR_SE2 = logWR_SE2, 
-                       gamma_SE = gamma_SE)
+  out$SE <- data.frame(WP_SE = SE_WP, NetBenefit_SE = 2 * SE_WP, 
+                       logWR_SE1 = logWR_SE1, logWR_SE2 = logWR_SE2, gamma_SE = gamma_SE)
+  ### New addition to cover Wilson-type confidence interval
+  if (SE_WP_Type == "unbiased"){
+    m <- min(nA, nP)
+    Ca2 <- Ca^2
+    if(WP > 0.01 & WP < 0.99){
+      q <- SE_WP^2/(WP * (1 - WP))
+      Diff <- sqrt(q^2*Ca2^2 + 4*q*WP*(1 - WP)*Ca2)
+      LCL <- 1/(2*(1 + q*Ca^2))*(2*WP + q*Ca^2 - Diff)
+      UCL <- 1/(2*(1 + q*Ca^2))*(2*WP + q*Ca^2 + Diff)
+      WO <- WP/(1 - WP + q)
+      threshold_WP <- base::abs(WP - WPnull)/sqrt(q*WPnull*(1 - WPnull))
+    } else if (WP >= 0.99){
+      LCL <- m/(m + Ca2)
+      UCL <- 1
+      threshold_WP <-  sqrt(m)
+      WO <- WP/(1 - WP)
+    } else {
+      LCL <- 0
+      UCL <- Ca2/(m + Ca2)
+      threshold_WP <- sqrt(m)
+      WO <- WP/(1 - WP)
+    }
+    P_WP <- 2 * (1 - stats::pnorm(threshold_WP))
+    out$WP_W <- data.frame(WP = WP, LCL = LCL, UCL = UCL, Pvalue = P_WP)
+    LCL_WO <- LCL/(1 - LCL)
+    UCL_WO <- UCL/(1 - UCL)
+    out$NetBenefit_W <- data.frame(NetBenefit = 2*WP - 1, LCL = 2*LCL - 1, UCL = 2*UCL - 1, Pvalue = P_WP)
+    out$WO_W <- data.frame(WO = WO, LCL = LCL_WO, UCL = UCL_WO, Pvalue = P_WP)
+  }
+  
   return(out)
 }
 

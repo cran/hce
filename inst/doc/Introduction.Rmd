@@ -1,6 +1,6 @@
 ---
 title: "Introduction"
-date: "`r format(as.Date('2025-08-14'), '%d %B, %Y')`"
+date: "`r format(as.Date('2025-12-01'), '%d %B, %Y')`"
 author:
   - name: "Samvel B. Gasparyan"
     affiliation: https://gasparyan.co/
@@ -274,6 +274,20 @@ The main difference between `summaryWO.hce()` and `summaryWO.adhce()` is that `s
 ```{r}
 summaryWO(HCE)
 ```
+
+An important addition to `summaryWO.adhce()` is the `cumsummary_by_GROUP` output, which reports cumulative wins, losses, and ties as outcomes are added sequentially according to the priority order:
+
+```{r}
+res0 <- summaryWO(HCE, ref = "P")
+res <- res0$cumsummary_by_GROUP
+barplot(PROP ~ WINS + GROUPN, data = res, 
+col = c("darkgreen", "darkred", "darkblue"), 
+xlab = "Proportions", xlim = c(0, 1), 
+ylab = "Cumulative components by prioritization", 
+legend.text = unique(res$WINS), beside = TRUE, horiz = TRUE)
+grid()
+```
+
 
 ## References
 

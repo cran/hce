@@ -12,8 +12,13 @@
 #' @md
 #' @seealso [hce::calcWO()], [hce::summaryWO()], [hce::summaryWO.data.frame()], [hce::summaryWO.hce()]  methods.
 #' @examples
+#' # Example 1
 #' summaryWO(data = COVID19, GROUP ~ TRTP)
 #' summaryWO(data = COVID19, GROUP ~ TRTP, GROUP = "GROUP", ref = "Placebo")
+#' # Example 2 - Individual wins, losses, and ties
+#' dat <- COVID19
+#' dat$ID <- 1:nrow(dat)
+#' summaryWO(data = dat, GROUP ~ TRTP, GROUP = "ID", ref = "Placebo")
 
 summaryWO.formula <- function(x, data, ...){
   Args <- base::list(...)
@@ -34,7 +39,7 @@ summaryWO.formula <- function(x, data, ...){
                                         base::paste(Level, collapse = ", ")))
   if(!base::is.null(Args[["GROUP"]])) {
     GROUP <- Args[["GROUP"]]
-    mf$GROUP <- data[, GROUP, drop = T]
+    mf[, GROUP] <- data[, GROUP, drop = T]
   }
   else GROUP <- NULL
   res <- summaryWO.data.frame(x = mf, AVAL = formulavars[1], TRTP = formulavars[2], ref = ref, GROUP = GROUP)

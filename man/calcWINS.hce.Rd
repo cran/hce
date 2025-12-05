@@ -23,6 +23,13 @@ a list containing win statistics and their confidence intervals. It contains the
 \item gamma a data frame containing Goodman Kruskal's \code{gamma} and its confidence interval.
 \item SE a data frame containing standard errors used to calculated the Confidence intervals for win statistics.
 }
+
+When \code{SE_WP_Type = "unbiased"}, the \code{WP}, \code{WO} and \code{NetBenefit} estimators use the unbiased variance estimator of \code{WP}. Additionally, a Wilson-type range-preserving confidence interval is provided:
+\itemize{
+\item WP_W a data frame containing the win probability and its range-preserving confidence interval.
+\item NetBenefit_W a data frame containing the net benefit and its range-preserving confidence interval.
+\item WO_W a data frame containing the win odds and its range-preserving confidence interval.
+}
 }
 \description{
 Win statistics calculation for \code{hce} objects
@@ -58,6 +65,9 @@ The theory of win statistics is covered in the following papers:
 \cr \cr Brown MB, Benedetti JK. (1977) "Sampling Behavior of Tests for Correlation in Two-Way Contingency Tables." Journal of the American Statistical Association 72, 309-315. \url{doi:10.1080/01621459.1977.10480995}.
 \cr \cr Goodman LA, Kruskal WH. (1954) "Measures of association for cross classifications." Journal of the American Statistical Association 49, 732-764. \url{doi:10.1080/01621459.1954.10501231}.
 \cr \cr Goodman LA, Kruskal WH. (1963) "Measures of association for cross classifications III: Approximate sampling theory." Journal of the American Statistical Association 58, 310-364. \url{doi:10.1080/01621459.1963.10500850}.
+\item Unbiased variance estimator for \code{WP} and Wilson-type range -preserving confidence intervals are based on:
+\cr \cr Brunner E, Konietschke F. (2025) "An unbiased rank-based estimator of the Mann–Whitney variance including the case of ties." Statistical Papers 66: 20. \url{doi:10.1007/s00362-024-01635-0}.
+\cr \cr Schüürhuis S, Konietschke F, Brunner E. (2025) "A New Approach to the Nonparametric Behrens–Fisher Problem With Compatible Confidence Intervals." Biometrical Journal 67.6. \url{doi:10.1002/bimj.70096}.
 }
 }
 \seealso{

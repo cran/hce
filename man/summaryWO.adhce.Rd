@@ -15,24 +15,39 @@
 a list containing the summary of wins, losses, and ties. It contains the following named objects:
 \itemize{
 \item summary a data frame containing number of wins, losses, and ties by treatment group and the overall number of comparisons.
-\item summary_by_GROUP (if \code{GROUP} variable is specified) a summary data frame by \code{GROUP}.
+\item summary_by_GROUP a summary data frame by \code{GROUP}.
 \item WO calculated WO (win odds) and WP (win probability) and their standard errors.
+\item cumsummary_by_GROUP a cumulative summary data frame by \code{GROUP}.
 }
 }
 \description{
 Win odds summary for \code{adhce} objects
 }
 \examples{
-dat <- as_hce(HCE4)
+## Example 1 - using an `hce` object
+HCE5 <- HCE4
+HCE5$PADY <- NULL
+dat <- as_hce(HCE5)
 ## `PADY` is not present in the dataset, hence converts it to an `hce` object 
 ## instead of an `adhce` object.
+## Example 2 - Using an `adhce` object
 class(dat)
 summaryWO(dat, ref = "P")
 ## The class is `adhce` hence will use the variable `GROUP`.
-HCE4$PADY <- 1080
+HCE5$PADY <- 1080
 dat <- as_hce(HCE4) 
 class(dat)
 summaryWO(dat, ref = "P")
+## Example 3 - Plotting cumulative components of an `adhce` object
+dat <- as_hce(KHCE)
+res0 <- summaryWO(dat, ref = "P")
+res <- res0$cumsummary_by_GROUP
+barplot(PROP ~ WINS + GROUPN, data = res, 
+col = c("darkgreen", "darkred", "darkblue"), 
+xlab = "Proportions", xlim = c(0, 1), 
+ylab = "Cumulative components by prioritization", 
+legend.text = unique(res$WINS), beside = TRUE, horiz = TRUE)
+grid()
 }
 \seealso{
 \code{\link[=calcWO]{calcWO()}}, \code{\link[=summaryWO]{summaryWO()}}, \code{\link[=summaryWO.data.frame]{summaryWO.data.frame()}}, \code{\link[=summaryWO.formula]{summaryWO.formula()}}, \code{\link[=summaryWO.hce]{summaryWO.hce()}} methods.

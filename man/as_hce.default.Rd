@@ -21,6 +21,7 @@ Coerce a data frame to an \code{hce} object
 dat <- KHCE
 class(dat) <- "moo" # non-existent class
 as_hce(dat) # tries to convert to an hce object
+## It still works because the inheritance converted it to a data frame
 }
 \seealso{
 \code{\link[=as_hce]{as_hce()}}, \code{\link[=as_hce.data.frame]{as_hce.data.frame()}}.

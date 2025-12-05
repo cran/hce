@@ -1592,7 +1592,7 @@ border-radius: 0px;
 <h1 class="title toc-ignore">Hierarchical composite endpoints</h1>
 <h4 class="author">Samvel B. Gasparyan</h4>
 <address class="author_afil">
-<a href="https://gasparyan.co/" class="uri">https://gasparyan.co/</a><br><h4 class="date">01 March,
+<a href="https://gasparyan.co/" class="uri">https://gasparyan.co/</a><br><h4 class="date">01 December,
 2025</h4>
 
 </div>
@@ -1606,25 +1606,138 @@ border-radius: 0px;
 <p>Load the package <code>hce</code> and check the version:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(hce)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">&quot;hce&quot;</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; [1] &#39;0.8.5&#39;</span></span></code></pre></div>
-<p>For citing the package run <code>citation(&quot;hce&quot;)</code> <span class="citation">(Samvel B. Gasparyan 2025)</span>.</p>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; [1] &#39;0.8.8&#39;</span></span></code></pre></div>
+<p>For citing the package run <code>citation(&quot;hce&quot;)</code> <span class="citation">(Gasparyan 2025)</span>.</p>
 </div>
 <div id="definitions" class="section level3">
 <h3>Definitions</h3>
-<p>Hierarchical composite endpoints (HCE) are a general class of
-endpoints combining different clinical outcomes of patients into a
-composite so as to preserve their different natures. A particular case
-of these endpoints is defined in a fixed follow-up period and accounts
-for the patient’s clinically most important outcome for the analysis.
-HCEs are analyzed using win odds and other win statistics <span class="citation">(Samvel B. Gasparyan et al. 2023)</span>.</p>
+<p>Hierarchical composite endpoints (HCE) are a class of endpoints that
+combine multiple clinical outcomes into a single composite while
+preserving the distinct nature of each outcome. In a particular case,
+outcomes within a fixed follow-up period are ranked by clinical
+importance, and the patient’s most important outcome is used for
+analysis. HCEs are typically analyzed using win odds and related win
+statistics <span class="citation">(Gasparyan et al. 2023)</span>.</p>
+<p>A straightforward example of an HCE is an endpoint defined on an
+ordinal scale assessed at a specific timepoint. For instance, the
+COVID-19 HCE uses an 8-category ordinal scale to evaluate physical
+limitations in hospitalized patients with COVID-19 at 15 or 30 days
+post-treatment. See the <code>COVID-19</code> and <code>COVID-19b</code>
+dataset ordinal outcomes as examples <span class="citation">(Beigel et
+al. 2020)</span>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">table</span>(COVID19)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt;          GROUP</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; TRTP        1   2   3   4   5   6   7   8</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt;   Active   34  95  28  58  38  14 117 157</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt;   Placebo  58 121  24  60  33   8 102 115</span></span></code></pre></div>
+<p>Ssimple HCEs are implemented in the <code>hce</code> package via the
+<code>hce</code> class, which inherits from <code>data.frame</code>.
+These objects must include the ordinal analysis values in the
+<code>AVAL</code> column and a two-level treatment group in the
+<code>TRTP</code> column. The <code>hce::summaryWO()</code> function can
+be used to provide the number of wins, losses, and ties by category.
+From these counts, one can compute the probability of ties.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>COVID19HCE <span class="ot">&lt;-</span> <span class="fu">hce</span>(<span class="at">GROUP =</span> COVID19<span class="sc">$</span>GROUP, <span class="at">TRTP =</span> COVID19<span class="sc">$</span>TRTP)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>SUM0 <span class="ot">&lt;-</span> <span class="fu">summaryWO</span>(COVID19HCE, <span class="at">ref =</span> <span class="st">&quot;Placebo&quot;</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>SUM <span class="ot">&lt;-</span> SUM0<span class="sc">$</span>summary</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>SUM<span class="sc">$</span>Ptie <span class="ot">&lt;-</span> <span class="fu">round</span>(SUM<span class="sc">$</span>TIE<span class="sc">/</span>SUM<span class="sc">$</span>TOTAL, <span class="dv">2</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>SUM</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt;   TRTP    WIN   LOSS   TIE  TOTAL        WR        WO Ptie</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt; 1    A 135744  97143 48974 281861 1.3973627 1.3173641 0.17</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt; 2    P  97143 135744 48974 281861 0.7156338 0.7590916 0.17</span></span></code></pre></div>
+<p>While the win odds and its 95% confidence interval are calculated as
+follows:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>WO <span class="ot">&lt;-</span> <span class="fu">calcWO</span>(COVID19HCE, <span class="at">ref =</span> <span class="st">&quot;Placebo&quot;</span>)[, <span class="fu">c</span>(<span class="st">&quot;WO&quot;</span>, <span class="st">&quot;LCL&quot;</span>, <span class="st">&quot;UCL&quot;</span>)]</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">round</span>(WO, <span class="dv">2</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt;     WO  LCL  UCL</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; 1 1.32 1.15 1.51</span></span></code></pre></div>
+<p>A more complex case arises when multiple events per patient are
+observed. Consider two binary outcomes: death and hospitalization. Each
+patient can experience up to two events (e.g., hospitalization followed
+by death), and the HCE must account for the hierarchy between them
+(typically prioritizing death over hospitalization) when determining
+wins, losses, and ties.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>dat0 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">TRTP =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;P&quot;</span>), <span class="at">each =</span> n), </span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>                  <span class="at">DEATH =</span> <span class="fu">c</span>(<span class="fu">rbinom</span>(<span class="at">n =</span> n, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> <span class="fl">0.6</span>), </span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>                            <span class="fu">rbinom</span>(<span class="at">n =</span> n, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> <span class="fl">0.8</span>)),</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>                  <span class="at">HOSP =</span> <span class="fu">c</span>(<span class="fu">rbinom</span>(<span class="at">n =</span> n, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> <span class="fl">0.5</span>), </span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>                            <span class="fu">rbinom</span>(<span class="at">n =</span> n, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> <span class="fl">0.8</span>)))</span></code></pre></div>
+<p>Based on these outcomes, several methods can be used to construct
+hierarchical composite endpoints. Below are two approaches with their
+implementations.</p>
+<ol style="list-style-type: decimal">
+<li>The most prioritized outcome Select a single outcome per patient—the
+highest-priority one. If a patient experienced death, select death
+(regardless of hospitalization). If no death occurred, select
+hospitalization (only if it did not lead to subsequent death).
+Otherwise, select no outcome. This yields three categories: I. Death,
+II. Hospitalization (without subsequent death), III. No outcome.</li>
+</ol>
+<p>This can be implemented as:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>dat1 <span class="ot">&lt;-</span> dat0</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>dat1<span class="sc">$</span>AVAL <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(dat1<span class="sc">$</span>DEATH <span class="sc">==</span> <span class="dv">1</span>, <span class="dv">1</span>, <span class="fu">ifelse</span>(dat1<span class="sc">$</span>HOSP <span class="sc">==</span> <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>))</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>dat1 <span class="ot">&lt;-</span> <span class="fu">as_hce</span>(dat1)</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="fu">summaryWO</span>(dat1)<span class="sc">$</span>summary</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt;   TRTP  WIN LOSS  TIE TOTAL        WR       WO</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; 1    A 3900 1047 5053 10000 3.7249284 1.798377</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; 2    P 1047 3900 5053 10000 0.2684615 0.556057</span></span></code></pre></div>
+<ol start="2" style="list-style-type: decimal">
+<li>Sequential comparison (see <span class="citation">Pocock et al.
+(2012)</span>) Compare patients first on death. The active (control)
+patient wins if they are alive while the patient in the control (active)
+group died. If both patients died, it is a tie on death and the
+comparison proceeds to the next outcome (hospitalization), using the
+same winner logic. If no winner is determined after evaluating
+hospitalization, declare a tie (there are no further outcomes to break
+ties).</li>
+</ol>
+<p>In this case, we can also derive a single patient-level categorical
+variable that encodes the above comparison logic. From worst to best,
+the categories are: patients with both hospitalization and death;
+patients with death without prior hospitalization; patients with
+hospitalization without death; and patients with no events. This can be
+implemented using the following ordering:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>dat2 <span class="ot">&lt;-</span> dat0</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>dat2<span class="sc">$</span>ORD <span class="ot">&lt;-</span> <span class="dv">2</span><span class="sc">*</span>dat2<span class="sc">$</span>DEATH <span class="sc">+</span> dat2<span class="sc">$</span>HOSP</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="fu">unique</span>(dat2[, <span class="fu">c</span>(<span class="st">&quot;DEATH&quot;</span>, <span class="st">&quot;HOSP&quot;</span>, <span class="st">&quot;ORD&quot;</span>)])</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt;   DEATH HOSP ORD</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt; 1     1    0   2</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt; 3     1    1   3</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt; 4     0    0   0</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt; 6     0    1   1</span></span></code></pre></div>
+<p>The multiplicative factor of 2 is used purely for ordering and can be
+replaced by any monotone transformation. Here, a higher <code>ORD</code>
+indicates a more prioritized (worse) outcome—i.e., outcomes that would
+cause the patient to lose in a pairwise comparison. Because the
+<code>hce</code> package convention is that higher values denote better
+outcomes, we simply reverse the ordering in <code>ORD</code> to obtain
+the analysis variable <code>AVAL</code>:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>dat2<span class="sc">$</span>AVAL <span class="ot">&lt;-</span> <span class="fu">max</span>(dat2<span class="sc">$</span>ORD) <span class="sc">-</span> dat2<span class="sc">$</span>ORD </span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>dat2 <span class="ot">&lt;-</span> <span class="fu">as_hce</span>(dat2)</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="fu">unique</span>(dat2[, <span class="fu">c</span>(<span class="st">&quot;DEATH&quot;</span>, <span class="st">&quot;HOSP&quot;</span>, <span class="st">&quot;ORD&quot;</span>, <span class="st">&quot;AVAL&quot;</span>)])</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt;   DEATH HOSP ORD AVAL</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt; 1     1    0   2    1</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; 3     1    1   3    0</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt; 4     0    0   0    3</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt; 6     0    1   1    2</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="fu">summaryWO</span>(dat2)<span class="sc">$</span>summary</span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt;   TRTP  WIN LOSS  TIE TOTAL        WR        WO</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt; 1    A 6300 1421 2279 10000 4.4334975 2.9054872</span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt; 2    P 1421 6300 2279 10000 0.2255556 0.3441764</span></span></code></pre></div>
+<p>The number of ties is more than halved, leading to a larger estimated
+treatment effect. This occurs because, in this case, the second method
+more efficiently breaks ties by sequentially comparing outcomes (death
+first, then hospitalization), reducing indeterminate pairings.</p>
 </div>
 </div>
 <div id="examples" class="section level2">
 <h2>Examples</h2>
 <p>Here we provide examples of HCE using in clinical trials from
 different therapeutic areas. General considerations for creating HCEs
-can be found in <span class="citation">Samvel B. Gasparyan et al.
-(2022)</span>.</p>
+can be found in <span class="citation">Gasparyan et al. (2022)</span>,
+<span class="citation">Little et al. (2023)</span>.</p>
 <div id="covid-19" class="section level3">
 <h3>COVID-19</h3>
 <p>The DARE-19 <span class="citation">(M. Kosiborod et al. 2021; M. N.
@@ -1662,29 +1775,6 @@ compared using the timing of the event, but, the hospital discharge
 being a favorable outcome, here the earlier event signifies a better
 outcome than the late event (reverse of the ranking in categories
 <code>I</code> and <code>III</code>).</p>
-<p>The simplest case of a COVID-19 HCE is an endpoint with ordinal scale
-outcomes assessed at a given timepoint. The endpoint uses 1-8 categories
-for assessing the physical limitations of hospitalized patients with
-COVID-19 after 15 or 30 days of treatment. But unlike the DARE-19 HCE,
-within each category it does not use the timing of events to reduce the
-ties in a paiwrise comparison of patients in the active group with
-patients in the control group. See, for example, <code>COVID-19</code>
-and <code>COVID-19b</code> datasest ordinal scale outcomes <span class="citation">(Beigel et al. 2020)</span>.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">table</span>(COVID19)</span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt;          GROUP</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; TRTP        1   2   3   4   5   6   7   8</span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt;   Active   34  95  28  58  38  14 117 157</span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt;   Placebo  58 121  24  60  33   8 102 115</span></span></code></pre></div>
-<p>The function <code>hce::summaryWO()</code> provides the number of
-wins, losses, and ties by categories. We can calculate the probability
-of ties from the provided numbers.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>COVID19HCE <span class="ot">&lt;-</span> <span class="fu">hce</span>(<span class="at">GROUP =</span> COVID19<span class="sc">$</span>GROUP, <span class="at">TRTP =</span> COVID19<span class="sc">$</span>TRTP)</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>SUM <span class="ot">&lt;-</span> <span class="fu">summaryWO</span>(COVID19HCE, <span class="at">ref =</span> <span class="st">&quot;Placebo&quot;</span>)<span class="sc">$</span>summary</span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>SUM<span class="sc">$</span>Ptie <span class="ot">&lt;-</span> <span class="fu">round</span>(SUM<span class="sc">$</span>TIE<span class="sc">/</span>SUM<span class="sc">$</span>TOTAL, <span class="dv">2</span>)</span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>SUM</span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt;   TRTP    WIN   LOSS   TIE  TOTAL        WR        WO Ptie</span></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; 1    A 135744  97143 48974 281861 1.3973627 1.3173641 0.17</span></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; 2    P  97143 135744 48974 281861 0.7156338 0.7590916 0.17</span></span></code></pre></div>
 </div>
 <div id="kidney-hce" class="section level3">
 <h3>Kidney HCE</h3>
@@ -1701,21 +1791,21 @@ topic see <span class="citation">Little et al. (2023)</span>).</p>
 #&gt; 7   VII                          Individual GFR slope</code></pre>
 <p>The dataset <code>KHCE</code> contains data on a kidney HCE
 outcomes</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>dat <span class="ot">&lt;-</span> KHCE</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>Order <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Death (adj)&quot;</span>, <span class="st">&quot;Chronic dialysis (adj) &gt;=90 days&quot;</span>, </span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>           <span class="st">&quot;Sustained eGFR&lt;15 (mL/min/1.73 m2)&quot;</span>, <span class="st">&quot;Sustained &gt;=57% decline in eGFR&quot;</span>, </span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>           <span class="st">&quot;Sustained &gt;=50% decline in eGFR&quot;</span>, <span class="st">&quot;Sustained &gt;=40% decline in eGFR&quot;</span>, <span class="st">&quot;eGFR slope&quot;</span>)   </span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>dat<span class="sc">$</span>GROUP <span class="ot">&lt;-</span> <span class="fu">factor</span>(dat<span class="sc">$</span>GROUP, <span class="at">levels =</span> Order)</span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="fu">table</span>(dat<span class="sc">$</span>GROUP, dat<span class="sc">$</span>TRTP)</span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt;                                     </span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt;                                        A   P</span></span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt;   Death (adj)                         40  50</span></span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt;   Chronic dialysis (adj) &gt;=90 days    17  29</span></span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt;   Sustained eGFR&lt;15 (mL/min/1.73 m2)  16  28</span></span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt;   Sustained &gt;=57% decline in eGFR      2   9</span></span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt;   Sustained &gt;=50% decline in eGFR      7  22</span></span>
-<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt;   Sustained &gt;=40% decline in eGFR     36  34</span></span>
-<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt;   eGFR slope                         632 578</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>dat <span class="ot">&lt;-</span> KHCE</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>Order <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Death (adj)&quot;</span>, <span class="st">&quot;Chronic dialysis (adj) &gt;=90 days&quot;</span>, </span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>           <span class="st">&quot;Sustained eGFR&lt;15 (mL/min/1.73 m2)&quot;</span>, <span class="st">&quot;Sustained &gt;=57% decline in eGFR&quot;</span>, </span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>           <span class="st">&quot;Sustained &gt;=50% decline in eGFR&quot;</span>, <span class="st">&quot;Sustained &gt;=40% decline in eGFR&quot;</span>, <span class="st">&quot;eGFR slope&quot;</span>)   </span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>dat<span class="sc">$</span>GROUP <span class="ot">&lt;-</span> <span class="fu">factor</span>(dat<span class="sc">$</span>GROUP, <span class="at">levels =</span> Order)</span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="fu">table</span>(dat<span class="sc">$</span>GROUP, dat<span class="sc">$</span>TRTP)</span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="co">#&gt;                                     </span></span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="co">#&gt;                                        A   P</span></span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="co">#&gt;   Death (adj)                         40  50</span></span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a><span class="co">#&gt;   Chronic dialysis (adj) &gt;=90 days    17  29</span></span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="co">#&gt;   Sustained eGFR&lt;15 (mL/min/1.73 m2)  16  28</span></span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a><span class="co">#&gt;   Sustained &gt;=57% decline in eGFR      2   9</span></span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a><span class="co">#&gt;   Sustained &gt;=50% decline in eGFR      7  22</span></span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a><span class="co">#&gt;   Sustained &gt;=40% decline in eGFR     36  34</span></span>
+<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a><span class="co">#&gt;   eGFR slope                         632 578</span></span></code></pre></div>
 <p>This dataset is derived from <code>ADSL</code> which contains
 baseline characteristics, <code>ADLB</code> laboratory measurements of
 kidney function, and <code>ADET</code> for the time-to-event outcomes
@@ -1734,8 +1824,8 @@ al. (2023)</span>) the following HCE was considered</p>
 #&gt; 4    IV           Improvement/deterioration in KCCQ-TSS</code></pre>
 </div>
 </div>
-<div id="dependent-outcomes" class="section level2">
-<h2>Dependent outcomes</h2>
+<div id="dependent-time-to-event-outcomes" class="section level2">
+<h2>Dependent Time-To-Event Outcomes</h2>
 <p>To model dependent outcomes, several methods are available:</p>
 <ol style="list-style-type: decimal">
 <li><p><strong>Joint Distribution Modeling Using Copulas:</strong> This
@@ -1850,29 +1940,29 @@ and hence <span class="math inline">\(\tan(y)=\beta\tan\left(\frac{\alpha\pi}{2}
 <p>The function <code>simHCE()</code> provides the implementation above
 with the argument <code>theta</code> specifying the dependence of
 outcomes.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>Rates_A <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">20</span>)</span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>Rates_P <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">20</span>, <span class="dv">20</span>)</span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>dat1 <span class="ot">&lt;-</span> <span class="fu">simHCE</span>(<span class="at">n =</span> <span class="dv">2500</span>, <span class="at">TTE_A =</span> Rates_A, <span class="at">TTE_P =</span> Rates_P, </span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="at">CM_A =</span> <span class="sc">-</span><span class="dv">3</span>, <span class="at">CM_P =</span> <span class="sc">-</span><span class="dv">6</span>, <span class="at">CSD_A =</span> <span class="dv">15</span>, <span class="at">fixedfy =</span> <span class="dv">3</span>, <span class="at">theta =</span> <span class="dv">1</span>, <span class="at">seed =</span> <span class="dv">1</span>)</span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>dat2 <span class="ot">&lt;-</span> <span class="fu">simHCE</span>(<span class="at">n =</span> <span class="dv">2500</span>, <span class="at">TTE_A =</span> Rates_A, <span class="at">TTE_P =</span> Rates_P, </span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="at">CM_A =</span> <span class="sc">-</span><span class="dv">3</span>, <span class="at">CM_P =</span> <span class="sc">-</span><span class="dv">6</span>, <span class="at">CSD_A =</span> <span class="dv">15</span>, <span class="at">fixedfy =</span> <span class="dv">3</span>, <span class="at">theta =</span> <span class="fl">1.0001</span>, <span class="at">seed =</span> <span class="dv">1</span>)</span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>dat3 <span class="ot">&lt;-</span> <span class="fu">simHCE</span>(<span class="at">n =</span> <span class="dv">2500</span>, <span class="at">TTE_A =</span> Rates_A, <span class="at">TTE_P =</span> Rates_P, </span>
-<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="at">CM_A =</span> <span class="sc">-</span><span class="dv">3</span>, <span class="at">CM_P =</span> <span class="sc">-</span><span class="dv">6</span>, <span class="at">CSD_A =</span> <span class="dv">15</span>, <span class="at">fixedfy =</span> <span class="dv">3</span>, <span class="at">theta =</span> <span class="dv">10</span>, <span class="at">seed =</span> <span class="dv">1</span>)</span>
-<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="fu">calcWO</span>(dat1)</span>
-<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt;         WO     LCL      UCL         SE WOnull alpha Pvalue        WP    LCL_WP</span></span>
-<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt; 1 1.483251 1.38986 1.582918 0.03318096      1  0.05      0 0.5973021 0.5816594</span></span>
-<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt;      UCL_WP       SE_WP     SD_WP    N</span></span>
-<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&gt; 1 0.6129447 0.007981092 0.5643484 5000</span></span>
-<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="fu">calcWO</span>(dat2)</span>
-<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="co">#&gt;        WO      LCL      UCL         SE WOnull alpha Pvalue        WP    LCL_WP</span></span>
-<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="co">#&gt; 1 1.52306 1.426936 1.625659 0.03326189      1  0.05      0 0.6036558 0.5880583</span></span>
-<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="co">#&gt;      UCL_WP      SE_WP     SD_WP    N</span></span>
-<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a><span class="co">#&gt; 1 0.6192534 0.00795809 0.5627219 5000</span></span>
-<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a><span class="fu">calcWO</span>(dat3)</span>
-<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a><span class="co">#&gt;         WO      LCL      UCL         SE WOnull alpha Pvalue        WP    LCL_WP</span></span>
-<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a><span class="co">#&gt; 1 1.387231 1.299852 1.480482 0.03319378      1  0.05      0 0.5811046 0.5652679</span></span>
-<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a><span class="co">#&gt;      UCL_WP       SE_WP     SD_WP    N</span></span>
-<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a><span class="co">#&gt; 1 0.5969413 0.008080097 0.5713491 5000</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>Rates_A <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">20</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>Rates_P <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">20</span>, <span class="dv">20</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>dat1 <span class="ot">&lt;-</span> <span class="fu">simHCE</span>(<span class="at">n =</span> <span class="dv">2500</span>, <span class="at">TTE_A =</span> Rates_A, <span class="at">TTE_P =</span> Rates_P, </span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="at">CM_A =</span> <span class="sc">-</span><span class="dv">3</span>, <span class="at">CM_P =</span> <span class="sc">-</span><span class="dv">6</span>, <span class="at">CSD_A =</span> <span class="dv">15</span>, <span class="at">fixedfy =</span> <span class="dv">3</span>, <span class="at">theta =</span> <span class="dv">1</span>, <span class="at">seed =</span> <span class="dv">1</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>dat2 <span class="ot">&lt;-</span> <span class="fu">simHCE</span>(<span class="at">n =</span> <span class="dv">2500</span>, <span class="at">TTE_A =</span> Rates_A, <span class="at">TTE_P =</span> Rates_P, </span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="at">CM_A =</span> <span class="sc">-</span><span class="dv">3</span>, <span class="at">CM_P =</span> <span class="sc">-</span><span class="dv">6</span>, <span class="at">CSD_A =</span> <span class="dv">15</span>, <span class="at">fixedfy =</span> <span class="dv">3</span>, <span class="at">theta =</span> <span class="fl">1.0001</span>, <span class="at">seed =</span> <span class="dv">1</span>)</span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a>dat3 <span class="ot">&lt;-</span> <span class="fu">simHCE</span>(<span class="at">n =</span> <span class="dv">2500</span>, <span class="at">TTE_A =</span> Rates_A, <span class="at">TTE_P =</span> Rates_P, </span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="at">CM_A =</span> <span class="sc">-</span><span class="dv">3</span>, <span class="at">CM_P =</span> <span class="sc">-</span><span class="dv">6</span>, <span class="at">CSD_A =</span> <span class="dv">15</span>, <span class="at">fixedfy =</span> <span class="dv">3</span>, <span class="at">theta =</span> <span class="dv">10</span>, <span class="at">seed =</span> <span class="dv">1</span>)</span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="fu">calcWO</span>(dat1)</span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="co">#&gt;         WO     LCL      UCL         SE WOnull alpha Pvalue        WP    LCL_WP</span></span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="co">#&gt; 1 1.483251 1.38986 1.582918 0.03318096      1  0.05      0 0.5973021 0.5816594</span></span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="co">#&gt;      UCL_WP       SE_WP     SD_WP    N</span></span>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a><span class="co">#&gt; 1 0.6129447 0.007981092 0.5643484 5000</span></span>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="fu">calcWO</span>(dat2)</span>
+<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a><span class="co">#&gt;        WO      LCL      UCL         SE WOnull alpha Pvalue        WP    LCL_WP</span></span>
+<span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a><span class="co">#&gt; 1 1.52306 1.426936 1.625659 0.03326189      1  0.05      0 0.6036558 0.5880583</span></span>
+<span id="cb13-17"><a href="#cb13-17" tabindex="-1"></a><span class="co">#&gt;      UCL_WP      SE_WP     SD_WP    N</span></span>
+<span id="cb13-18"><a href="#cb13-18" tabindex="-1"></a><span class="co">#&gt; 1 0.6192534 0.00795809 0.5627219 5000</span></span>
+<span id="cb13-19"><a href="#cb13-19" tabindex="-1"></a><span class="fu">calcWO</span>(dat3)</span>
+<span id="cb13-20"><a href="#cb13-20" tabindex="-1"></a><span class="co">#&gt;         WO      LCL      UCL         SE WOnull alpha Pvalue        WP    LCL_WP</span></span>
+<span id="cb13-21"><a href="#cb13-21" tabindex="-1"></a><span class="co">#&gt; 1 1.387231 1.299852 1.480482 0.03319378      1  0.05      0 0.5811046 0.5652679</span></span>
+<span id="cb13-22"><a href="#cb13-22" tabindex="-1"></a><span class="co">#&gt;      UCL_WP       SE_WP     SD_WP    N</span></span>
+<span id="cb13-23"><a href="#cb13-23" tabindex="-1"></a><span class="co">#&gt; 1 0.5969413 0.008080097 0.5713491 5000</span></span></code></pre></div>
 </div>
 </div>
 </div>
@@ -1893,7 +1983,7 @@ American Statistical Association</em> 71 (354): 340–44.
 <div id="ref-hce" class="csl-entry">
 Gasparyan, Samvel B. 2025. <em><span class="nocase">hce</span>: Design
 and Analysis of Hierarchical Composite Endpoints</em>. <em>CRAN: The
-Comprehensive R Archive Network, R Package, Version 0.8.5</em>. <a href="https://doi.org/10.32614/CRAN.package.hce">https://doi.org/10.32614/CRAN.package.hce</a>.
+Comprehensive R Archive Network, R Package, Version 0.8.8</em>. <a href="https://doi.org/10.32614/CRAN.package.hce">https://doi.org/10.32614/CRAN.package.hce</a>.
 </div>
 <div id="ref-gasparyan2022design" class="csl-entry">
 Gasparyan, Samvel B, Joan Buenconsejo, Elaine K Kowalewski, Jan
@@ -1968,6 +2058,12 @@ Nelsen, Roger B. 2006. <em>An Introduction to Copulas</em>. Springer.
 Nolan, John P. 2020. <span>“Univariate Stable Distributions.”</span>
 <em>Springer Series in Operations Research and Financial
 Engineering</em> 10: 978–73.
+</div>
+<div id="ref-poc2012" class="csl-entry">
+Pocock, SJ, CA Ariti, TJ Collier, and D Wang. 2012. <span>“The Win
+Ratio: A New Approach to the Analysis of Composite Endpoints in Clinical
+Trials Based on Clinical Priorities.”</span> <em>European Heart
+Journal</em> 33 (2): 176–82. <a href="https://doi.org/10.1093/eurheartj/ehr352">https://doi.org/10.1093/eurheartj/ehr352</a>.
 </div>
 <div id="ref-sklar1959fonctions" class="csl-entry">
 Sklar, M. 1959. <span>“Fonctions de r<span>é</span>partition <span class="nocase">à</span> n Dimensions Et Leurs Marges.”</span> In

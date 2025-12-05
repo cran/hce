@@ -1,6 +1,6 @@
 ---
 title: "Hierarchical composite endpoints"
-date: "`r format(as.Date('2025-03-01'), '%d %B, %Y')`"
+date: "`r format(as.Date('2025-12-01'), '%d %B, %Y')`"
 author:
   - name: "Samvel B. Gasparyan"
     affiliation: https://gasparyan.co/
@@ -45,13 +45,83 @@ For citing the package run `citation("hce")` [@hce].
 
 ### Definitions
 
-Hierarchical composite endpoints (HCE) are a general class of endpoints combining different clinical outcomes of patients into a composite so as to preserve their different natures. A particular case of these endpoints is defined in a fixed follow-up period and accounts for the patient’s clinically most important outcome for the analysis. HCEs are analyzed using win odds and other win statistics [@gasparyanhierarchical].
+Hierarchical composite endpoints (HCE) are a class of endpoints that combine multiple clinical outcomes into a single composite while preserving the distinct nature of each outcome. In a particular case, outcomes within a fixed follow-up period are ranked by clinical importance, and the patient’s most important outcome is used for analysis. HCEs are typically analyzed using win odds and related win statistics [@gasparyanhierarchical].
 
+A straightforward example of an HCE is an endpoint defined on an ordinal scale assessed at a specific timepoint. For instance, the COVID-19 HCE uses an 8-category ordinal scale to evaluate physical limitations in hospitalized patients with COVID-19 at 15 or 30 days post-treatment. See the `COVID-19` and `COVID-19b` dataset ordinal outcomes as examples [@beigel2020remdesivir].
+
+```{r}
+table(COVID19)
+```
+Ssimple HCEs are implemented in the `hce` package via the `hce` class, which inherits from `data.frame`. These objects must include the ordinal analysis values in the `AVAL` column and a two-level treatment group in the `TRTP` column. The `hce::summaryWO()` function can be used to provide the number of wins, losses, and ties by category. From these counts, one can compute the probability of ties.
+
+```{r}
+COVID19HCE <- hce(GROUP = COVID19$GROUP, TRTP = COVID19$TRTP)
+SUM0 <- summaryWO(COVID19HCE, ref = "Placebo")
+SUM <- SUM0$summary
+SUM$Ptie <- round(SUM$TIE/SUM$TOTAL, 2)
+SUM
+```
+
+While the win odds and its 95% confidence interval are calculated as follows:
+
+```{r}
+WO <- calcWO(COVID19HCE, ref = "Placebo")[, c("WO", "LCL", "UCL")]
+round(WO, 2)
+```
+
+A more complex case arises when multiple events per patient are observed. Consider two binary outcomes: death and hospitalization. Each patient can experience up to two events (e.g., hospitalization followed by death), and the HCE must account for the hierarchy between them (typically prioritizing death over hospitalization) when determining wins, losses, and ties.
+
+```{r}
+set.seed(1)
+n <- 100
+dat0 <- data.frame(TRTP = rep(c("A", "P"), each = n), 
+                  DEATH = c(rbinom(n = n, size = 1, prob = 0.6), 
+                            rbinom(n = n, size = 1, prob = 0.8)),
+                  HOSP = c(rbinom(n = n, size = 1, prob = 0.5), 
+                            rbinom(n = n, size = 1, prob = 0.8)))
+```
+
+Based on these outcomes, several methods can be used to construct hierarchical composite endpoints. Below are two approaches with their implementations.
+
+1. The most prioritized outcome
+Select a single outcome per patient—the highest-priority one. If a patient experienced death, select death (regardless of hospitalization). If no death occurred, select hospitalization (only if it did not lead to subsequent death). Otherwise, select no outcome. This yields three categories: I. Death, II. Hospitalization (without subsequent death), III. No outcome.
+
+This can be implemented as:
+
+```{r}
+dat1 <- dat0
+dat1$AVAL <- ifelse(dat1$DEATH == 1, 1, ifelse(dat1$HOSP == 1, 2, 3))
+dat1 <- as_hce(dat1)
+summaryWO(dat1)$summary
+```
+
+2. Sequential comparison (see @poc2012)
+Compare patients first on death. The active (control) patient wins if they are alive while the patient in the control (active) group died. If both patients died, it is a tie on death and the comparison proceeds to the next outcome (hospitalization), using the same winner logic. If no winner is determined after evaluating hospitalization, declare a tie (there are no further outcomes to break ties).
+
+In this case, we can also derive a single patient-level categorical variable that encodes the above comparison logic. From worst to best, the categories are: patients with both hospitalization and death; patients with death without prior hospitalization; patients with hospitalization without death; and patients with no events. This can be implemented using the following ordering:
+
+
+```{r}
+dat2 <- dat0
+dat2$ORD <- 2*dat2$DEATH + dat2$HOSP
+unique(dat2[, c("DEATH", "HOSP", "ORD")])
+```
+
+The multiplicative factor of 2 is used purely for ordering and can be replaced by any monotone transformation. Here, a higher `ORD` indicates a more prioritized (worse) outcome—i.e., outcomes that would cause the patient to lose in a pairwise comparison. Because the `hce` package convention is that higher values denote better outcomes, we simply reverse the ordering in `ORD` to obtain the analysis variable `AVAL`:
+
+```{r}
+dat2$AVAL <- max(dat2$ORD) - dat2$ORD 
+dat2 <- as_hce(dat2)
+unique(dat2[, c("DEATH", "HOSP", "ORD", "AVAL")])
+summaryWO(dat2)$summary
+```
+
+The number of ties is more than halved, leading to a larger estimated treatment effect. This occurs because, in this case, the second method more efficiently breaks ties by sequentially comparing outcomes (death first, then hospitalization), reducing indeterminate pairings. 
 
 
 ## Examples
 
-Here we provide examples of HCE using in clinical trials from different therapeutic areas. General considerations for creating HCEs can be found in @gasparyan2022design.
+Here we provide examples of HCE using in clinical trials from different therapeutic areas. General considerations for creating HCEs can be found in @gasparyan2022design, @khce1.
 
 ### COVID-19
 
@@ -72,20 +142,6 @@ HCE
 
 Patients in the category `I` are compared using the timing of the event, with an earlier event being a worse outcome (are assigned a lower rank). Similarly, in the category `III` the timing of the event is used for ranking patients within this category. In the category `II` patients are compared using the number of events with a higher number signifying a worse outcome. Patients in the category `IV` - hospitalized at the end of follow-up without previous worsening events - are further ranked according to oxygen support requirements at the hospital (`IV.1` on high flow oxygen devices, `IV.2` requiring supplemental oxygen, `IV.3` not requiring supplemental oxygen, with a higher rank being a better outcome). Patients in the category `V` are compared using the timing of the event, but, the hospital discharge being a favorable outcome, here the earlier event signifies a better outcome than the late event (reverse of the ranking in categories `I` and `III`).
 
-The simplest case of a COVID-19 HCE is an endpoint with ordinal scale outcomes assessed at a given timepoint. The endpoint uses 1-8 categories for assessing the physical limitations of hospitalized patients with COVID-19 after 15 or 30 days of treatment. But unlike the DARE-19 HCE, within each category it does not use the timing of events to reduce the ties in a paiwrise comparison of patients in the active group with patients in the control group. See, for example, `COVID-19` and `COVID-19b` datasest ordinal scale outcomes [@beigel2020remdesivir].
-
-```{r}
-table(COVID19)
-```
-
-The function `hce::summaryWO()` provides the number of wins, losses, and ties by categories. We can calculate the probability of ties from the provided numbers.
-
-```{r}
-COVID19HCE <- hce(GROUP = COVID19$GROUP, TRTP = COVID19$TRTP)
-SUM <- summaryWO(COVID19HCE, ref = "Placebo")$summary
-SUM$Ptie <- round(SUM$TIE/SUM$TOTAL, 2)
-SUM
-```
 
 ### Kidney HCE
 
@@ -133,7 +189,7 @@ HCE3
 ```
 
 
-## Dependent outcomes
+## Dependent Time-To-Event Outcomes
 
 To model dependent outcomes, several methods are available:
 

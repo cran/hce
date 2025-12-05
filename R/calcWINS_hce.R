@@ -12,6 +12,11 @@
 #' * WR2 a data frame containing the win ratio and its confidence interval, using the standard error calculated using `Pties`. 
 #' * gamma a data frame containing Goodman Kruskal's `gamma` and its confidence interval. 
 #' * SE a data frame containing standard errors used to calculated the Confidence intervals for win statistics. 
+#' 
+#' When `SE_WP_Type = "unbiased"`, the `WP`, `WO` and `NetBenefit` estimators use the unbiased variance estimator of `WP`. Additionally, a Wilson-type range-preserving confidence interval is provided: 
+#' * WP_W a data frame containing the win probability and its range-preserving confidence interval. 
+#' * NetBenefit_W a data frame containing the net benefit and its range-preserving confidence interval. 
+#' * WO_W a data frame containing the win odds and its range-preserving confidence interval. 
 #' @export
 #' @md
 #' @seealso [hce::calcWINS()], [hce::calcWINS.formula()], [hce::calcWINS.data.frame()].
@@ -34,6 +39,9 @@
 #' \cr \cr Brown MB, Benedetti JK. (1977) "Sampling Behavior of Tests for Correlation in Two-Way Contingency Tables." Journal of the American Statistical Association 72, 309-315. <doi:10.1080/01621459.1977.10480995>.
 #' \cr \cr Goodman LA, Kruskal WH. (1954) "Measures of association for cross classifications." Journal of the American Statistical Association 49, 732-764. <doi:10.1080/01621459.1954.10501231>.
 #' \cr \cr Goodman LA, Kruskal WH. (1963) "Measures of association for cross classifications III: Approximate sampling theory." Journal of the American Statistical Association 58, 310-364. <doi:10.1080/01621459.1963.10500850>.
+#' * Unbiased variance estimator for `WP` and Wilson-type range -preserving confidence intervals are based on:
+#' \cr \cr Brunner E, Konietschke F. (2025) "An unbiased rank-based estimator of the Mann–Whitney variance including the case of ties." Statistical Papers 66: 20. <doi:10.1007/s00362-024-01635-0>.
+#' \cr \cr Schüürhuis S, Konietschke F, Brunner E. (2025) "A New Approach to the Nonparametric Behrens–Fisher Problem With Compatible Confidence Intervals." Biometrical Journal 67.6. <doi:10.1002/bimj.70096>.
 #' @examples
 #' # Example 1
 #' COVID19HCE <- hce(GROUP = COVID19$GROUP, TRTP = COVID19$TRTP)

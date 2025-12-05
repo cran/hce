@@ -17,15 +17,35 @@
 #' @param m number of equidistant visits.
 #' @param theta coefficient of dependence of eGFR values and the risk of KFRT.
 #' @param phi coefficient of proportionality (between 0 and 1) of the treatment effect. The case of 0 corresponds to the uniform treatment effect.
+#' @param two_meas determines whether to use duplicate measurements at baseline and/or at `fixedfy`. The default is to use a single measurement.
 #' @details
 #' The default setting is `TTE_A = TTE_P` because, conditional on eGFR level, 
 #' the treatment effect does not influence the event rate of KFRT. In this model,
 #' the effect of treatment on KFRT operates entirely through its impact on eGFR decline.
 #' 
-#' The parameters `TTE_A` and `theta` are chosen so that when GFR is 10, the event rate 
-#' is 1 per year, and when GFR is 30, the event rate is 0.01 per year. These
+#' The parameters `TTE_A` and `theta` are chosen so that when GFR is 15, the event rate 
+#' is 1 per patient per year, and when GFR is 25, the event rate is 0.01 per patient per year. These
 #' parameter values are obtained by solving the equation `rate0*exp(GFR*theta) = rate` for `rate0`
-#' and `theta`.
+#' and `theta`. When the observed eGFR is above 30, the event rate is set to a very low value (0.001), 
+#' while when the observed eGFR is below 10, the event rate is set to a very high value (10000). This ensures that patients with observed low eGFR values 
+#' always experience KFRT, while those with high eGFR values do not.
+#' 
+#' By default, the standard deviation for within-patient variability, `sigma`, is set to `NULL.` When left as `NULL`, `sigma` 
+#' is calculated as `sqrt(0.67*predicted eGFR)`. This approach results in time-dependent variability for measurements, 
+#' where lower predicted eGFR values lead to reduced variability.
+#'
+#' When `phi = 0`, the treatment effect is fully additive - the same average treatment effect 
+#' applies to all patients, regardless of their baseline disease progression rate (`CM_P`). 
+#' When `phi = 1`, the treatment effect is fully proportional - there is no additive component 
+#' (the value of `CM_A` is irrelevant). 
+#' The more relativistic intermediate treatment effect (half proportional and half additive) 
+#' can be obtained by setting `phi = abs(CM_A - CM_P)/(2*abs(CM_P)).`
+#' 
+#' The kidney hierarchical composite endpoint is defined in the following order: 
+#' (1) Kidney Failure Replacement Therapy (KFRT); (2) Sustained eGFR < 15; 
+#' (3) Sustained 57 percent or more decline in eGFR; (4) Sustained 50 percent or more  decline in eGFR; (5) Sustained 40 percent or more decline in eGFR; 
+#' and (6) Change in eGFR. In practice, because KFRT is frequently initiated when true eGFR is very low, 
+#' sustained eGFR < 15 events are rarely observed.
 #' @return a list containing the dataset `GFR` for longitudinal measurements of 
 #' eGFR and the competing KFRT events, the dataset `ADET` for the time-to-event 
 #' kidney outcomes (sustained declines or sustained low levels of eGFR), 
@@ -39,10 +59,11 @@
 #' L <- simKHCE(n = 1000, CM_A = -3.25)
 #' dat <- L$HCE
 #' calcWO(dat)
-simKHCE <- function(n, CM_A, CM_P = - 4, n0 = n, TTE_A = 10, TTE_P = TTE_A,  
+simKHCE <- function(n, CM_A, CM_P = - 4, n0 = n, TTE_A = 1000, TTE_P = TTE_A,  
                    fixedfy = 2, Emin = 20, Emax = 100, 
-                   sigma = 8, Sigma = 3,
-                   m = 10, theta = -0.23, phi = 0){
+                   sigma = NULL, Sigma = 3,
+                   m = 10, theta = - .4605, phi = 0, two_meas = c("no", "base", "postbase", "both")){
+  two_meas <- match.arg(two_meas)
   n <- n[1] 
   CM_A <- CM_A[1] 
   CM_P <- CM_P[1] 
@@ -57,10 +78,13 @@ simKHCE <- function(n, CM_A, CM_P = - 4, n0 = n, TTE_A = 10, TTE_P = TTE_A,
   m <- round(m)[1]
   theta <- theta[1]
   phi <- phi[1]
-  stopifnot("The standard deviations `sigma` and `Sigma` should be positive." 
-            = all(c(sigma > 0, Sigma > 0)), 
+  stopifnot("The standard deviation `Sigma` should be positive." 
+            = all(c(Sigma > 0)), 
             "`phi` should be in the interval [0, 1]" = all(c(phi >= 0, phi <= 1)),
-            "GFR range `Emin` and `Emax` should be non-negative" = all(c(Emin >= 0, Emax >= 0)))
+            "GFR range `Emin` and `Emax` should be non-negative and `Emin` < `Emax`." = all(c(Emin >= 0, Emax >= 0, Emin < Emax)),
+            "`m` must be >= 1" = m >= 1)
+  if(!is.null(sigma)) stopifnot("The standard deviation `sigma` must be positive or left `NULL` for data-driven estimates." = sigma > 0)
+  
   N <- n0 + n
   b0 <- CM_P
   b1 <- CM_A - CM_P
@@ -84,7 +108,29 @@ simKHCE <- function(n, CM_A, CM_P = - 4, n0 = n, TTE_A = 10, TTE_P = TTE_A,
   # Merge to get the treatment groups
   d1 <- merge(VISITS, d, all.x = TRUE, by = "ID")
   # Random true slope is observed with a measurement error (within-patient variability is sigma^2)
-  d1$AVAL <- d1$SLOPE*d1$ADAY + d1$BASE0 + stats::rnorm(nrow(d1), sd = sigma)
+  # sigma, by default, is derived based on the formula 0.67*predicted eGFR, which is time dependent.
+  if(is.null(sigma)){
+    VAR <- 0.67*(d1$SLOPE * d1$ADAY + d1$BASE0)
+    VAR[VAR <= 0.1] <- 0.1 #prevent the variance being negative or too small.
+    sigma <- sqrt(VAR)
+  }
+  BASE <- d1$BASE0 + stats::rnorm(nrow(d1), sd = sigma)
+  d1$AVAL <- d1$SLOPE*d1$ADAY + ifelse(BASE <= Emin, Emin, ifelse(BASE >= Emax, Emax, BASE))
+  d1$AVAL[d1$AVAL < 0] <- 0
+  ######## Added a new implementation to handle double measurements at baseline or at PADY. #########
+  if(two_meas != "no"){
+    # BASE0 and SLOPE are the same for both measurements, hence they are correlated. ########
+    BASE1 <- d1$BASE0 + stats::rnorm(nrow(d1), sd = sigma)
+    d1$AVAL1 <- d1$SLOPE * d1$ADAY + ifelse(BASE1 <= Emin, Emin, ifelse(BASE1 >= Emax, Emax, BASE1))  
+  }
+  if(two_meas == "base"){
+    d1$AVAL <- ifelse(d1$ADAY== 0, (d1$AVAL + d1$AVAL1)/2, d1$AVAL)
+  } else if(two_meas == "postbase"){
+    d1$AVAL <- ifelse(d1$ADAY == fixedfy, (d1$AVAL + d1$AVAL1)/2, d1$AVAL)
+  } else if(two_meas == "both"){
+    d1$AVAL <- ifelse(d1$ADAY == 0 | d1$ADAY == fixedfy, (d1$AVAL + d1$AVAL1)/2, d1$AVAL)
+  }
+  ################### END of the addition #########################
   # Extract time 0 measurements as baseline (observed baseline with sampling error)
   d2 <- d1[d1$ADAY == 0, c("ID", "AVAL")]
   names(d2) <- c("ID", "BASE")
@@ -95,11 +141,24 @@ simKHCE <- function(n, CM_A, CM_P = - 4, n0 = n, TTE_A = 10, TTE_P = TTE_A,
   d3$RATE0 <- exp(c0 + c1*d3$TRTPN)
   ## Multiply the group-level incidence rates depending on the patient-level random (true) GFR slope at each visit interval.
   d3$RATE <- d3$RATE0*exp(c2*(d3$SLOPE*d3$ADAY + d3$BASE0))
-  ## Simulate events using difference event rates. The rate argument is a vector hence each event will be simulated from different event rates.
-  d3$AVALT0 <- stats::rexp(nrow(d3), rate = d3$RATE)
+  ## Make sure that patients with higher than 30 observed eGFR cannot have KFRT
+  ## Make surer that patients with lower than 5 observed eGFR always have KFRT
+  d3$RATE <- ifelse(d3$AVAL > 30, 0.001, ifelse(d3$AVAL < 10, 10000, d3$RATE))
+  ## Simulate uniform random variables
+  d3$U <- stats::runif(nrow(d3))
+  ## Calculate the cumulative event rate for each patient
+  d3$CUMRATE <- stats::ave(d3$RATE, d3$ID, FUN = cumsum)
   d3$PADY <- fixedfy
-  ## Check that each event of a given rate occurs in the given risk interval. If it is not, assign PADY + 1 to filter it out later when keeping only events.
-  d3$AVALT0 <- ifelse(d3$AVALT0 <= d3$ADAY, d3$AVALT0 + d3$ADAY, d3$PADY + 1)
+  ## Cumulative event rate minus the event rate in the current interval gives the cumulative event rate up to the current interval
+  ## Use the cumulative event rate up to the current interval multiplied by the length of all intervals
+  ## Use the log uniform added to it and divided by the rate of the current interval
+  ## Add it to the current visit ADAY to initiate the event after the current visit
+  
+  d3$AVALT0 <- (- log(d3$U) + (d3$PADY/m)*(d3$CUMRATE - d3$RATE))/d3$RATE + d3$ADAY
+  ## Compare the simulated event with the length of follow-up
+  d3$AVALT0 <- ifelse(d3$AVALT0 <= d3$PADY, 
+                      d3$AVALT0 ,
+                      d3$PADY + 1)
   ## Keep only events happening in the given risk interval and before end of follow-up.
   d4 <- d3[d3$AVALT0 <= d3$PADY, c("ID", "AVALT0")]
   ## If there are events generated
@@ -132,31 +191,40 @@ simKHCE <- function(n, CM_A, CM_P = - 4, n0 = n, TTE_A = 10, TTE_P = TTE_A,
   d$E40 <- ifelse(d$PCHG <= -40, 1, 0)
   d$E50 <- ifelse(d$PCHG <= -50, 1, 0)
   d$E57 <- ifelse(d$PCHG <= -57, 1, 0)
-  d$E15 <- ifelse(d$AVAL <= 15, 1, 0)
+  d$E15 <- ifelse(d$AVAL < 10, 1, 0)
   sustained <- function(dat, x){
+    dat <- as.data.frame(dat)
+    dat <- dat[order(dat$ADAY), ]
+    row.names(dat) <- NULL
     thr0 <- as.numeric(substr(x, 2, 3))
-    thr <- ifelse(x == "E15", thr0, -thr0)
-    i <- which(dat[, x] == 1)[1]
-    t0 <- dat[i, "ADAY"]
-    # use one month for the confirmation of the sustained decline
-    t1 <- t0 + 1/12
-    # selects the analysis day immediately after the 1-month window
-    j <- which(dat$ADAY > t1)[1]
-    if(is.na(i) | is.na(j)) 
+    thr <- ifelse(x == "E15", thr0, - thr0)
+    I <- which(dat[, x] == 1)
+    if(length(I) == 0)
       return(NULL)
-    # Requires that all measurements during the window satisfy the criteria
-    if(x %in% c("E57", "E50", "E40") & all(dat[i:j, "PCHG"] <= thr)){
-      dat0 <- dat[i, c("ID", "ADAY", x)]
-      names(dat0) <- c("ID", "ADAY", "EVENT")
-      dat0$EVENT <- x
-      return(dat0)
+    for(k in 1:length(I)){
+      i <- I[k]
+      t0 <- dat[i, "ADAY"]
+      # use one month for the confirmation of the sustained decline
+      t1 <- t0 + 1/12
+      j <- which(dat$ADAY >= t1)[1]
+      
+      if(is.na(i) | is.na(j)) 
+        next
+      # Requires that all measurements during the window satisfy the criteria
+      if(x %in% c("E57", "E50", "E40") & all(dat[i:j, "PCHG"] <= thr)){
+        dat0 <- dat[i, c("ID", "ADAY", x)]
+        names(dat0) <- c("ID", "ADAY", "EVENT")
+        dat0$EVENT <- x
+        return(dat0)
+      }
+      if(x %in% c("E15") & all(dat[i:j, "AVAL"] < thr)){
+        dat0 <- dat[i, c("ID", "ADAY", x)]
+        names(dat0) <- c("ID", "ADAY", "EVENT")
+        dat0$EVENT <- x
+        return(dat0)
+      }
     }
-    if(x %in% c("E15") & all(dat[i:j, "AVAL"] <= thr)){
-      dat0 <- dat[i, c("ID", "ADAY", x)]
-      names(dat0) <- c("ID", "ADAY", "EVENT")
-      dat0$EVENT <- x
-      return(dat0)
-    }
+    return(NULL)
   }
   l <- lapply(split(d, d$ID), sustained, x = "E40")
   E1 <- do.call(rbind, l)
@@ -202,12 +270,12 @@ simKHCE <- function(n, CM_A, CM_P = - 4, n0 = n, TTE_A = 10, TTE_P = TTE_A,
   ADLB$TRTP <- ifelse(ADLB$TRTPN == 1, "A", "P")
   HCE <- d6
   HCE$TRTP <- ifelse(HCE$TRTPN == 1, "A", "P")
-  HCE$GROUP <- factor(HCE$PARAMCD, levels = c("KFRT", "E15", "E40", "E50", "E57", "GFR"))
+  HCE$GROUP <- factor(HCE$PARAMCD, levels = c("KFRT", "E15", "E57", "E50", "E40", "GFR"))
   levels(HCE$GROUP) <- c("Kidney Failure Replacement Therapy", "Sustained eGFR < 15 (mL/min/1.73 m2)", 
                          "Sustained >= 57% decline in eGFR", "Sustained >= 50% decline in eGFR", 
-                         "Sustained >= 40% decline in eGFR", "eGFR slope")
+                         "Sustained >= 40% decline in eGFR", "Change in eGFR")
   ADET <- rbind(ADET0, d2)
-  ADET <- ADET[order(ADET$ID), ]
+  if(!is.null(ADET)) ADET <- ADET[order(ADET$ID), ]
   L <- list(GFR = ADLB, ADET = ADET, HCE = as_hce(HCE))
   return(L)
 }

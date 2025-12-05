@@ -158,6 +158,28 @@
 #' # Adjusted win odds
 #' res <- regWO(x = KHCE, AVAL = "AVAL", TRTP = "TRTP", COVAR = "STRATAN", ref = "P")
 #' res
+#' # Convert the dataset to an adhce object.
+#' ## First check that `GROUP` is a factor with the correct ordering of outcomes.
+#' class(KHCE$GROUP) # "factor"
+#' levels(KHCE$GROUP)
+#' dat1 <- as_hce(KHCE)
+#' class(dat1)
+#' calcWO(dat1)
+#' ## Re-derive individual patient eGFR slopes using a linear regression model, 
+#' ## based on the eGFR measurements in the `ADLB` dataset
+#' dat2 <- KHCE
+#' l <- lapply(
+#' split(ADLB, ADLB$ID), 
+#' function(x) coef(lm(AVAL ~ ADAY, data = x))[2])
+#' new_slopes <- do.call(rbind, l)
+#' new_slopes <- as.data.frame(new_slopes)
+#' names(new_slopes) <- "LINEAR"
+#' new_slopes$ID <- as.numeric(row.names(new_slopes))
+#' dat2 <- merge(KHCE, new_slopes, by = "ID", all.x = TRUE)
+#' dat2$AVAL0[dat2$PARAMCD == "eGFR"] <- dat2$LINEAR[dat2$PARAMCD == "eGFR"]
+#' dat2$AVAL0[is.na(dat2$AVAL0)] <- 0 
+#' dat2 <- as_hce(dat2)
+#' calcWO(dat2)
 "KHCE"
 
 

@@ -7,10 +7,10 @@
 #' * WO calculated WO (win odds) and WP (win probability) and their standard errors.
 #' @export
 #' @md
-#' @seealso [hce::calcWO()], [hce::summaryWO()], [hce::summaryWO.data.frame()], [hce::summaryWO.formula()] methods.
+#' @seealso [hce::calcWO()], [hce::summaryWO()], [hce::summaryWO.data.frame()], [hce::summaryWO.formula()], [hce::summaryWO.adhce()] methods.
 #' @examples
-#' dat <- as_hce(HCE4)
-#' summaryWO(dat, ref = "P")
+#' COVID19HCE <- hce(GROUP = COVID19$GROUP, TRTP = COVID19$TRTP)
+#' summaryWO(COVID19HCE, ref = "Placebo")
 summaryWO.hce <- function(x, ...){
   Args <- base::list(...)
   x <- as_hce(x)

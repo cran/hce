@@ -1,4 +1,7 @@
-#' Simulate `hce` object with given event rates of time-to-event outcomes (Weibull), mean and SD of the continuous outcome (normal or log-normal) by treatment group
+#' Simulate an `hce` object 
+#'
+#' Simulate an `hce` object with multiple, possibly correlated (Hougaard copula) Weibull time‑to‑event outcomes and a single continuous endpoint (normal or log‑normal)
+#'
 #'
 #' @param n sample size in the active treatment group.
 #' @param n0 sample size in the placebo group.

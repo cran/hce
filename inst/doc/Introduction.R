@@ -96,3 +96,13 @@ methods(class = "adhce")
 ## -----------------------------------------------------------------------------
 summaryWO(HCE)
 
+## -----------------------------------------------------------------------------
+res0 <- summaryWO(HCE, ref = "P")
+res <- res0$cumsummary_by_GROUP
+barplot(PROP ~ WINS + GROUPN, data = res, 
+col = c("darkgreen", "darkred", "darkblue"), 
+xlab = "Proportions", xlim = c(0, 1), 
+ylab = "Cumulative components by prioritization", 
+legend.text = unique(res$WINS), beside = TRUE, horiz = TRUE)
+grid()
+

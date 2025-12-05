@@ -1,15 +1,51 @@
+# hce 0.8.8
+
+### Bugs
+
+* A bug has been fixed in the `simKHCE()` function related to the implementation of sustained decline.
+* Fixed a bug in `simKHCE()` affecting the piecewise-constant kidney failure event generation that uses time-dependent predicted true eGFR between visits, ensuring events are determined correctly over inter-visit intervals.
+* Fixed a bug in `summaryWO.formula()` that previously caused errors when `GROUP` values were used.
+
+### Updates
+
+* The default value for within-patient variability (`sigma`) in the `simKHCE()` function has been updated. It now depends on the time-dependent predicted eGFR, hence lower eGFR values result in lower variability. 
+* The kidney failure event logic in `simKHCE()` has been revised to prevent events when the most recent eGFR is sufficiently high and to trigger events when the most recent eGFR is below the threshold.
+
+### New
+
+* A new argument, `two_meas`, has been added to the `simKHCE()` function to enable duplicate eGFR measurements at baseline and/or at the end of follow-up. This implementation was suggested by Amy Shi.
+* The `summaryWO.adhce()` results now include cumulative wins by component.
+* A new function, `simTTE()`, simulates an `hce` dataset with two correlated outcomes under an *illness-death* model. It allows population heterogeneity in the first event (which also determines correlation among first events), while the risk of the second event depends on the timing of the first event in the same way across treatment groups. 
+* Added an implementation of `calcWINS()` for cases where `SE_WP_Type = TRUE`, providing *Wilson-type* confidence intervals for the win probability, net benefit, and win odds, following the approach of Schüürhuis, Konietschke, and Brunner (2025).
+
+### Documentation
+
+* The vignette on hierarchical composite endpoints now includes a motivational example illustrating two binary outcomes per patient. 
+
 # hce 0.8.5
 
-* Added an implementation `summaryWO.adhce()` to provide the summaries by `GROUP`, as opposed to `summaryWO.hce()`, which works without grouping by this variable.
-* Details have been added regarding the implementation of the `simKHCE()` function. The function has been updated to return all time-to-event outcomes for each patient in the `ADET` dataset.
+### Bugs
+
 * A bug has been fixed in `regWO()`, which previously caused the results to depend on the order of the input dataset. This issue also affected the `stratWO()` function, since it calls `regWO()`. A similar issue in the `IWP()` has also been fixed. The bug was reported by Cyrill Scheidegger. 
-* The `hce()` function has been for consistency with the `as_hce()` function. Two new arguments, `PADY` and `AVAL0`, have been added. The `PADY` argument serves a similar purpose as now-deprecated `ORD` argument. With these updates, `hce()` can produce outputs of class `adhce` when the `AVAL0` argument is provided.
+
+### Updates
+
+* The `hce()` function has been updated for consistency with the `as_hce()` function. Two new arguments, `PADY` and `AVAL0`, have been added. The `PADY` argument serves a similar purpose as now-deprecated `ORD` argument. With these updates, `hce()` can produce outputs of class `adhce` when the `AVAL0` argument is provided.
+
+### New
+
+* Added an implementation `summaryWO.adhce()` to provide the summaries by `GROUP`, as opposed to `summaryWO.hce()`, which works without grouping by this variable.
+
+
+### Documentation
+
+* Details have been added regarding the implementation of the `simKHCE()` function. The function has been updated to return all time-to-event outcomes for each patient in the `ADET` dataset.
+
 * Examples have been added to the `calcWINS()` implementation to illustrate the differences between the following formulas for the standard error of the win proportion:
 the Bamber-Brunner-Konietschke formula (see Bamber, 1975; Brunner and Konietschke, 2025), Brunner-Munzel test (Brunner and Munzel, 2000) based on the DeLong-Clarke-Pearson (1988) formula, and the Somers (1962) formula.
 
 # hce 0.8.0
 
-* Fixed a bug in `summaryWO.formula()` that previously caused errors when `GROUP` values were used.
 * The function `simADHCE()` has been replaced by the `all_data = TRUE` implementation in `simHCE()`.
 * The function `simHCE()` now returns an object of a new class called `adhce`. This class inherits from the `hce` class, which itself is a subclass of `data.frame`. The underlying structure of the returned object remains unchanged. The introduction of the `adhce` class is intended to clearly distinguish these structured outputs from the more general `hce` objects. Specifically, an `adhce` object is an analysis-ready `hce` object that is derived using multiple time-to-event outcomes and a single continuous (ordinal or score) endpoint.
 * The function `as_hce()` has been updated to support additional output flexibility. If the input data includes the variables `TRTP`, `GROUP`, `AVAL0`, and `PADY`, the function will return an `adhce` object. In this scenario, even if the `AVAL` variable is present, it will be recalculated based on the provided data to ensure consistency with the `adhce` structure. If only the `TRTP` and `AVAL` variables are available, `as_hce()` will return a standard `hce` object. This enhancement allows users to generate either general or analysis-ready `hce` objects, depending on the available input variables.
