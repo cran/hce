@@ -93,9 +93,18 @@ and (6) Change in eGFR. In practice, because KFRT is frequently initiated when t
 sustained eGFR < 15 events are rarely observed.
 }
 \examples{
-# Example 1
+# Example 1 - minimal example
 set.seed(2022)
 L <- simKHCE(n = 1000, CM_A = -3.25)
+dat <- L$HCE
+calcWO(dat)
+# Example 2 - using the most important variables
+set.seed(2022)
+CM_A <- -4
+CM_P <- - 4.5
+phi <- abs(CM_A - CM_P) / (2*abs(CM_P))
+L <- simKHCE(n = 1000, CM_A = CM_A, CM_P = CM_P, 
+fixedfy = 4, Emin = 25, Emax = 75, phi = phi)
 dat <- L$HCE
 calcWO(dat)
 }

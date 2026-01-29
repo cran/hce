@@ -8,7 +8,7 @@
 #' @export
 #' @md
 #' @seealso [hce::calcWO()], [hce::calcWO.hce()], [hce::calcWO.formula()].
-#' @references Gasparyan SB et al. "Adjusted win ratio with stratification: calculation methods and interpretation." Statistical Methods in Medical Research 30.2 (2021): 580-611. <doi:10.1177/0962280220942558>
+#' @references Gasparyan SB et al. "Adjusted win ratio with stratification: calculation methods and interpretation." Statistical Methods in Medical Research 30.2 (2021): 580-611. <doi:10.1177/0962280220942558>.
 #' @examples
 #' KHCE1 <- IWP(data = KHCE, AVAL = "EGFRBL", TRTP = "TRTPN", ref = 2)
 #' WP <- tapply(KHCE1$EGFRBL_, KHCE1$TRTPN, mean)

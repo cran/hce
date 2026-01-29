@@ -54,15 +54,24 @@
 #' @md
 #' @seealso [hce::simHCE()] for a general function of simulating `hce` datasets.
 #' @examples
-#' # Example 1
+#' # Example 1 - minimal example
 #' set.seed(2022)
 #' L <- simKHCE(n = 1000, CM_A = -3.25)
 #' dat <- L$HCE
 #' calcWO(dat)
+#' # Example 2 - using the most important variables
+#' set.seed(2022)
+#' CM_A <- -4
+#' CM_P <- - 4.5
+#' phi <- abs(CM_A - CM_P) / (2*abs(CM_P))
+#' L <- simKHCE(n = 1000, CM_A = CM_A, CM_P = CM_P, 
+#' fixedfy = 4, Emin = 25, Emax = 75, phi = phi)
+#' dat <- L$HCE
+#' calcWO(dat)
 simKHCE <- function(n, CM_A, CM_P = - 4, n0 = n, TTE_A = 1000, TTE_P = TTE_A,  
-                   fixedfy = 2, Emin = 20, Emax = 100, 
-                   sigma = NULL, Sigma = 3,
-                   m = 10, theta = - .4605, phi = 0, two_meas = c("no", "base", "postbase", "both")){
+                    fixedfy = 2, Emin = 20, Emax = 100, 
+                    sigma = NULL, Sigma = 3,
+                    m = 10, theta = - .4605, phi = 0, two_meas = c("no", "base", "postbase", "both")){
   two_meas <- match.arg(two_meas)
   n <- n[1] 
   CM_A <- CM_A[1] 
@@ -147,6 +156,8 @@ simKHCE <- function(n, CM_A, CM_P = - 4, n0 = n, TTE_A = 1000, TTE_P = TTE_A,
   ## Simulate uniform random variables
   d3$U <- stats::runif(nrow(d3))
   ## Calculate the cumulative event rate for each patient
+  ### CUMRATE must be aligned with the intended interval indexing per ID; otherwise, hazard accumulation can be wrong.
+  d3 <- d3[order(d3$ID, d3$ADAY), ]
   d3$CUMRATE <- stats::ave(d3$RATE, d3$ID, FUN = cumsum)
   d3$PADY <- fixedfy
   ## Cumulative event rate minus the event rate in the current interval gives the cumulative event rate up to the current interval
@@ -234,10 +245,12 @@ simKHCE <- function(n, CM_A, CM_P = - 4, n0 = n, TTE_A = 1000, TTE_P = TTE_A,
   E3 <- do.call(rbind, l)
   l <- lapply(split(d, d$ID), sustained, x = "E15")
   E4 <- do.call(rbind, l)
+  ## The dataset of all events
   ADET0 <- rbind(E1, E2, E3, E4)
   if(!is.null(ADET0)){
     names(ADET0) <- c("ID", "AVAL0", "PARAMCD")  
   }
+  ### filters GFR based events by severity
   E3 <- E3[!E3$ID %in% E4$ID, ]
   E2 <- E2[!E2$ID %in% c(E3$ID, E4$ID), ]
   E1 <- E1[!E1$ID %in% c(E2$ID, E3$ID, E4$ID), ]
@@ -245,37 +258,46 @@ simKHCE <- function(n, CM_A, CM_P = - 4, n0 = n, TTE_A = 1000, TTE_P = TTE_A,
   if(!is.null(E)){
     names(E) <- c("ID", "AVAL0", "PARAMCD")  
   }
-  
-  PARAM <- data.frame(PARAMCD = c("KFRT", "E15", "E57", "E50", "E40", "GFR"), PARAMN = 1:6)
+  ### adds change in GFR for those without a GFR based event
   d0 <- d[!d$ID %in% E$ID & d$ADAY == d$PADY, c("ID", "CHG")]
-  
   if(nrow(d0) > 0){
     names(d0) <- c("ID", "AVAL0")
     d0$PARAMCD <- "GFR"  
   }
-  
+  ## Combines patients with GFR based events with patients without events to include their change in GFR at the end of follow-up
   d1 <- rbind(d0, E)
+  ### In this step (which could have been much earlier), we select kidney failure replacement therapy events
   d2 <- unique(d[d$EVENT == 1, c("ID", "AVALT")])
-  
   if(nrow(d2) > 0){
     d2$PARAMCD <- "KFRT"
     names(d2) <- c("ID", "AVAL0", "PARAMCD")  
   }
+  ### Merges KFRT events in d2 with the other events / change in GFR values in d1 (removing those with KFRT from the other events to avoid duplication)
   d3 <- rbind(d1[!d1$ID %in% d2$ID, ], d2)
+  ## Merges to add event names
+  PARAM <- data.frame(PARAMCD = c("KFRT", "E15", "E57", "E50", "E40", "GFR"), PARAMN = 1:6)
   d4 <- merge(d3, PARAM, by = "PARAMCD", all.x = TRUE)
   d4 <- d4[, c("ID", "PARAMCD", "PARAMN", "AVAL0")]
   d4 <- d4[order(d4$ID), ]
+  ############## Merges to have BASE GFR in the dataset
   d5 <- unique(d[, c("ID", "TRTPN", "PADY", "BASE")])
   d6 <- merge(d5, d4, by = "ID")
+  ## Finalize ADLB by creating a character variable for treatment
   ADLB$TRTP <- ifelse(ADLB$TRTPN == 1, "A", "P")
+  ######### Create final HCE dataset
   HCE <- d6
   HCE$TRTP <- ifelse(HCE$TRTPN == 1, "A", "P")
   HCE$GROUP <- factor(HCE$PARAMCD, levels = c("KFRT", "E15", "E57", "E50", "E40", "GFR"))
   levels(HCE$GROUP) <- c("Kidney Failure Replacement Therapy", "Sustained eGFR < 15 (mL/min/1.73 m2)", 
                          "Sustained >= 57% decline in eGFR", "Sustained >= 50% decline in eGFR", 
                          "Sustained >= 40% decline in eGFR", "Change in eGFR")
+  ####### Create the final event-time dataset
   ADET <- rbind(ADET0, d2)
   if(!is.null(ADET)) ADET <- ADET[order(ADET$ID), ]
+  ###############
+  ### Clean the final GFR dataset
+  ADLB[, c("U", "CUMRATE")] <- NULL
+  ######## Create the final list of results
   L <- list(GFR = ADLB, ADET = ADET, HCE = as_hce(HCE))
   return(L)
 }

@@ -31,7 +31,7 @@ c(WP = WP[[1]], SE = SE)
 calcWO(EGFRBL ~ TRTP, data = KHCE)[c("WP", "SE_WP")]
 }
 \references{
-Gasparyan SB et al. "Adjusted win ratio with stratification: calculation methods and interpretation." Statistical Methods in Medical Research 30.2 (2021): 580-611. \url{doi:10.1177/0962280220942558}
+Gasparyan SB et al. "Adjusted win ratio with stratification: calculation methods and interpretation." Statistical Methods in Medical Research 30.2 (2021): 580-611. \url{doi:10.1177/0962280220942558}.
 }
 \seealso{
 \code{\link[=calcWO]{calcWO()}}, \code{\link[=calcWO.hce]{calcWO.hce()}}, \code{\link[=calcWO.formula]{calcWO.formula()}}.

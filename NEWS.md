@@ -1,3 +1,14 @@
+# hce 0.9.0
+
+### Updates
+
+* Added new arguments `m` and `hce_type` to `simTTE()` to enable simulation of discrete-time outcomes and creation of hierarchical composite endpoints using the *move-down* approach.
+
+### New
+
+* Introduced `deltaWO()`, which computes win odds based on a specified threshold for `adhce` objects.
+
+
 # hce 0.8.8
 
 ### Bugs
@@ -16,7 +27,7 @@
 * A new argument, `two_meas`, has been added to the `simKHCE()` function to enable duplicate eGFR measurements at baseline and/or at the end of follow-up. This implementation was suggested by Amy Shi.
 * The `summaryWO.adhce()` results now include cumulative wins by component.
 * A new function, `simTTE()`, simulates an `hce` dataset with two correlated outcomes under an *illness-death* model. It allows population heterogeneity in the first event (which also determines correlation among first events), while the risk of the second event depends on the timing of the first event in the same way across treatment groups. 
-* Added an implementation of `calcWINS()` for cases where `SE_WP_Type = TRUE`, providing *Wilson-type* confidence intervals for the win probability, net benefit, and win odds, following the approach of Schüürhuis, Konietschke, and Brunner (2025).
+* Added an implementation of `calcWINS()` for cases where `SE_WP_Type = "unbiased"`, providing *Wilson-type* confidence intervals for the win probability, net benefit, and win odds, following the approach of Schüürhuis, Konietschke, and Brunner (2025).
 
 ### Documentation
 
