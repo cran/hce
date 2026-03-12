@@ -1,3 +1,24 @@
+
+# hce 0.9.1 
+
+*This release (nearly) finalizes the development of the function `simKHCE()` and should be the preferred version when using this function.*
+
+### Bugs
+
+* Fixed another bug in `simKHCE()` affecting the piecewise-constant kidney failure event generation with time-dependent predicted true eGFR. The uniform random variable for event time was previously sampled per visit (incorrect); it is now sampled once per subject. Event determination across inter‑visit intervals was adjusted to use cumulative hazard crossing with within‑interval interpolation.
+* Fixed a bug in `simTTE()` where some first death events were incorrectly classified as censored.
+
+### Updates
+
+* The `simKHCE()` function now uses more extreme default event rates based on observed eGFR to make effects more pronounced. KFRT risk is adjusted at the patient level according to observed eGFR: when observed eGFR is above 30 (mL/min/1.73 m2), the event rate is set to a very low value (10E-7); when observed eGFR is at or below 7 (mL/min/1.73 m2), the event rate is set to a very high value (10E5). 
+
+
+### Documentation
+
+* The vignette on hierarchical composite endpoints now includes complete documentation of the methodology behind the `simKHCE()` function. 
+
+* A simple example has been added to the vignette on win statistics to show how the win ratio splits ties proportionally to the observed wins.
+
 # hce 0.9.0
 
 ### Updates

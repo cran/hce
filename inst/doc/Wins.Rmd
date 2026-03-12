@@ -1,6 +1,6 @@
 ---
 title: "Win statistics"
-date: "`r format(as.Date('2024-10-15'), '%d %B, %Y')`"
+date: "`r format(as.Date('2026-03-15'), '%d %B, %Y')`"
 author:
   - name: "Samvel B. Gasparyan"
     affiliation: https://gasparyan.co/
@@ -75,6 +75,10 @@ Given the overall number of comparisons $O,$ the win proportion $WP$, and the wi
 &W = WR*L = WR*O*\frac{2WP-1}{WR-1},\nonumber\\
 &T=O-W-L = O*\left[1 - (WR+1)\frac{2WP-1}{WR-1}\right].
 \end{align*}
+
+To better understand the relationship between the win ratio and the win odds, observe that:
+$$\frac{W + \frac{W}{W+L}T}{L + \frac{L}{W+L}T}=\frac{W}{L}\frac{1 + \frac{T}{W+L}}{1 + \frac{T}{W+L}}=\frac{W}{L}\frac{W + L + T}{W + L + T}=\frac{W}{L}=WR.$$
+Therefore, the win ratio essentially allocates tied outcomes proportionally: it assigns a fraction of ties to wins and losses based on the observed proportion of wins to losses, $\frac{W}{W+L}.$ This means that ties are distributed between the treatment groups in the same ratio as the actual wins and losses. In contrast, the win odds splits ties evenly between the active and control groups, making it a more conservative measure of treatment effect.
 
 
 The function `propWINS()` implements the formula above:

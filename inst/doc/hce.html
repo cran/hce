@@ -1592,8 +1592,8 @@ border-radius: 0px;
 <h1 class="title toc-ignore">Hierarchical composite endpoints</h1>
 <h4 class="author">Samvel B. Gasparyan</h4>
 <address class="author_afil">
-<a href="https://gasparyan.co/" class="uri">https://gasparyan.co/</a><br><h4 class="date">01 December,
-2025</h4>
+<a href="https://gasparyan.co/" class="uri">https://gasparyan.co/</a><br><h4 class="date">15 March,
+2026</h4>
 
 </div>
 
@@ -1606,7 +1606,7 @@ border-radius: 0px;
 <p>Load the package <code>hce</code> and check the version:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(hce)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">&quot;hce&quot;</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; [1] &#39;0.9.0&#39;</span></span></code></pre></div>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; [1] &#39;0.9.1&#39;</span></span></code></pre></div>
 <p>For citing the package run <code>citation(&quot;hce&quot;)</code> <span class="citation">(Gasparyan 2026)</span>.</p>
 </div>
 <div id="definitions" class="section level3">
@@ -1630,7 +1630,7 @@ al. 2020)</span>.</p>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; TRTP        1   2   3   4   5   6   7   8</span></span>
 <span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt;   Active   34  95  28  58  38  14 117 157</span></span>
 <span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt;   Placebo  58 121  24  60  33   8 102 115</span></span></code></pre></div>
-<p>Ssimple HCEs are implemented in the <code>hce</code> package via the
+<p>Simple HCEs are implemented in the <code>hce</code> package via the
 <code>hce</code> class, which inherits from <code>data.frame</code>.
 These objects must include the ordinal analysis values in the
 <code>AVAL</code> column and a two-level treatment group in the
@@ -1668,13 +1668,14 @@ wins, losses, and ties.</p>
 hierarchical composite endpoints. Below are two approaches with their
 implementations.</p>
 <ol style="list-style-type: decimal">
-<li>The most prioritized outcome Select a single outcome per patient—the
-highest-priority one. If a patient experienced death, select death
-(regardless of hospitalization). If no death occurred, select
-hospitalization (only if it did not lead to subsequent death).
-Otherwise, select no outcome. This yields three categories: I. Death,
-II. Hospitalization (without subsequent death), III. No outcome.</li>
+<li>The most-important outcome approach</li>
 </ol>
+<p>Select a single outcome per patient—the highest-priority one. If a
+patient experienced death, select death (regardless of hospitalization).
+If no death occurred, select hospitalization (only if it did not lead to
+subsequent death). Otherwise, select no outcome. This yields three
+categories: I. Death, II. Hospitalization (without subsequent death),
+III. No outcome.</p>
 <p>This can be implemented as:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>dat1 <span class="ot">&lt;-</span> dat0</span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>dat1<span class="sc">$</span>AVAL <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(dat1<span class="sc">$</span>DEATH <span class="sc">==</span> <span class="dv">1</span>, <span class="dv">1</span>, <span class="fu">ifelse</span>(dat1<span class="sc">$</span>HOSP <span class="sc">==</span> <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>))</span>
@@ -1684,15 +1685,15 @@ II. Hospitalization (without subsequent death), III. No outcome.</li>
 <span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; 1    A 3900 1047 5053 10000 3.7249284 1.798377</span></span>
 <span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; 2    P 1047 3900 5053 10000 0.2684615 0.556057</span></span></code></pre></div>
 <ol start="2" style="list-style-type: decimal">
-<li>Sequential comparison (see <span class="citation">Pocock et al.
-(2012)</span>) Compare patients first on death. The active (control)
-patient wins if they are alive while the patient in the control (active)
-group died. If both patients died, it is a tie on death and the
-comparison proceeds to the next outcome (hospitalization), using the
-same winner logic. If no winner is determined after evaluating
-hospitalization, declare a tie (there are no further outcomes to break
-ties).</li>
+<li>The move-down approach (see <span class="citation">Pocock et al.
+(2012)</span>)</li>
 </ol>
+<p>Compare patients first on death. The active (control) patient wins if
+they are alive while the patient in the control (active) group died. If
+both patients died, it is a tie on death and the comparison proceeds to
+the next outcome (hospitalization), using the same winner logic. If no
+winner is determined after evaluating hospitalization, declare a tie
+(there are no further outcomes to break ties).</p>
 <p>In this case, we can also derive a single patient-level categorical
 variable that encodes the above comparison logic. From worst to best,
 the categories are: patients with both hospitalization and death;
@@ -1738,6 +1739,43 @@ first, then hospitalization), reducing indeterminate pairings.</p>
 different therapeutic areas. General considerations for creating HCEs
 can be found in <span class="citation">Gasparyan et al. (2022)</span>,
 <span class="citation">Little et al. (2023)</span>.</p>
+<div id="kidney-hce" class="section level3">
+<h3>Kidney HCE</h3>
+<p>The kidney HCE defined in <span class="citation">Heerspink et al.
+(2023)</span> has the following ordinal outcomes (for the review of the
+topic see <span class="citation">Little et al. (2023)</span>).</p>
+<pre><code>#&gt;   Order                                      Category
+#&gt; 1     I                                         Death
+#&gt; 2    II            Dialysis or kidney transplantation
+#&gt; 3   III         Sustained GFR &lt; 15 ml/min per 1.73 m2
+#&gt; 4    IV Sustained GFR decline from baseline of &gt;= 57%
+#&gt; 5     V Sustained GFR decline from baseline of &gt;= 50%
+#&gt; 6    VI Sustained GFR decline from baseline of &gt;= 40%
+#&gt; 7   VII                          Individual GFR slope</code></pre>
+<p>The dataset <code>KHCE</code> contains data on a kidney HCE
+outcomes</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>dat <span class="ot">&lt;-</span> KHCE</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>Order <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Death (adj)&quot;</span>, <span class="st">&quot;Chronic dialysis (adj) &gt;=90 days&quot;</span>, </span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>           <span class="st">&quot;Sustained eGFR&lt;15 (mL/min/1.73 m2)&quot;</span>, <span class="st">&quot;Sustained &gt;=57% decline in eGFR&quot;</span>, </span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>           <span class="st">&quot;Sustained &gt;=50% decline in eGFR&quot;</span>, <span class="st">&quot;Sustained &gt;=40% decline in eGFR&quot;</span>, <span class="st">&quot;eGFR slope&quot;</span>)   </span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>dat<span class="sc">$</span>GROUP <span class="ot">&lt;-</span> <span class="fu">factor</span>(dat<span class="sc">$</span>GROUP, <span class="at">levels =</span> Order)</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="fu">table</span>(dat<span class="sc">$</span>GROUP, dat<span class="sc">$</span>TRTP)</span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt;                                     </span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt;                                        A   P</span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="co">#&gt;   Death (adj)                         40  50</span></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co">#&gt;   Chronic dialysis (adj) &gt;=90 days    17  29</span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="co">#&gt;   Sustained eGFR&lt;15 (mL/min/1.73 m2)  16  28</span></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="co">#&gt;   Sustained &gt;=57% decline in eGFR      2   9</span></span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="co">#&gt;   Sustained &gt;=50% decline in eGFR      7  22</span></span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="co">#&gt;   Sustained &gt;=40% decline in eGFR     36  34</span></span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="co">#&gt;   eGFR slope                         632 578</span></span></code></pre></div>
+<p>This dataset is derived from <code>ADSL</code> which contains
+baseline characteristics, <code>ADLB</code> laboratory measurements of
+kidney function, and <code>ADET</code> for the time-to-event outcomes
+with their timing. For the detailed derivation see the <a href="https://cdn-links.lww.com/permalink/jsn/e/jsn_2023_09_29_heerspink_1_sdc1.pdf">Technical
+Appendix</a> in <span class="citation">Heerspink et al.
+(2023)</span>.</p>
+</div>
 <div id="covid-19" class="section level3">
 <h3>COVID-19</h3>
 <p>The DARE-19 <span class="citation">(M. Kosiborod et al. 2021; M. N.
@@ -1776,43 +1814,6 @@ being a favorable outcome, here the earlier event signifies a better
 outcome than the late event (reverse of the ranking in categories
 <code>I</code> and <code>III</code>).</p>
 </div>
-<div id="kidney-hce" class="section level3">
-<h3>Kidney HCE</h3>
-<p>The kidney HCE defined in <span class="citation">Heerspink et al.
-(2023)</span> has the following ordinal outcomes (for the review of the
-topic see <span class="citation">Little et al. (2023)</span>).</p>
-<pre><code>#&gt;   Order                                      Category
-#&gt; 1     I                                         Death
-#&gt; 2    II            Dialysis or kidney transplantation
-#&gt; 3   III         Sustained GFR &lt; 15 ml/min per 1.73 m2
-#&gt; 4    IV Sustained GFR decline from baseline of &gt;= 57%
-#&gt; 5     V Sustained GFR decline from baseline of &gt;= 50%
-#&gt; 6    VI Sustained GFR decline from baseline of &gt;= 40%
-#&gt; 7   VII                          Individual GFR slope</code></pre>
-<p>The dataset <code>KHCE</code> contains data on a kidney HCE
-outcomes</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>dat <span class="ot">&lt;-</span> KHCE</span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>Order <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Death (adj)&quot;</span>, <span class="st">&quot;Chronic dialysis (adj) &gt;=90 days&quot;</span>, </span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>           <span class="st">&quot;Sustained eGFR&lt;15 (mL/min/1.73 m2)&quot;</span>, <span class="st">&quot;Sustained &gt;=57% decline in eGFR&quot;</span>, </span>
-<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>           <span class="st">&quot;Sustained &gt;=50% decline in eGFR&quot;</span>, <span class="st">&quot;Sustained &gt;=40% decline in eGFR&quot;</span>, <span class="st">&quot;eGFR slope&quot;</span>)   </span>
-<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>dat<span class="sc">$</span>GROUP <span class="ot">&lt;-</span> <span class="fu">factor</span>(dat<span class="sc">$</span>GROUP, <span class="at">levels =</span> Order)</span>
-<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="fu">table</span>(dat<span class="sc">$</span>GROUP, dat<span class="sc">$</span>TRTP)</span>
-<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="co">#&gt;                                     </span></span>
-<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="co">#&gt;                                        A   P</span></span>
-<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="co">#&gt;   Death (adj)                         40  50</span></span>
-<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a><span class="co">#&gt;   Chronic dialysis (adj) &gt;=90 days    17  29</span></span>
-<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="co">#&gt;   Sustained eGFR&lt;15 (mL/min/1.73 m2)  16  28</span></span>
-<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a><span class="co">#&gt;   Sustained &gt;=57% decline in eGFR      2   9</span></span>
-<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a><span class="co">#&gt;   Sustained &gt;=50% decline in eGFR      7  22</span></span>
-<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a><span class="co">#&gt;   Sustained &gt;=40% decline in eGFR     36  34</span></span>
-<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a><span class="co">#&gt;   eGFR slope                         632 578</span></span></code></pre></div>
-<p>This dataset is derived from <code>ADSL</code> which contains
-baseline characteristics, <code>ADLB</code> laboratory measurements of
-kidney function, and <code>ADET</code> for the time-to-event outcomes
-with their timing. For the detailed derivation see the <a href="https://cdn-links.lww.com/permalink/jsn/e/jsn_2023_09_29_heerspink_1_sdc1.pdf">Technical
-Appendix</a> in <span class="citation">Heerspink et al.
-(2023)</span>.</p>
-</div>
 <div id="heart-failure" class="section level3">
 <h3>Heart Failure</h3>
 <p>In the Heart Failure population (see <span class="citation">Kondo et
@@ -1824,8 +1825,121 @@ al. (2023)</span>) the following HCE was considered</p>
 #&gt; 4    IV           Improvement/deterioration in KCCQ-TSS</code></pre>
 </div>
 </div>
-<div id="dependent-time-to-event-outcomes" class="section level2">
-<h2>Dependent Time-To-Event Outcomes</h2>
+<div id="simulations" class="section level2">
+<h2>Simulations</h2>
+<div id="the-kidney-hce" class="section level3">
+<h3>The kidney HCE</h3>
+<p>This section describes the function <code>simKHCE(),</code> which
+simulates a kidney HCE composed of six components, evaluated in the
+following order:</p>
+<ol style="list-style-type: decimal">
+<li><p>Kidney Failure Replacement Therapy (KFRT)</p></li>
+<li><p>Sustained eGFR &lt; 15</p></li>
+<li><p>Sustained <span class="math inline">\(\geq 57\%\)</span> decline
+in eGFR</p></li>
+<li><p>Sustained <span class="math inline">\(\geq 50\%\)</span> decline
+in eGFR</p></li>
+<li><p>Sustained <span class="math inline">\(\geq 40\%\)</span> decline
+in eGFR</p></li>
+<li><p>Change in eGFR</p></li>
+</ol>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">simKHCE</span>(</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  n,</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  CM_A,</span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>  <span class="at">CM_P =</span> <span class="sc">-</span><span class="dv">4</span>,</span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>  <span class="at">n0 =</span> n,</span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>  <span class="at">TTE_A =</span> <span class="dv">1000</span>,</span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a>  <span class="at">TTE_P =</span> TTE_A,</span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a>  <span class="at">fixedfy =</span> <span class="dv">2</span>,</span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a>  <span class="at">Emin =</span> <span class="dv">20</span>,</span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a>  <span class="at">Emax =</span> <span class="dv">100</span>,</span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a>  <span class="at">sigma =</span> <span class="cn">NULL</span>,</span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a>  <span class="at">Sigma =</span> <span class="dv">3</span>,</span>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a>  <span class="at">m =</span> <span class="dv">10</span>,</span>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a>  <span class="at">theta =</span> <span class="sc">-</span><span class="fl">0.4605</span>,</span>
+<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a>  <span class="at">phi =</span> <span class="dv">0</span>,</span>
+<span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a>  <span class="at">two_meas =</span> <span class="fu">c</span>(<span class="st">&quot;no&quot;</span>, <span class="st">&quot;base&quot;</span>, <span class="st">&quot;postbase&quot;</span>, <span class="st">&quot;both&quot;</span>)</span>
+<span id="cb13-17"><a href="#cb13-17" tabindex="-1"></a>)</span></code></pre></div>
+<p>The simulation assumes a fixed follow-up interval <span class="math inline">\([0, T]\)</span>, where <span class="math inline">\(T\)</span> (in years) is set by
+<code>fixedfy</code> (fixed follow-up years). Each patient has <span class="math inline">\(m\)</span> equally spaced visits over this
+interval. The active arm has sample size <span class="math inline">\(n;\)</span> the control arm has size <span class="math inline">\(n_0\)</span>. Measurements are generated from a
+linear mixed-effects model with a independent random intercepts and
+slopes: <span class="math display">\[y_{ij}=\alpha_i+\{\beta_i + [b^1 -
+(\beta_i)^-\varphi]x_i\}t_j+\varepsilon_{ij}, \ \
+t_j=\frac{T}{m}j,\,j=0,1,\cdots,m,\,i=1,\cdots,N=n_0+n.\]</span></p>
+<p>Here, <span class="math inline">\(x_i\)</span> is the active-arm
+indicator (1 for active, 0 for control).</p>
+<ul>
+<li><p><strong>Baseline eGFR:</strong> True baselines are sampled as
+<span class="math inline">\(\alpha_i\sim {\mathcal U}[E_{\min},
+E_{\max}].\)</span></p></li>
+<li><p><strong>Random slope:</strong> For the placebo group, <span class="math inline">\(\beta_i\sim {\mathcal N}(b^0, \Sigma^2),\)</span>
+where the mean placebo slope <span class="math inline">\(b^0\)</span> is
+given by <code>CM_P.</code> The negative part is <span class="math inline">\((\beta_i)^-=\max(-\beta_i, 0).\)</span> For
+active-arm patients with a negative slope, treatment combines
+multiplicative and additive effects: <span class="math display">\[\beta_i + [b^1 - (\beta_i)^-\varphi]x_i=\beta_i
+(1-\varphi)+b^1.\]</span> For patients with a positive slope, the
+treatment effect is purely additive:</p></li>
+</ul>
+<p><span class="math display">\[\beta_i + [b^1 -
+(\beta_i)^-\varphi]x_i=\beta_i +b^1.\]</span> The additive effect <span class="math inline">\(b^1\)</span> is specified in <code>CM_A,</code>
+and the proportionality coefficient <span class="math inline">\(\varphi\in[0,1]\)</span> is set by
+<code>phi.</code> The between-patient slope variability is
+<code>Sigma</code> (i.e., <span class="math inline">\(\Sigma\)</span>).</p>
+<ul>
+<li><strong>Residual variability:</strong> Measurement error follows
+<span class="math inline">\(\varepsilon_{ij}\sim {\mathcal N}(0,
+\sigma_{ij}^2).\)</span> If <code>sigma</code> is provided, it sets the
+within-patient standard deviation (SD). By default
+(<code>sigma = NULL</code>), the SD is time-varying and depends on the
+predicted eGFR:</li>
+</ul>
+<p><span class="math display">\[\sigma_{ij}=\sqrt{0.67*\textit{predicted
+eGFR}}=\sqrt{0.67(\alpha_i+\{\beta_i + [b^1 -
+(\beta_i)^-\varphi]x_i\}t_j)}.\]</span></p>
+<ul>
+<li><strong>KFRT events:</strong> KFRT times are simulated using a
+patient-specific piecewise-constant hazard on each <span class="math inline">\([t_{j-1}, t_j],\)</span> with <span class="math display">\[\lambda_{ij}=e^{c_0+c_1x_i}e^{\theta(\alpha_i+\{\beta_i
++ [b^1 - (\beta_i)^-\varphi]x_i\}t_j)}.\]</span></li>
+</ul>
+<p>Let <span class="math inline">\(dt=t_j-t_{j-1}=\frac{T}{m}.\)</span>
+The cumulative hazard is <span class="math display">\[\Lambda_i(t)=\sum_{j=1}^{k-1}dt
+\lambda_{ij}+\lambda_{ik}(t - t_k), \ \ t\in[t_{k-1}, t_k].\]</span> If
+<span class="math inline">\(U_i\sim{\mathcal U}[0, 1]\)</span> drawn per
+patient, the event time <span class="math inline">\(X_i\)</span>
+satisfies <span class="math inline">\(S(X_i)=\exp(-\Lambda_i(X_i))=U_i,\)</span>
+yielding, <span class="math display">\[X_i =
+\frac{-\log(U_i)-\sum_{j=1}^{k-1}dt
+\lambda_{ij}}{\lambda_{ik}}+t_k.\]</span> Note: a single uniform variate
+is sampled per patient, not per visit.</p>
+<p>The parameters <span class="math inline">\(c_0\)</span> and <span class="math inline">\(c_1\)</span> control treatment-independent and
+treatment-dependent components of the baseline hazard. Let
+<code>TTE_P</code> be the placebo time-to-event scaling and
+<code>TTE_A</code> the active-arm scaling. Then:</p>
+<ul>
+<li><span class="math inline">\(c_0=\log(TTE_P)\)</span></li>
+<li><span class="math inline">\(c_1=\log(TTE_A/TTE_P)\)</span></li>
+</ul>
+<p>By default <code>TTE_A=TTE_P,</code> so <span class="math inline">\(c_1=0\)</span>, meaning no treatment effect on
+KFRT beyond its effect through eGFR. Thus, treatment reduces KFRT risk
+only by slowing eGFR decline.</p>
+<ul>
+<li><p><strong>Calibration of TTE and theta:</strong> <code>TTE_A</code>
+and <code>theta</code> are set so that the event rate is approximately 1
+per patient-year at eGFR = 15 and 0.01 per patient-year at eGFR = 25.
+This yields <code>TTE_A=1000</code> and
+<code>theta=-0.4605.</code></p></li>
+<li><p><strong>Additional constraints based on observed data:</strong>
+In the current setup, KFRT risk depends on the true eGFR trajectory. In
+practice, however, the observed eGFR plays an important role in
+initiating KFRT. To reflect this, event rates are further adjusted based
+on observed eGFR: when observed eGFR is above 30, the patient’s event
+rate is set to a very low value (10E-7); when observed eGFR is at or
+below 7, the event rate is set to a very high value (10E5).</p></li>
+</ul>
+</div>
+<div id="dependent-time-to-event-outcomes" class="section level3">
+<h3>Dependent Time-To-Event Outcomes</h3>
 <p>To model dependent outcomes, several methods are available:</p>
 <ol style="list-style-type: decimal">
 <li><p><strong>Joint Distribution Modeling Using Copulas:</strong> This
@@ -1838,8 +1952,8 @@ model.</p></li>
 Multi-State Modeling:</strong> This technique uses multi-state models to
 describe the conditional distribution of outcomes.</p></li>
 </ol>
-<div id="joint-distribution-modeling-using-copulas" class="section level3">
-<h3>Joint Distribution Modeling Using Copulas</h3>
+<div id="joint-distribution-modeling-using-copulas" class="section level4">
+<h4>Joint Distribution Modeling Using Copulas</h4>
 <p>Sklar’s theorem <span class="citation">(Sklar 1959)</span> shows that
 multivariate distribution functions can be expressed using a copula and
 univariate distributions. For a random vector <span class="math inline">\(X^d=(X_1,\cdots,X_d)\)</span> with a multivariate
@@ -1875,8 +1989,8 @@ The function <span class="math inline">\(\varphi:[0,+\infty]\rightarrow
 When <span class="math inline">\(\varphi(t)=e^{-t^\theta},\ \
 \theta&gt;1,\)</span> the copula is called a <strong>Gumbel</strong>
 copula.</p>
-<div id="the-marshall-olkin-algorithm" class="section level4">
-<h4>The Marshall-Olkin algorithm</h4>
+<div id="the-marshall-olkin-algorithm" class="section level5">
+<h5>The Marshall-Olkin algorithm</h5>
 <p>By Bernstein’s theorem, completely monotone Archimedean generators
 coincide with Laplace-Stieltjes transforms of distribution functions
 <span class="math inline">\(F,\)</span> determined by <span class="math inline">\(\varphi=LS[F].\)</span> The
@@ -1897,9 +2011,9 @@ to use the inverse Laplace-Stieltjes transform of a stable distribution
 \cos^\theta(\pi/(2\theta)), {\mathbf I}_{\{\theta=1\}},1)\]</span>
 modifying the first step to sample from a stable distribution.</p>
 </div>
-<div id="chambers-mallows-stuck-method-for-simulating-stable-random-variables" class="section level4">
-<h4>Chambers-Mallows-Stuck method for simulating stable random
-variables</h4>
+<div id="chambers-mallows-stuck-method-for-simulating-stable-random-variables" class="section level5">
+<h5>Chambers-Mallows-Stuck method for simulating stable random
+variables</h5>
 <p>Chambers-Mallows-Stuck method <span class="citation">(Chambers,
 Mallows, and Stuck 1976)</span> efficiently simulates stable variables
 with:</p>
@@ -1921,8 +2035,8 @@ distribution with <span class="math inline">\(\gamma
 one needs to set <span class="math inline">\(\beta=1\)</span>).</p></li>
 </ol>
 </div>
-<div id="note" class="section level4">
-<h4>Note</h4>
+<div id="note" class="section level5">
+<h5>Note</h5>
 <p>In the original Chambers-Mallows-Stuck formula, the term <span class="math display">\[\frac{1}{[\cos(\alpha\theta_0)\cos(\Theta)]^\frac{1}{\alpha}}\]</span>
 is replaced by <span class="math inline">\(\frac{C_{\tan}}{[\cos(\Theta)]^\frac{1}{\alpha}},\)</span>
 as suggested by the <code>copula</code> package <span class="citation">(Hofert et al. 2025)</span>, which is based on the fact
@@ -1935,34 +2049,35 @@ And this is true because of the trigonometric identity <span class="math display
 Here we have set <span class="math inline">\(y=\alpha\theta_0=\arctan(b_{\tan})=\arctan\left(\beta\tan\left(\frac{\alpha\pi}{2}\right)\right)\)</span>
 and hence <span class="math inline">\(\tan(y)=\beta\tan\left(\frac{\alpha\pi}{2}\right).\)</span></p>
 </div>
-<div id="implementation" class="section level4">
-<h4>Implementation</h4>
+<div id="implementation" class="section level5">
+<h5>Implementation</h5>
 <p>The function <code>simHCE()</code> provides the implementation above
 with the argument <code>theta</code> specifying the dependence of
 outcomes.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>Rates_A <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">20</span>)</span>
-<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>Rates_P <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">20</span>, <span class="dv">20</span>)</span>
-<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>dat1 <span class="ot">&lt;-</span> <span class="fu">simHCE</span>(<span class="at">n =</span> <span class="dv">2500</span>, <span class="at">TTE_A =</span> Rates_A, <span class="at">TTE_P =</span> Rates_P, </span>
-<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="at">CM_A =</span> <span class="sc">-</span><span class="dv">3</span>, <span class="at">CM_P =</span> <span class="sc">-</span><span class="dv">6</span>, <span class="at">CSD_A =</span> <span class="dv">15</span>, <span class="at">fixedfy =</span> <span class="dv">3</span>, <span class="at">theta =</span> <span class="dv">1</span>, <span class="at">seed =</span> <span class="dv">1</span>)</span>
-<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>dat2 <span class="ot">&lt;-</span> <span class="fu">simHCE</span>(<span class="at">n =</span> <span class="dv">2500</span>, <span class="at">TTE_A =</span> Rates_A, <span class="at">TTE_P =</span> Rates_P, </span>
-<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="at">CM_A =</span> <span class="sc">-</span><span class="dv">3</span>, <span class="at">CM_P =</span> <span class="sc">-</span><span class="dv">6</span>, <span class="at">CSD_A =</span> <span class="dv">15</span>, <span class="at">fixedfy =</span> <span class="dv">3</span>, <span class="at">theta =</span> <span class="fl">1.0001</span>, <span class="at">seed =</span> <span class="dv">1</span>)</span>
-<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a>dat3 <span class="ot">&lt;-</span> <span class="fu">simHCE</span>(<span class="at">n =</span> <span class="dv">2500</span>, <span class="at">TTE_A =</span> Rates_A, <span class="at">TTE_P =</span> Rates_P, </span>
-<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="at">CM_A =</span> <span class="sc">-</span><span class="dv">3</span>, <span class="at">CM_P =</span> <span class="sc">-</span><span class="dv">6</span>, <span class="at">CSD_A =</span> <span class="dv">15</span>, <span class="at">fixedfy =</span> <span class="dv">3</span>, <span class="at">theta =</span> <span class="dv">10</span>, <span class="at">seed =</span> <span class="dv">1</span>)</span>
-<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="fu">calcWO</span>(dat1)</span>
-<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="co">#&gt;         WO     LCL      UCL         SE WOnull alpha Pvalue        WP    LCL_WP</span></span>
-<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="co">#&gt; 1 1.483251 1.38986 1.582918 0.03318096      1  0.05      0 0.5973021 0.5816594</span></span>
-<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="co">#&gt;      UCL_WP       SE_WP     SD_WP    N</span></span>
-<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a><span class="co">#&gt; 1 0.6129447 0.007981092 0.5643484 5000</span></span>
-<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="fu">calcWO</span>(dat2)</span>
-<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a><span class="co">#&gt;        WO      LCL      UCL         SE WOnull alpha Pvalue        WP    LCL_WP</span></span>
-<span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a><span class="co">#&gt; 1 1.52306 1.426936 1.625659 0.03326189      1  0.05      0 0.6036558 0.5880583</span></span>
-<span id="cb13-17"><a href="#cb13-17" tabindex="-1"></a><span class="co">#&gt;      UCL_WP      SE_WP     SD_WP    N</span></span>
-<span id="cb13-18"><a href="#cb13-18" tabindex="-1"></a><span class="co">#&gt; 1 0.6192534 0.00795809 0.5627219 5000</span></span>
-<span id="cb13-19"><a href="#cb13-19" tabindex="-1"></a><span class="fu">calcWO</span>(dat3)</span>
-<span id="cb13-20"><a href="#cb13-20" tabindex="-1"></a><span class="co">#&gt;         WO      LCL      UCL         SE WOnull alpha Pvalue        WP    LCL_WP</span></span>
-<span id="cb13-21"><a href="#cb13-21" tabindex="-1"></a><span class="co">#&gt; 1 1.387231 1.299852 1.480482 0.03319378      1  0.05      0 0.5811046 0.5652679</span></span>
-<span id="cb13-22"><a href="#cb13-22" tabindex="-1"></a><span class="co">#&gt;      UCL_WP       SE_WP     SD_WP    N</span></span>
-<span id="cb13-23"><a href="#cb13-23" tabindex="-1"></a><span class="co">#&gt; 1 0.5969413 0.008080097 0.5713491 5000</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>Rates_A <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">20</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>Rates_P <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">20</span>, <span class="dv">20</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>dat1 <span class="ot">&lt;-</span> <span class="fu">simHCE</span>(<span class="at">n =</span> <span class="dv">2500</span>, <span class="at">TTE_A =</span> Rates_A, <span class="at">TTE_P =</span> Rates_P, </span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="at">CM_A =</span> <span class="sc">-</span><span class="dv">3</span>, <span class="at">CM_P =</span> <span class="sc">-</span><span class="dv">6</span>, <span class="at">CSD_A =</span> <span class="dv">15</span>, <span class="at">fixedfy =</span> <span class="dv">3</span>, <span class="at">theta =</span> <span class="dv">1</span>, <span class="at">seed =</span> <span class="dv">1</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>dat2 <span class="ot">&lt;-</span> <span class="fu">simHCE</span>(<span class="at">n =</span> <span class="dv">2500</span>, <span class="at">TTE_A =</span> Rates_A, <span class="at">TTE_P =</span> Rates_P, </span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="at">CM_A =</span> <span class="sc">-</span><span class="dv">3</span>, <span class="at">CM_P =</span> <span class="sc">-</span><span class="dv">6</span>, <span class="at">CSD_A =</span> <span class="dv">15</span>, <span class="at">fixedfy =</span> <span class="dv">3</span>, <span class="at">theta =</span> <span class="fl">1.0001</span>, <span class="at">seed =</span> <span class="dv">1</span>)</span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a>dat3 <span class="ot">&lt;-</span> <span class="fu">simHCE</span>(<span class="at">n =</span> <span class="dv">2500</span>, <span class="at">TTE_A =</span> Rates_A, <span class="at">TTE_P =</span> Rates_P, </span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="at">CM_A =</span> <span class="sc">-</span><span class="dv">3</span>, <span class="at">CM_P =</span> <span class="sc">-</span><span class="dv">6</span>, <span class="at">CSD_A =</span> <span class="dv">15</span>, <span class="at">fixedfy =</span> <span class="dv">3</span>, <span class="at">theta =</span> <span class="dv">10</span>, <span class="at">seed =</span> <span class="dv">1</span>)</span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="fu">calcWO</span>(dat1)</span>
+<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a><span class="co">#&gt;         WO     LCL      UCL         SE WOnull alpha Pvalue        WP    LCL_WP</span></span>
+<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a><span class="co">#&gt; 1 1.483251 1.38986 1.582918 0.03318096      1  0.05      0 0.5973021 0.5816594</span></span>
+<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a><span class="co">#&gt;      UCL_WP       SE_WP     SD_WP    N</span></span>
+<span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a><span class="co">#&gt; 1 0.6129447 0.007981092 0.5643484 5000</span></span>
+<span id="cb14-14"><a href="#cb14-14" tabindex="-1"></a><span class="fu">calcWO</span>(dat2)</span>
+<span id="cb14-15"><a href="#cb14-15" tabindex="-1"></a><span class="co">#&gt;        WO      LCL      UCL         SE WOnull alpha Pvalue        WP    LCL_WP</span></span>
+<span id="cb14-16"><a href="#cb14-16" tabindex="-1"></a><span class="co">#&gt; 1 1.52306 1.426936 1.625659 0.03326189      1  0.05      0 0.6036558 0.5880583</span></span>
+<span id="cb14-17"><a href="#cb14-17" tabindex="-1"></a><span class="co">#&gt;      UCL_WP      SE_WP     SD_WP    N</span></span>
+<span id="cb14-18"><a href="#cb14-18" tabindex="-1"></a><span class="co">#&gt; 1 0.6192534 0.00795809 0.5627219 5000</span></span>
+<span id="cb14-19"><a href="#cb14-19" tabindex="-1"></a><span class="fu">calcWO</span>(dat3)</span>
+<span id="cb14-20"><a href="#cb14-20" tabindex="-1"></a><span class="co">#&gt;         WO      LCL      UCL         SE WOnull alpha Pvalue        WP    LCL_WP</span></span>
+<span id="cb14-21"><a href="#cb14-21" tabindex="-1"></a><span class="co">#&gt; 1 1.387231 1.299852 1.480482 0.03319378      1  0.05      0 0.5811046 0.5652679</span></span>
+<span id="cb14-22"><a href="#cb14-22" tabindex="-1"></a><span class="co">#&gt;      UCL_WP       SE_WP     SD_WP    N</span></span>
+<span id="cb14-23"><a href="#cb14-23" tabindex="-1"></a><span class="co">#&gt; 1 0.5969413 0.008080097 0.5713491 5000</span></span></code></pre></div>
+</div>
 </div>
 </div>
 </div>

@@ -1592,8 +1592,8 @@ border-radius: 0px;
 <h1 class="title toc-ignore">Win statistics</h1>
 <h4 class="author">Samvel B. Gasparyan</h4>
 <address class="author_afil">
-<a href="https://gasparyan.co/" class="uri">https://gasparyan.co/</a><br><h4 class="date">15 October,
-2024</h4>
+<a href="https://gasparyan.co/" class="uri">https://gasparyan.co/</a><br><h4 class="date">15 March,
+2026</h4>
 
 </div>
 
@@ -1606,7 +1606,7 @@ border-radius: 0px;
 <p>Load the package <code>hce</code> and check the version:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(hce)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">&quot;hce&quot;</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; [1] &#39;0.9.0&#39;</span></span></code></pre></div>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; [1] &#39;0.9.1&#39;</span></span></code></pre></div>
 <p>For citing the package, run <code>citation(&quot;hce&quot;)</code> <span class="citation">(Gasparyan 2026)</span>.</p>
 </div>
 <div id="terminology" class="section level3">
@@ -1672,6 +1672,18 @@ number of wins and losses: <span class="math display">\[\begin{align*}
 &amp;W = WR*L = WR*O*\frac{2WP-1}{WR-1},\nonumber\\
 &amp;T=O-W-L = O*\left[1 - (WR+1)\frac{2WP-1}{WR-1}\right].
 \end{align*}\]</span></p>
+<p>To better understand the relationship between the win ratio and the
+win odds, observe that: <span class="math display">\[\frac{W +
+\frac{W}{W+L}T}{L + \frac{L}{W+L}T}=\frac{W}{L}\frac{1 +
+\frac{T}{W+L}}{1 + \frac{T}{W+L}}=\frac{W}{L}\frac{W + L + T}{W + L +
+T}=\frac{W}{L}=WR.\]</span> Therefore, the win ratio essentially
+allocates tied outcomes proportionally: it assigns a fraction of ties to
+wins and losses based on the observed proportion of wins to losses,
+<span class="math inline">\(\frac{W}{W+L}.\)</span> This means that ties
+are distributed between the treatment groups in the same ratio as the
+actual wins and losses. In contrast, the win odds splits ties evenly
+between the active and control groups, making it a more conservative
+measure of treatment effect.</p>
 <p>The function <code>propWINS()</code> implements the formula
 above:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">args</span>(<span class="st">&quot;propWINS&quot;</span>)</span>

@@ -85,6 +85,7 @@ shape   <- shape[1]
 shape0  <- shape0[1]
 alpha0   <- alpha0[1]
 alpha   <- alpha[1]
+rHR <- rHR[1]
 m <- m[1]
 # Input validation with informative messages
 stopifnot(
@@ -98,7 +99,9 @@ stopifnot(
   `TTE_P must contain exactly two elements.` = length(TTE_P) == 2,
   `TTE_A and TTE_P must be positive.` = all(c(TTE_A, TTE_P) > 0),
   `The categorization number m must be a positive numeric value.` = 
-    is.numeric(m) && m > 0
+    is.numeric(m) && m > 0,
+  `The recurrence hazard ratio must be a positive numeric value.` = 
+    rHR > 0
 )
 
 # Parameterisation: convert incoming rate-like TTE_* to Weibull scale parameters
@@ -142,7 +145,7 @@ d$DEATH <- c(Y,  Y0)
 d$HOSP  <- c(X,  X0)
 
 # Determine first observed event within fixed follow-up (fixedfy)
-d$EVENT1 <- ifelse(d$DEATH <= d$HOSP & d$HOSP <= fixedfy, "DEATH",
+d$EVENT1 <- ifelse(d$DEATH <= pmin(d$HOSP, fixedfy), "DEATH",
                    ifelse(d$HOSP <= fixedfy, "HOSP", "CEN"))
 
 # AVAL1 is the observed time of EVENT1 (or censoring time if CEN)

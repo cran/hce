@@ -52,16 +52,6 @@ unique(dat2[, c("DEATH", "HOSP", "ORD", "AVAL")])
 summaryWO(dat2)$summary
 
 ## ----echo=FALSE---------------------------------------------------------------
-HCE <- data.frame(Order = c("I", "II", "III", "IV", "V"), 
-                  Category = c("Death", 
-                               "More than one new or worsened organ dysfunction events", 
-                               "One new or worsened organ dysfunction event", 
-                               "Hospitalized at the end of follow-up (Day 30)", 
-                               "Discharged from hospital before Day 30")
-)
-HCE
-
-## ----echo=FALSE---------------------------------------------------------------
 HCE2 <- data.frame(Order = c("I", "II", "III", "IV", "V", "VI", "VII"), 
                   Category = c("Death", 
                                "Dialysis or kidney transplantation", 
@@ -82,12 +72,41 @@ dat$GROUP <- factor(dat$GROUP, levels = Order)
 table(dat$GROUP, dat$TRTP)
 
 ## ----echo=FALSE---------------------------------------------------------------
+HCE <- data.frame(Order = c("I", "II", "III", "IV", "V"), 
+                  Category = c("Death", 
+                               "More than one new or worsened organ dysfunction events", 
+                               "One new or worsened organ dysfunction event", 
+                               "Hospitalized at the end of follow-up (Day 30)", 
+                               "Discharged from hospital before Day 30")
+)
+HCE
+
+## ----echo=FALSE---------------------------------------------------------------
 HCE3 <- data.frame(Order = c("I", "II", "III", "IV"), 
                   Category = c("Cardiovascular death", 
                                "Total (first and recurrent) HF hospitalizations", 
                                "Total urgent HF visits", 
                                "Improvement/deterioration in KCCQ-TSS"))
 HCE3
+
+## ----eval=FALSE---------------------------------------------------------------
+# simKHCE(
+#   n,
+#   CM_A,
+#   CM_P = -4,
+#   n0 = n,
+#   TTE_A = 1000,
+#   TTE_P = TTE_A,
+#   fixedfy = 2,
+#   Emin = 20,
+#   Emax = 100,
+#   sigma = NULL,
+#   Sigma = 3,
+#   m = 10,
+#   theta = -0.4605,
+#   phi = 0,
+#   two_meas = c("no", "base", "postbase", "both")
+# )
 
 ## -----------------------------------------------------------------------------
 Rates_A <- c(10, 20)

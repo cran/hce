@@ -71,20 +71,18 @@ the effect of treatment on KFRT operates entirely through its impact on eGFR dec
 The parameters \code{TTE_A} and \code{theta} are chosen so that when GFR is 15, the event rate
 is 1 per patient per year, and when GFR is 25, the event rate is 0.01 per patient per year. These
 parameter values are obtained by solving the equation \code{rate0*exp(GFR*theta) = rate} for \code{rate0}
-and \code{theta}. When the observed eGFR is above 30, the event rate is set to a very low value (0.001),
-while when the observed eGFR is below 10, the event rate is set to a very high value (10000). This ensures that patients with observed low eGFR values
+and \code{theta}. When the observed eGFR is above 30, the event rate is set to a very low value (10E-7),
+while when the observed eGFR is below or equal to 7, the event rate is set to a very high value (10E5). This ensures that patients with observed low eGFR values
 always experience KFRT, while those with high eGFR values do not.
 
 By default, the standard deviation for within-patient variability, \code{sigma}, is set to \code{NULL.} When left as \code{NULL}, \code{sigma}
 is calculated as \verb{sqrt(0.67*predicted eGFR)}. This approach results in time-dependent variability for measurements,
 where lower predicted eGFR values lead to reduced variability.
 
-When \code{phi = 0}, the treatment effect is fully additive - the same average treatment effect
-applies to all patients, regardless of their baseline disease progression rate (\code{CM_P}).
-When \code{phi = 1}, the treatment effect is fully proportional - there is no additive component
-(the value of \code{CM_A} is irrelevant).
-The more relativistic intermediate treatment effect (half proportional and half additive)
-can be obtained by setting \verb{phi = abs(CM_A - CM_P)/(2*abs(CM_P)).}
+Given the overall effect \code{Delta} and the placebo progression rate \code{CM_P}, a fully uniform (purely additive) treatment effect—meaning the same average effect
+applies to all patients regardless of baseline progression—is implemented by setting \code{phi = 0} and \code{CM_A = Delta + CM_P.}
+A fully proportional treatment effect—no additive component, the effect scales with the baseline rate—is implemented by setting \code{CM_A = CM_P} and \verb{phi = Delta / |CM_P|}.
+A more relativistic intermediate effect (half additive and half proportional) is obtained by setting \verb{phi = Delta / (2 · |CM_P|)} and \code{CM_A = Delta / 2.}
 
 The kidney hierarchical composite endpoint is defined in the following order:
 (1) Kidney Failure Replacement Therapy (KFRT); (2) Sustained eGFR < 15;
@@ -100,9 +98,14 @@ dat <- L$HCE
 calcWO(dat)
 # Example 2 - using the most important variables
 set.seed(2022)
-CM_A <- -4
+## The overall treatment effect
+Delta <- 0.75
+## The placebo progression rate
 CM_P <- - 4.5
-phi <- abs(CM_A - CM_P) / (2*abs(CM_P))
+## Intermediate effect (half additive and half proportional)
+delta <- Delta/2
+CM_A <- delta + CM_P 
+phi <- Delta / (2*abs(CM_P))
 L <- simKHCE(n = 1000, CM_A = CM_A, CM_P = CM_P, 
 fixedfy = 4, Emin = 25, Emax = 75, phi = phi)
 dat <- L$HCE

@@ -1,6 +1,6 @@
 ---
 title: "Hierarchical composite endpoints"
-date: "`r format(as.Date('2025-12-01'), '%d %B, %Y')`"
+date: "`r format(as.Date('2026-03-15'), '%d %B, %Y')`"
 author:
   - name: "Samvel B. Gasparyan"
     affiliation: https://gasparyan.co/
@@ -52,7 +52,7 @@ A straightforward example of an HCE is an endpoint defined on an ordinal scale a
 ```{r}
 table(COVID19)
 ```
-Ssimple HCEs are implemented in the `hce` package via the `hce` class, which inherits from `data.frame`. These objects must include the ordinal analysis values in the `AVAL` column and a two-level treatment group in the `TRTP` column. The `hce::summaryWO()` function can be used to provide the number of wins, losses, and ties by category. From these counts, one can compute the probability of ties.
+Simple HCEs are implemented in the `hce` package via the `hce` class, which inherits from `data.frame`. These objects must include the ordinal analysis values in the `AVAL` column and a two-level treatment group in the `TRTP` column. The `hce::summaryWO()` function can be used to provide the number of wins, losses, and ties by category. From these counts, one can compute the probability of ties.
 
 ```{r}
 COVID19HCE <- hce(GROUP = COVID19$GROUP, TRTP = COVID19$TRTP)
@@ -83,7 +83,8 @@ dat0 <- data.frame(TRTP = rep(c("A", "P"), each = n),
 
 Based on these outcomes, several methods can be used to construct hierarchical composite endpoints. Below are two approaches with their implementations.
 
-1. The most prioritized outcome
+1. The most-important outcome approach
+
 Select a single outcome per patient—the highest-priority one. If a patient experienced death, select death (regardless of hospitalization). If no death occurred, select hospitalization (only if it did not lead to subsequent death). Otherwise, select no outcome. This yields three categories: I. Death, II. Hospitalization (without subsequent death), III. No outcome.
 
 This can be implemented as:
@@ -95,7 +96,8 @@ dat1 <- as_hce(dat1)
 summaryWO(dat1)$summary
 ```
 
-2. Sequential comparison (see @poc2012)
+2. The move-down approach (see @poc2012)
+
 Compare patients first on death. The active (control) patient wins if they are alive while the patient in the control (active) group died. If both patients died, it is a tie on death and the comparison proceeds to the next outcome (hospitalization), using the same winner logic. If no winner is determined after evaluating hospitalization, declare a tie (there are no further outcomes to break ties).
 
 In this case, we can also derive a single patient-level categorical variable that encodes the above comparison logic. From worst to best, the categories are: patients with both hospitalization and death; patients with death without prior hospitalization; patients with hospitalization without death; and patients with no events. This can be implemented using the following ordering:
@@ -122,25 +124,6 @@ The number of ties is more than halved, leading to a larger estimated treatment 
 ## Examples
 
 Here we provide examples of HCE using in clinical trials from different therapeutic areas. General considerations for creating HCEs can be found in @gasparyan2022design, @khce1.
-
-### COVID-19
-
-The DARE-19 [@kosiborod2021effects;@kosiborod2021dapagliflozin] trial used an HCE to assess outcomes in patients hospitalized for COVID-19 and treated for 30 days. The COVID-19 HCE is presented below. It combines death, in hospital organ dysfunction events with clinical status at Day 30 for patients alive, still hospitalized but without previous organ dysfunction events, and hospital discharge as the most favorable outcome for patients discharging without organ dysfunction events and being alive at Day 30. 
-
-Below a higher category signifies a better outcome. Patients are ranked into one and only one category based on their clinically most severe event. For example, patients experiencing an in-hospital new or worsening organ dysfunction event then dying will be included in the category `I`.
-
-```{r echo=FALSE}
-HCE <- data.frame(Order = c("I", "II", "III", "IV", "V"), 
-                  Category = c("Death", 
-                               "More than one new or worsened organ dysfunction events", 
-                               "One new or worsened organ dysfunction event", 
-                               "Hospitalized at the end of follow-up (Day 30)", 
-                               "Discharged from hospital before Day 30")
-)
-HCE
-```
-
-Patients in the category `I` are compared using the timing of the event, with an earlier event being a worse outcome (are assigned a lower rank). Similarly, in the category `III` the timing of the event is used for ranking patients within this category. In the category `II` patients are compared using the number of events with a higher number signifying a worse outcome. Patients in the category `IV` - hospitalized at the end of follow-up without previous worsening events - are further ranked according to oxygen support requirements at the hospital (`IV.1` on high flow oxygen devices, `IV.2` requiring supplemental oxygen, `IV.3` not requiring supplemental oxygen, with a higher rank being a better outcome). Patients in the category `V` are compared using the timing of the event, but, the hospital discharge being a favorable outcome, here the earlier event signifies a better outcome than the late event (reverse of the ranking in categories `I` and `III`).
 
 
 ### Kidney HCE
@@ -175,6 +158,25 @@ table(dat$GROUP, dat$TRTP)
 This dataset is derived from `ADSL` which contains baseline characteristics, `ADLB` laboratory measurements of kidney function, and `ADET` for the time-to-event outcomes with their timing. For the detailed derivation see the [Technical Appendix](https://cdn-links.lww.com/permalink/jsn/e/jsn_2023_09_29_heerspink_1_sdc1.pdf) in @khce2.
 
 
+### COVID-19
+
+The DARE-19 [@kosiborod2021effects;@kosiborod2021dapagliflozin] trial used an HCE to assess outcomes in patients hospitalized for COVID-19 and treated for 30 days. The COVID-19 HCE is presented below. It combines death, in hospital organ dysfunction events with clinical status at Day 30 for patients alive, still hospitalized but without previous organ dysfunction events, and hospital discharge as the most favorable outcome for patients discharging without organ dysfunction events and being alive at Day 30. 
+
+Below a higher category signifies a better outcome. Patients are ranked into one and only one category based on their clinically most severe event. For example, patients experiencing an in-hospital new or worsening organ dysfunction event then dying will be included in the category `I`.
+
+```{r echo=FALSE}
+HCE <- data.frame(Order = c("I", "II", "III", "IV", "V"), 
+                  Category = c("Death", 
+                               "More than one new or worsened organ dysfunction events", 
+                               "One new or worsened organ dysfunction event", 
+                               "Hospitalized at the end of follow-up (Day 30)", 
+                               "Discharged from hospital before Day 30")
+)
+HCE
+```
+
+Patients in the category `I` are compared using the timing of the event, with an earlier event being a worse outcome (are assigned a lower rank). Similarly, in the category `III` the timing of the event is used for ranking patients within this category. In the category `II` patients are compared using the number of events with a higher number signifying a worse outcome. Patients in the category `IV` - hospitalized at the end of follow-up without previous worsening events - are further ranked according to oxygen support requirements at the hospital (`IV.1` on high flow oxygen devices, `IV.2` requiring supplemental oxygen, `IV.3` not requiring supplemental oxygen, with a higher rank being a better outcome). Patients in the category `V` are compared using the timing of the event, but, the hospital discharge being a favorable outcome, here the earlier event signifies a better outcome than the late event (reverse of the ranking in categories `I` and `III`).
+
 ### Heart Failure
 
 In the Heart Failure population (see @kondo2023use) the following HCE was considered
@@ -188,18 +190,96 @@ HCE3 <- data.frame(Order = c("I", "II", "III", "IV"),
 HCE3
 ```
 
+## Simulations
 
-## Dependent Time-To-Event Outcomes
+### The kidney HCE
+
+This section describes the function `simKHCE(),` which simulates a kidney HCE composed of six components, evaluated in the following order: 
+
+1. Kidney Failure Replacement Therapy (KFRT) 
+
+1. Sustained eGFR < 15 
+
+1. Sustained $\geq 57\%$ decline in eGFR 
+
+1. Sustained $\geq 50\%$ decline in eGFR
+
+1. Sustained $\geq 40\%$ decline in eGFR
+
+1. Change in eGFR
+
+```{r eval=FALSE}
+simKHCE(
+  n,
+  CM_A,
+  CM_P = -4,
+  n0 = n,
+  TTE_A = 1000,
+  TTE_P = TTE_A,
+  fixedfy = 2,
+  Emin = 20,
+  Emax = 100,
+  sigma = NULL,
+  Sigma = 3,
+  m = 10,
+  theta = -0.4605,
+  phi = 0,
+  two_meas = c("no", "base", "postbase", "both")
+)
+```
+
+
+
+The simulation assumes a fixed follow-up interval $[0, T]$, where $T$ (in years) is set by `fixedfy` (fixed follow-up years). Each patient has $m$ equally spaced visits over this interval. The active arm has sample size $n;$ the control arm has size $n_0$. Measurements are generated from a linear mixed-effects model with a independent random intercepts and slopes:
+$$y_{ij}=\alpha_i+\{\beta_i + [b^1 - (\beta_i)^-\varphi]x_i\}t_j+\varepsilon_{ij}, \ \ t_j=\frac{T}{m}j,\,j=0,1,\cdots,m,\,i=1,\cdots,N=n_0+n.$$
+
+Here, $x_i$ is the active-arm indicator (1 for active, 0 for control). 
+
+- **Baseline eGFR:** True baselines are sampled as $\alpha_i\sim {\mathcal U}[E_{\min}, E_{\max}].$ 
+
+- **Random slope:** For the placebo group, $\beta_i\sim {\mathcal N}(b^0, \Sigma^2),$ where the mean placebo slope $b^0$ is given by `CM_P.` The negative part is $(\beta_i)^-=\max(-\beta_i, 0).$ For active-arm patients with a negative slope, treatment combines multiplicative and additive effects:
+$$\beta_i + [b^1 - (\beta_i)^-\varphi]x_i=\beta_i (1-\varphi)+b^1.$$
+For patients with a positive slope, the treatment effect is purely additive:
+
+$$\beta_i + [b^1 - (\beta_i)^-\varphi]x_i=\beta_i +b^1.$$
+The additive effect $b^1$ is specified in `CM_A,` and the proportionality coefficient $\varphi\in[0,1]$ is set by `phi.` The between-patient slope variability is `Sigma` (i.e., $\Sigma$). 
+
+- **Residual variability:** Measurement error follows $\varepsilon_{ij}\sim {\mathcal N}(0, \sigma_{ij}^2).$ If `sigma` is provided, it sets the within-patient standard deviation (SD). By default (`sigma = NULL`), the SD is time-varying and depends on the predicted eGFR:
+
+$$\sigma_{ij}=\sqrt{0.67*\textit{predicted eGFR}}=\sqrt{0.67(\alpha_i+\{\beta_i + [b^1 - (\beta_i)^-\varphi]x_i\}t_j)}.$$
+
+- **KFRT events:** KFRT times are simulated using a patient-specific piecewise-constant hazard on each $[t_{j-1}, t_j],$ with
+$$\lambda_{ij}=e^{c_0+c_1x_i}e^{\theta(\alpha_i+\{\beta_i + [b^1 - (\beta_i)^-\varphi]x_i\}t_j)}.$$
+
+Let $dt=t_j-t_{j-1}=\frac{T}{m}.$ The cumulative hazard is
+$$\Lambda_i(t)=\sum_{j=1}^{k-1}dt \lambda_{ij}+\lambda_{ik}(t - t_k), \ \ t\in[t_{k-1}, t_k].$$
+If $U_i\sim{\mathcal U}[0, 1]$ drawn per patient, the event time $X_i$ satisfies $S(X_i)=\exp(-\Lambda_i(X_i))=U_i,$ yielding,
+$$X_i = \frac{-\log(U_i)-\sum_{j=1}^{k-1}dt \lambda_{ij}}{\lambda_{ik}}+t_k.$$
+Note: a single uniform variate is sampled per patient, not per visit.
+
+The parameters $c_0$ and $c_1$ control treatment-independent and treatment-dependent components of the baseline hazard. Let `TTE_P` be the placebo time-to-event scaling and `TTE_A` the active-arm scaling. Then:
+
+- $c_0=\log(TTE_P)$
+- $c_1=\log(TTE_A/TTE_P)$
+
+By default `TTE_A=TTE_P,` so $c_1=0$, meaning no treatment effect on KFRT beyond its effect through eGFR. Thus, treatment reduces KFRT risk only by slowing eGFR decline.
+
+ - **Calibration of TTE and theta:** `TTE_A` and `theta` are set so that the event rate is approximately 1 per patient-year at eGFR = 15 and 0.01 per patient-year at eGFR = 25. This yields `TTE_A=1000` and `theta=-0.4605.`
+
+- **Additional constraints based on observed data:** In the current setup, KFRT risk depends on the true eGFR trajectory. In practice, however, the observed eGFR plays an important role in initiating KFRT. To reflect this, event rates are further adjusted based on observed eGFR: when observed eGFR is above 30, the patient’s event rate is set to a very low value (10E-7); when observed eGFR is at or below 7, the event rate is set to a very high value (10E5).
+
+
+### Dependent Time-To-Event Outcomes
 
 To model dependent outcomes, several methods are available:
 
 1. **Joint Distribution Modeling Using Copulas:** This method employs copulas to model the joint distribution of outcomes, capturing their dependence.
 
-2. **Random Frailty Modeling:** This approach captures patient-level dependence between outcomes using a random frailty model.
+1. **Random Frailty Modeling:** This approach captures patient-level dependence between outcomes using a random frailty model.
 
-3. **Conditional Distribution Specification Through Multi-State Modeling:** This technique uses multi-state models to describe the conditional distribution of outcomes.
+1. **Conditional Distribution Specification Through Multi-State Modeling:** This technique uses multi-state models to describe the conditional distribution of outcomes.
 
-### Joint Distribution Modeling Using Copulas
+#### Joint Distribution Modeling Using Copulas
 
 Sklar's theorem [@sklar1959fonctions] shows that multivariate distribution functions can be expressed using a copula and univariate distributions. For a random vector $X^d=(X_1,\cdots,X_d)$ with a multivariate distribution function $H(x_1,\cdots,x_d),$ Sklar's theorem states that there is a copula $C(\cdot)$ such that:
 $$H(x_1,\cdots,x_d)=C(F_1(x_1),\cdots,F_d(x_d)),$$
@@ -218,7 +298,7 @@ $$C(u^d;\varphi)=\varphi(\varphi^{-1}(u_1)+\cdots+\varphi^{-1}(u_d)).$$
 The function $\varphi:[0,+\infty]\rightarrow [0,1]$ is a generator - continuous, decreasing, with $\varphi(0)=1$ and $\lim_{t\rightarrow+\infty}\varphi(t)=0.$ When $\varphi(t)=e^{-t^\theta},\ \ \theta>1,$ the copula is called a **Gumbel** copula.
 
 
-#### The Marshall-Olkin algorithm
+##### The Marshall-Olkin algorithm
 
 By Bernstein's theorem, completely monotone Archimedean generators coincide with Laplace-Stieltjes transforms of distribution functions $F,$ determined by $\varphi=LS[F].$ The **Marshall-Olkin** algorithm [@marshall1988families] for sampling from an Archimedean copula involves:
 
@@ -230,7 +310,7 @@ The vector $U=(U_1,\cdots, U_d)$ is then a random vector from the Archimedean co
 $$F\sim S(1/\theta, 1, \cos^\theta(\pi/(2\theta)), {\mathbf I}_{\{\theta=1\}},1)$$
 modifying the first step to sample from a stable distribution. 
 
-#### Chambers-Mallows-Stuck method for simulating stable random variables
+##### Chambers-Mallows-Stuck method for simulating stable random variables
 
 Chambers-Mallows-Stuck method [@chambers1976method] efficiently simulates stable variables with:
 
@@ -244,7 +324,7 @@ $$Z(\theta) = \frac{\sin(a_0)  C_{\tan}}{\cos(\Theta)^\frac{1}{\alpha}}\left(\fr
 $$Z(1)=\frac{2}{\pi}\left(\pi_\beta\tan(\Theta)-\beta\log\left(\frac{\pi}{2}W\frac{\cos(\Theta)}{\pi_\beta}\right)\right), \ \ \pi_\beta=\frac{\pi}{2}+\beta\Theta.$$
 Finally, $\gamma Z + \delta$ has the desired distribution with $\gamma =[\cos(\pi/(2\theta))]^\theta$ and $\delta={\mathbf I}_{\{\theta=1\}}$ (and one needs to set $\beta=1$).
 
-#### Note
+##### Note
 
 In the original Chambers-Mallows-Stuck formula, the term $$\frac{1}{[\cos(\alpha\theta_0)\cos(\Theta)]^\frac{1}{\alpha}}$$ is replaced by
 $\frac{C_{\tan}}{[\cos(\Theta)]^\frac{1}{\alpha}},$
@@ -258,7 +338,7 @@ $$1+[\tan(y)]^2=\frac{1}{[\cos(y)]^2}.$$
 Here we have set $y=\alpha\theta_0=\arctan(b_{\tan})=\arctan\left(\beta\tan\left(\frac{\alpha\pi}{2}\right)\right)$ and hence $\tan(y)=\beta\tan\left(\frac{\alpha\pi}{2}\right).$
 
 
-#### Implementation
+##### Implementation
 
 The function `simHCE()` provides the implementation above with the argument `theta` specifying the dependence of outcomes.
 

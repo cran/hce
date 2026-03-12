@@ -26,20 +26,18 @@
 #' The parameters `TTE_A` and `theta` are chosen so that when GFR is 15, the event rate 
 #' is 1 per patient per year, and when GFR is 25, the event rate is 0.01 per patient per year. These
 #' parameter values are obtained by solving the equation `rate0*exp(GFR*theta) = rate` for `rate0`
-#' and `theta`. When the observed eGFR is above 30, the event rate is set to a very low value (0.001), 
-#' while when the observed eGFR is below 10, the event rate is set to a very high value (10000). This ensures that patients with observed low eGFR values 
+#' and `theta`. When the observed eGFR is above 30, the event rate is set to a very low value (10E-7), 
+#' while when the observed eGFR is below or equal to 7, the event rate is set to a very high value (10E5). This ensures that patients with observed low eGFR values 
 #' always experience KFRT, while those with high eGFR values do not.
 #' 
 #' By default, the standard deviation for within-patient variability, `sigma`, is set to `NULL.` When left as `NULL`, `sigma` 
 #' is calculated as `sqrt(0.67*predicted eGFR)`. This approach results in time-dependent variability for measurements, 
 #' where lower predicted eGFR values lead to reduced variability.
 #'
-#' When `phi = 0`, the treatment effect is fully additive - the same average treatment effect 
-#' applies to all patients, regardless of their baseline disease progression rate (`CM_P`). 
-#' When `phi = 1`, the treatment effect is fully proportional - there is no additive component 
-#' (the value of `CM_A` is irrelevant). 
-#' The more relativistic intermediate treatment effect (half proportional and half additive) 
-#' can be obtained by setting `phi = abs(CM_A - CM_P)/(2*abs(CM_P)).`
+#' Given the overall effect `Delta` and the placebo progression rate `CM_P`, a fully uniform (purely additive) treatment effect—meaning the same average effect 
+#' applies to all patients regardless of baseline progression—is implemented by setting `phi = 0` and `CM_A = Delta + CM_P.` 
+#' A fully proportional treatment effect—no additive component, the effect scales with the baseline rate—is implemented by setting `CM_A = CM_P` and `phi = Delta / |CM_P|`. 
+#' A more relativistic intermediate effect (half additive and half proportional) is obtained by setting `phi = Delta / (2 · |CM_P|)` and `CM_A = Delta / 2.`
 #' 
 #' The kidney hierarchical composite endpoint is defined in the following order: 
 #' (1) Kidney Failure Replacement Therapy (KFRT); (2) Sustained eGFR < 15; 
@@ -61,9 +59,14 @@
 #' calcWO(dat)
 #' # Example 2 - using the most important variables
 #' set.seed(2022)
-#' CM_A <- -4
+#' ## The overall treatment effect
+#' Delta <- 0.75
+#' ## The placebo progression rate
 #' CM_P <- - 4.5
-#' phi <- abs(CM_A - CM_P) / (2*abs(CM_P))
+#' ## Intermediate effect (half additive and half proportional)
+#' delta <- Delta/2
+#' CM_A <- delta + CM_P 
+#' phi <- Delta / (2*abs(CM_P))
 #' L <- simKHCE(n = 1000, CM_A = CM_A, CM_P = CM_P, 
 #' fixedfy = 4, Emin = 25, Emax = 75, phi = phi)
 #' dat <- L$HCE
@@ -143,6 +146,8 @@ simKHCE <- function(n, CM_A, CM_P = - 4, n0 = n, TTE_A = 1000, TTE_P = TTE_A,
   # Extract time 0 measurements as baseline (observed baseline with sampling error)
   d2 <- d1[d1$ADAY == 0, c("ID", "AVAL")]
   names(d2) <- c("ID", "BASE")
+  ## Simulate uniform random variables (should be subject specific!)
+  d2$U <- stats::runif(nrow(d2))
   # Merge with the baseline variables (observed = BASE, true = BASE0)
   d3 <- merge(d1, d2, by = "ID", all.x = T)
   # Create patient-level KFRT incidence rates based on the true random slope
@@ -152,34 +157,31 @@ simKHCE <- function(n, CM_A, CM_P = - 4, n0 = n, TTE_A = 1000, TTE_P = TTE_A,
   d3$RATE <- d3$RATE0*exp(c2*(d3$SLOPE*d3$ADAY + d3$BASE0))
   ## Make sure that patients with higher than 30 observed eGFR cannot have KFRT
   ## Make surer that patients with lower than 5 observed eGFR always have KFRT
-  d3$RATE <- ifelse(d3$AVAL > 30, 0.001, ifelse(d3$AVAL < 10, 10000, d3$RATE))
-  ## Simulate uniform random variables
-  d3$U <- stats::runif(nrow(d3))
+  d3$RATE <- ifelse(d3$AVAL > 30, 10E-7, ifelse(d3$AVAL <= 7, 10E5, d3$RATE))
   ## Calculate the cumulative event rate for each patient
   ### CUMRATE must be aligned with the intended interval indexing per ID; otherwise, hazard accumulation can be wrong.
   d3 <- d3[order(d3$ID, d3$ADAY), ]
-  d3$CUMRATE <- stats::ave(d3$RATE, d3$ID, FUN = cumsum)
   d3$PADY <- fixedfy
+  dt <- fixedfy/m
+  d3$CUMHAZ <- stats::ave(d3$RATE*dt, d3$ID, FUN = cumsum)
+  d3$V <- -log(d3$U)
+  d4 <- d3[d3$V <= d3$CUMHAZ, ] #selects the intervals in which events happen
   ## Cumulative event rate minus the event rate in the current interval gives the cumulative event rate up to the current interval
   ## Use the cumulative event rate up to the current interval multiplied by the length of all intervals
   ## Use the log uniform added to it and divided by the rate of the current interval
   ## Add it to the current visit ADAY to initiate the event after the current visit
-  
-  d3$AVALT0 <- (- log(d3$U) + (d3$PADY/m)*(d3$CUMRATE - d3$RATE))/d3$RATE + d3$ADAY
-  ## Compare the simulated event with the length of follow-up
-  d3$AVALT0 <- ifelse(d3$AVALT0 <= d3$PADY, 
-                      d3$AVALT0 ,
-                      d3$PADY + 1)
-  ## Keep only events happening in the given risk interval and before end of follow-up.
-  d4 <- d3[d3$AVALT0 <= d3$PADY, c("ID", "AVALT0")]
-  ## If there are events generated
   if(nrow(d4) > 0){
-    ## select first event of each patient
-    l <- lapply(split(d4, d4$ID), function(x) x[1, ])
-    d4 <- do.call(rbind, l)
-    ## Keep the event times
-    names(d4)[names(d4) == "AVALT0"] <- "AVALT"
-    d5 <- merge(d3, d4, all.x = TRUE, by = "ID")  
+    ## Order to correctly select the first event
+    d4 <- d4[order(d4$ID, d4$ADAY), ]
+    ## Select the first event
+    d4 <- d4[!duplicated(d4$ID), ] 
+    ## Generate the time of the first event
+    d4$AVALT <- (d4$V - (d4$CUMHAZ - d4$RATE*dt))/d4$RATE + d4$ADAY
+    ## d3$V <= d3$CUMHAZ selection above guarantees that d4$AVALT - d4$ADAY is less than dt
+    ## Hence, by construction the below should not be needed, but protects against rounding issues.
+    d4$AVALT <- pmin(d4$AVALT, d4$PADY)
+    ##########################
+    d5 <- merge(d3, d4[, c("ID", "AVALT")], all.x = TRUE, by = "ID")
     ## if event time is missing, then assign censoring.
     d5$EVENT <- NA
     d5$EVENT <- ifelse(is.na(d5$AVALT), 0, 1)
@@ -189,7 +191,7 @@ simKHCE <- function(n, CM_A, CM_P = - 4, n0 = n, TTE_A = 1000, TTE_P = TTE_A,
     d5$EVENT <- 0
     d5$AVALT <- fixedfy
   }
-  d5[, c("SLOPE", "BASE0", "RATE", "RATE0", "AVALT0")] <- NULL
+  d5[, c("SLOPE", "BASE0", "RATE", "RATE0")] <- NULL
   # Calculate change and percent changes from baseline
   d5$CHG <- d5$AVAL - d5$BASE
   d5$PCHG <- (d5$AVAL / d5$BASE - 1)*100
@@ -202,7 +204,7 @@ simKHCE <- function(n, CM_A, CM_P = - 4, n0 = n, TTE_A = 1000, TTE_P = TTE_A,
   d$E40 <- ifelse(d$PCHG <= -40, 1, 0)
   d$E50 <- ifelse(d$PCHG <= -50, 1, 0)
   d$E57 <- ifelse(d$PCHG <= -57, 1, 0)
-  d$E15 <- ifelse(d$AVAL < 10, 1, 0)
+  d$E15 <- ifelse(d$AVAL < 15, 1, 0)
   sustained <- function(dat, x){
     dat <- as.data.frame(dat)
     dat <- dat[order(dat$ADAY), ]
@@ -296,7 +298,7 @@ simKHCE <- function(n, CM_A, CM_P = - 4, n0 = n, TTE_A = 1000, TTE_P = TTE_A,
   if(!is.null(ADET)) ADET <- ADET[order(ADET$ID), ]
   ###############
   ### Clean the final GFR dataset
-  ADLB[, c("U", "CUMRATE")] <- NULL
+  ADLB[, c("U", "CUMHAZ", "V")] <- NULL
   ######## Create the final list of results
   L <- list(GFR = ADLB, ADET = ADET, HCE = as_hce(HCE))
   return(L)
