@@ -1,3 +1,13 @@
+# hce 0.9.3
+
+### Updates
+
+- Added a new `df_sigma` argument to `simKHCE()` to allow heavier-tailed measurement errors via a t-distribution.
+
+### New
+
+- Added `rweibullGF()`, which simulates random numbers from a Weibull distribution with gamma frailty.
+- Added a family of distribution functions for the generalised log-logistic family, which models the marginal distribution induced by `rweibullGF()`.
 
 # hce 0.9.1 
 

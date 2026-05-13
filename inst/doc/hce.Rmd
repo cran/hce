@@ -252,9 +252,11 @@ $$\sigma_{ij}=\sqrt{0.67*\textit{predicted eGFR}}=\sqrt{0.67(\alpha_i+\{\beta_i 
 $$\lambda_{ij}=e^{c_0+c_1x_i}e^{\theta(\alpha_i+\{\beta_i + [b^1 - (\beta_i)^-\varphi]x_i\}t_j)}.$$
 
 Let $dt=t_j-t_{j-1}=\frac{T}{m}.$ The cumulative hazard is
-$$\Lambda_i(t)=\sum_{j=1}^{k-1}dt \lambda_{ij}+\lambda_{ik}(t - t_k), \ \ t\in[t_{k-1}, t_k].$$
-If $U_i\sim{\mathcal U}[0, 1]$ drawn per patient, the event time $X_i$ satisfies $S(X_i)=\exp(-\Lambda_i(X_i))=U_i,$ yielding,
-$$X_i = \frac{-\log(U_i)-\sum_{j=1}^{k-1}dt \lambda_{ij}}{\lambda_{ik}}+t_k.$$
+$$\Lambda_i(t)=\sum_{j=1}^{k-1}dt \lambda_{ij}+\lambda_{ik}(t - t_{k-1}), \ \ t\in[t_{k-1}, t_k].$$
+If $U_i\sim{\mathcal U}[0, 1]$ drawn per patient, the event time $X_i$ satisfies $S_i(X_i)=\exp(-\Lambda_i(X_i))=U_i,$ yielding,
+$$X_i = \frac{-\log(U_i)-\sum_{j=1}^{k-1}dt \lambda_{ij}}{\lambda_{ik}}+t_{k-1}.$$
+Here $k$ is the minimum for which $X_i\leq t_k,$ or, equivalently, $k$ is the minimum for which $\Lambda_i(t_k)\geq -\log(U_i).$
+
 Note: a single uniform variate is sampled per patient, not per visit.
 
 The parameters $c_0$ and $c_1$ control treatment-independent and treatment-dependent components of the baseline hazard. Let `TTE_P` be the placebo time-to-event scaling and `TTE_A` the active-arm scaling. Then:

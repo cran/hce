@@ -57,13 +57,19 @@ of the hospitalization, reflecting strong dependence between the times to the fi
 \details{
 The default setting assumes \code{TTE_A = TTE_P}. Both \code{TTE_A} and \code{TTE_P} must be numeric vectors of length two, corresponding to the event rates
 (Weibull distribution) for the first event of hospitalization and death. The parameters \code{shape} and \code{shape0} identify the shape parameters
-of Weibull distributions for the first event, simulated from a distribution with a cumulative hazard of \verb{rate × gamma × t^shape} for
-hospitalization and \verb{gamma^alpha0 × rate × t^shape} for death, where \code{gamma} is a patient-specific frailty drawn from a gamma distribution with mean 1 and
-variance \code{theta}, shared between death and hospitalization for a given patient. The parameter \code{theta} represents population heterogeneity and also induces
-correlation between death and hospitalization as competing first events. The parameter \code{alpha0} controls the heterogeneity of time to death through its
-effect on heterogeneity. Death after hospitalization is simulated from an exponential distribution with a constant hazard that depends on the timing \code{t1}
-of the first event (hospitalization) as \verb{(TTE_A[2] + TTE_P[2])/2 × (t1  / fixedfy)^alpha × gamma^alpha0} for the placebo arm and \verb{(TTE_A[2] + TTE_P[2])/2 × rHR × (t1  / fixedfy)^alpha × gamma^alpha0} for the active arm where \code{rHR} is the recurrence
-hazard ratio. When \code{alpha < 0}, earlier hospitalization (smaller \code{t1})
+of Weibull distributions for the first event, simulated from a distribution with a cumulative hazard of
+\deqn{\gamma\cdot rate\cdot t^{shape}}
+for hospitalization and
+\deqn{\gamma^{\alpha_0}\cdot rate\cdot t^{shape}}
+for death, where \eqn{\gamma} (\code{gamma}) is a patient-specific frailty drawn from a gamma distribution with mean 1 and
+variance \eqn{\theta}, shared between death and hospitalization for a given patient. The parameter \eqn{\theta} (\code{theta}) represents population heterogeneity and also induces
+correlation between death and hospitalization as competing first events. The parameter \eqn{\alpha_0} (\code{alpha0}) controls the heterogeneity of time to death through its
+effect on heterogeneity. Death after hospitalization is simulated from an exponential distribution with a constant hazard that depends on the timing \eqn{t_1}
+of the first event (hospitalization) as
+\deqn{\frac{TTE_A[2] + TTE_P[2]}{2}\cdot \left(\frac{t_1}{fixedfy}\right)^{\alpha}\cdot \gamma^{\alpha_0}}
+for the placebo arm and
+\deqn{\frac{TTE_A[2] + TTE_P[2]}{2}\cdot rHR \cdot \left(\frac{t_1}{fixedfy}\right)^{\alpha}\cdot \gamma^{\alpha_0}}
+for the active arm where \code{rHR} is the recurrence hazard ratio. When \eqn{\alpha < 0}, earlier hospitalization (smaller \eqn{t_1})
 increases the risk of death following hospitalization.
 
 By default, events are simulated in continuous time. When \code{m} is specified as a positive numeric value, the event times are discretized into \code{m} intervals over the follow-up period.

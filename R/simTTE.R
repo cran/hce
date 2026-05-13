@@ -19,13 +19,19 @@
 #' @details
 #' The default setting assumes `TTE_A = TTE_P`. Both `TTE_A` and `TTE_P` must be numeric vectors of length two, corresponding to the event rates 
 #' (Weibull distribution) for the first event of hospitalization and death. The parameters `shape` and `shape0` identify the shape parameters 
-#' of Weibull distributions for the first event, simulated from a distribution with a cumulative hazard of `rate × gamma × t^shape` for 
-#' hospitalization and `gamma^alpha0 × rate × t^shape` for death, where `gamma` is a patient-specific frailty drawn from a gamma distribution with mean 1 and 
-#' variance `theta`, shared between death and hospitalization for a given patient. The parameter `theta` represents population heterogeneity and also induces 
-#' correlation between death and hospitalization as competing first events. The parameter `alpha0` controls the heterogeneity of time to death through its 
-#' effect on heterogeneity. Death after hospitalization is simulated from an exponential distribution with a constant hazard that depends on the timing `t1` 
-#' of the first event (hospitalization) as `(TTE_A[2] + TTE_P[2])/2 × (t1  / fixedfy)^alpha × gamma^alpha0` for the placebo arm and `(TTE_A[2] + TTE_P[2])/2 × rHR × (t1  / fixedfy)^alpha × gamma^alpha0` for the active arm where `rHR` is the recurrence
-#' hazard ratio. When `alpha < 0`, earlier hospitalization (smaller `t1`) 
+#' of Weibull distributions for the first event, simulated from a distribution with a cumulative hazard of 
+#' \deqn{\gamma\cdot rate\cdot t^{shape}} 
+#' for hospitalization and 
+#' \deqn{\gamma^{\alpha_0}\cdot rate\cdot t^{shape}} 
+#' for death, where \eqn{\gamma} (`gamma`) is a patient-specific frailty drawn from a gamma distribution with mean 1 and 
+#' variance \eqn{\theta}, shared between death and hospitalization for a given patient. The parameter \eqn{\theta} (`theta`) represents population heterogeneity and also induces 
+#' correlation between death and hospitalization as competing first events. The parameter \eqn{\alpha_0} (`alpha0`) controls the heterogeneity of time to death through its 
+#' effect on heterogeneity. Death after hospitalization is simulated from an exponential distribution with a constant hazard that depends on the timing \eqn{t_1} 
+#' of the first event (hospitalization) as 
+#' \deqn{\frac{TTE_A[2] + TTE_P[2]}{2}\cdot \left(\frac{t_1}{fixedfy}\right)^{\alpha}\cdot \gamma^{\alpha_0}}
+#' for the placebo arm and 
+#' \deqn{\frac{TTE_A[2] + TTE_P[2]}{2}\cdot rHR \cdot \left(\frac{t_1}{fixedfy}\right)^{\alpha}\cdot \gamma^{\alpha_0}}
+#' for the active arm where `rHR` is the recurrence hazard ratio. When \eqn{\alpha < 0}, earlier hospitalization (smaller \eqn{t_1}) 
 #' increases the risk of death following hospitalization.
 #' 
 #' By default, events are simulated in continuous time. When `m` is specified as a positive numeric value, the event times are discretized into `m` intervals over the follow-up period.
@@ -155,11 +161,11 @@ d$AVAL1 <- ifelse(d$EVENT1 == "DEATH", d$DEATH,
 # Keep frailty for second-event modelling
 d$FRAILTY <- c(gm, gm0)
 
-# Subset to subjects with first event = HOSP; they are at risk for post-hospitalisation death
+# Subset to subjects with first event = HOSP; they are at risk for post-hospitalization death
 d0 <- d[d$EVENT1 == "HOSP", ]
 
 if (nrow(d0) > 0) {
-  # SECOND EVENT MODEL: Death after hospitalisation using individual frailty
+  # SECOND EVENT MODEL: Death after hospitalization using individual frailty
   # Individual-specific post-HOSP rate:
   #   rate_i = baseline_rate * (fixedfy / AVAL1_i)^alpha * FRAILTY_i
   # Convert rate to scale (scale = 1 / rate_i) for exponential parameterization.
