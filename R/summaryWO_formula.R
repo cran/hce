@@ -14,36 +14,33 @@
 #' @examples
 #' # Example 1
 #' summaryWO(data = COVID19, GROUP ~ TRTP)
-#' summaryWO(data = COVID19, GROUP ~ TRTP, GROUP = "GROUP", ref = "Placebo")
-#' # Example 2 - Individual wins, losses, and ties
+#' # Example 2 - Individual wins, losses, and ties using conditional variable
 #' dat <- COVID19
 #' dat$ID <- 1:nrow(dat)
-#' summaryWO(data = dat, GROUP ~ TRTP, GROUP = "ID", ref = "Placebo")
-
-summaryWO.formula <- function(x, data, ...){
+#' summaryWO(data = dat, GROUP ~ TRTP | ID, ref = "Placebo")
+summaryWO.formula <- function (x, data, ...) 
+{
   Args <- base::list(...)
-  formulavars <- base::all.vars(x)
-  formula0 <- stats::reformulate(formulavars[2], response = formulavars[1])
-  mf <- stats::model.frame(formula = formula0, data = data)
-  Level <- base::unique(mf[[formulavars[2]]])
+  x <- as_formulae(x)
+  Level <- base::unique(data[, x$TRTP])
   Levellength <- base::length(Level)
   
-  if(Levellength != 2){
-    message1 <- base::paste("The variable", formulavars[2], "should have exactly 2 unique values, but has", Levellength)
+  if (Levellength != 2) {
+    message1 <- base::paste("The variable", x$TRTP, 
+                            "should have exactly 2 unique values, but has", Levellength)
     stop(message1)
   }
-  if(!base::is.null(Args[["ref"]])) ref <- Args[["ref"]]
-  else if (base::all(Level == c("A", "P"))) ref <- "P"
+  if (!base::is.null(Args[["ref"]])) 
+    ref <- Args[["ref"]]
+  else if (base::all(base::sort(Level) == c("A", "P"))) 
+    ref <- "P"
   else ref <- Level[1]
-  if(! ref %in% Level) stop(base::paste("Choose the reference from the values",
-                                        base::paste(Level, collapse = ", ")))
-  if(!base::is.null(Args[["GROUP"]])) {
-    GROUP <- Args[["GROUP"]]
-    mf[, GROUP] <- data[, GROUP, drop = T]
-  }
-  else GROUP <- NULL
-  res <- summaryWO.data.frame(x = mf, AVAL = formulavars[1], TRTP = formulavars[2], ref = ref, GROUP = GROUP)
-  res$formula <- base::deparse(formula0)
-  res$ref <- base::paste(Level[Level != ref],"vs", ref)
+  if (!ref %in% Level) 
+    stop(base::paste("Choose the reference from the values", 
+                     base::paste(Level, collapse = ", ")))
+  res <- summaryWO.data.frame(x = data, AVAL = x$AVAL, 
+                              TRTP = x$TRTP, ref = ref, GROUP = x$GROUP)
+  res$formula <- x$formula
+  res$ref <- base::paste(Level[Level != ref], "vs", ref)
   res
 }

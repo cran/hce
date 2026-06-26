@@ -9,7 +9,7 @@
 #' @param alpha the reference treatment group.
 #' @param WOnull the null hypothesis. The default is 1.
 #' @param ... additional parameters.
-#' @returns a data frame containing the following columns:
+#' @return a data frame containing the following columns:
 #' * WO stratified (or adjusted/stratified) win odds.
 #' * LCL lower confidence limit for adjusted (or adjusted/stratified) WO.
 #' * UCL upper confidence limit for adjusted (or adjusted/stratified) WO.
@@ -26,7 +26,7 @@
 #' * Type "STRATIFIED" or "STRATIFIED/ADJUSTED" depending on whether `COVAR` is specified.
 #' @export
 #' @md
-#' @seealso [hce::stratWO()].
+#' @seealso [hce::stratWO()], [hce::stratWO.formula()].
 #' @references Gasparyan SB et al. (2021) "Adjusted win ratio with stratification: calculation methods and interpretation." Statistical Methods in Medical Research 30.2: 580-611. <doi:10.1177/0962280220942558>.
 #' @examples
 #' # Stratified win odds

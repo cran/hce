@@ -28,11 +28,10 @@ Win odds summary using formula syntax
 \examples{
 # Example 1
 summaryWO(data = COVID19, GROUP ~ TRTP)
-summaryWO(data = COVID19, GROUP ~ TRTP, GROUP = "GROUP", ref = "Placebo")
-# Example 2 - Individual wins, losses, and ties
+# Example 2 - Individual wins, losses, and ties using conditional variable
 dat <- COVID19
 dat$ID <- 1:nrow(dat)
-summaryWO(data = dat, GROUP ~ TRTP, GROUP = "ID", ref = "Placebo")
+summaryWO(data = dat, GROUP ~ TRTP | ID, ref = "Placebo")
 }
 \seealso{
 \code{\link[=calcWO]{calcWO()}}, \code{\link[=summaryWO]{summaryWO()}}, \code{\link[=summaryWO.data.frame]{summaryWO.data.frame()}}, \code{\link[=summaryWO.hce]{summaryWO.hce()}}  methods.

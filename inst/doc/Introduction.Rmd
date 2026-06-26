@@ -1,16 +1,16 @@
 ---
 title: "Introduction"
-date: "`r format(as.Date('2026-01-30'), '%d %B, %Y')`"
+date: "`r format(as.Date('2026-06-30'), '%d %B, %Y')`"
 author:
   - name: "Samvel B. Gasparyan"
     affiliation: https://gasparyan.co/
 output:
   rmarkdown::html_document:
-          theme: "darkly"
-          highlight: "zenburn"
-          toc: true
-          toc_float: true
-          link-citations: true 
+    theme: "darkly"
+    highlight: "zenburn"
+    toc: true
+    toc_float: true
+link-citations: true
 bibliography: REFERENCES.bib
 biblio-style: science
 vignette: >
@@ -18,6 +18,21 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+
+<style>
+a[role="doc-biblioref"] {
+  color: green !important;
+}
+
+a[role="doc-biblioref"]:visited {
+  color: green !important;
+}
+
+a[role="doc-biblioref"]:hover {
+  color: lightgreen !important;
+  text-decoration: underline;
+}
+</style>
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -35,15 +50,25 @@ R <- function() knitr::include_graphics("Rlogo.png", dpi = 5000)
 knitr::include_graphics("hex-hce.png")
 ```
 
-The package simulates and analyzes hierarchical composite endpoints (HCEs). The primary analysis method is win odds, and other win statistics—win ratio and net benefit [@dong2023win]—are implemented when there is no censoring. Win odds relies on the DeLong–DeLong–Clarke-Pearson formula [@delong1988comparing] for the variance of the win proportion and is based on the Brunner–Munzel test [@brunner2000nonparametric]. We also include implementations of the Brunner–Konietschke version [@brunner2025unbiased] of the Bamber estimator [@bamber1975area] for the variance of the win proportion. In addition, we provide Wilson-type, range-preserving confidence intervals for the win proportion and win odds, following Schüürhuis, Konietschke, and Brunner [@schuurhuis2025new].
 
-The power and sample size formulas consider different alternative classes ("shifted", "ordered", and "max" for the maximum value of the standard deviation). All formulas are derived from @bamber1975area. By default, Noether's formula [@noether1987sample] is used for shifted distributions. For more information on the power calculations for shifted distributions see also @gasparyan2021power, @gasparyan2022comments. 
+The package supports the simulation and analysis of **univariate hierarchical composite endpoints (HCEs)**. The rationale for constructing a univariate endpoint, in contrast to the multivariate version of Generalized Pairwise Comparisons, which typically yields summary statistics rather than a single endpoint, is described in Gasparyan, Koch, and Brunner [@gasparyan2026univariate]. The framework is broad: univariate HCEs can be derived from different outcome types, including time-to-event, continuous, and binary outcomes. However, it applies only to fixed follow-up designs without early dropout.
 
-For a review of designing HCEs in clinical trials, see @gasparyan2022design, also @gasparyanhierarchical and @khce1. The *Basic Data Structure (BDS),* which conforms to the Analysis Data Model (ADaM) [@CDISC] principles for hierarchical composite endpoints, is detailed in @gasp2024bds. To visualize HCEs, the *maraca* plot [@karpefors2023maraca] can be utilized.
+In this setting, several approaches can be used to derive a patient-level ordinal outcome, which is the essence of a univariate HCE. Gasparyan, Koch, and Brunner [@gasparyan2026univariate] derived the distribution for the setting with multiple time-to-event outcomes and a single continuous (or ordinal) outcome assessed at the end of follow-up; in that construction, the event times also contribute to the HCE. Accordingly, our definition of an HCE focuses on this setting. Although the theoretical distribution is not required for estimation, understanding the distribution remains important for interpreting summary statistics in greater detail and for avoiding the **Condorcet non-transitivity paradox** [@de2014essai].
 
-The stratified and adjusted win odds are calculated based on the randomization-based covariate adjustment theory developed in @koch1998issues (for a review, see @gasparyan2021adjusted).
+These endpoints have been implemented in clinical trials across multiple therapeutic areas. For example, see @gasparyan2022design for an implementation in a COVID-19 setting and for practical considerations in constructing hierarchical composite endpoints. For chronic kidney disease (**CKD**) applications, see [@khce1; @khce2; @khce3].
 
-All implementations are rank-based. For the review of methodology see [@brunner2018rank].
+The primary analysis method is **win odds**. Other win statistics, including **win ratio** and **net benefit** [@dong2023win], are also implemented when there is no censoring. Win odds relies on the **DeLong-DeLong-Clarke-Pearson** formula [@delong1988comparing] for the variance of the win proportion and is based on the **Brunner-Munzel** test [@brunner2000nonparametric]. We also include the **Brunner-Konietschke** version [@brunner2025unbiased] of the **Bamber** estimator [@bamber1975area] for the variance of the win proportion. In addition, the package provides **Wilson-type, range-preserving confidence intervals** for the win proportion and win odds, following Schüürhuis, Konietschke, and Brunner [@schuurhuis2025new].
+
+The power and sample size formulas cover several classes of alternatives: `"shifted"`, `"ordered"`, and `"max"` for the maximum value of the standard deviation. All formulas are derived from Bamber [@bamber1975area]. By default, **Noether's formula** [@noether1987sample] is used for shifted distributions. Additional discussion of power calculations for shifted distributions is available in [@gasparyan2021power; @gasparyan2022comments].
+
+For reviews of HCE design in clinical trials, see [@gasparyan2022design], [@gasparyanhierarchical], and [@khce1]. The **Basic Data Structure (BDS)**, which follows **Analysis Data Model (ADaM)** [@CDISC] principles for hierarchical composite endpoints, is described in @gasp2024bds. For visualization, the **maraca plot** [@karpefors2023maraca] can be used.
+
+Stratified and adjusted win odds are calculated using **randomization-based covariate adjustment theory** [@koch1998issues]; for a review, see [@gasparyan2021adjusted].
+
+Thresholds for pairwise comparisons involving the continuous component of the HCE are implemented according to the theory in Gasparyan, Koch, and Brunner [@gasparyan2026univariate].
+
+All implementations are **rank-based**. For a methodological review, see [@brunner2018rank].
+
 
 ### Setup
 
@@ -52,10 +77,6 @@ Load the package `hce` and check the version
 ```{r eval = TRUE}
 library(hce)
 packageVersion("hce")
-```
-
-```{r eval = FALSE, include = FALSE}
-devtools::load_all()
 ```
 
 For citing the package, run `citation("hce")` [@hce].
@@ -68,66 +89,130 @@ List the functions and the datasets in the package
 ls("package:hce")
 ```
 
-In brief, the package contains the following:
+The package contains the following **Datasets**: use `data(package = "hce")` for the list of all datasets included in the package.
 
-1. Datasets: use `data(package = "hce")` for the list of all datasets included in the package.
+```{r eval=FALSE}
+HCE1; HCE2; HCE3; HCE4
+COVID19; COVID19b; COVID19plus
+ADET; ADLB; ADSL; KHCE
+```
 
-- Simulated datasets - `HCE1 - HCE4` that contain two treatment groups and analysis values `AVAL` of a hierarchical composite endpoint. 
+- **Simulated datasets**: `HCE1 - HCE4` contain two treatment groups and analysis values `AVAL` for a hierarchical composite endpoint.
 
-- The datasets `COVID19`, `COVID19b`, `COVID19plus` of COVID-19 ordinal scale outcomes [@beigel2020remdesivir; @kalil2021baricitinib].
+- **COVID-19 datasets**: `COVID19`, `COVID19b`, and `COVID19plus` contain COVID-19 ordinal scale outcomes [@beigel2020remdesivir; @kalil2021baricitinib].
 
-- The datasets `ADET` (event-time), `ADLB` (laboratory), `ADSL` (subject-level baseline characteristics) for kidney events and their timing, kidney-related laboratory measurements of eGFR (estimated glomerular filtration rate), and, based on this, the derived kidney hierarchical composite endpoint dataset `KHCE` for the same patients [@khce2].
+- **Synthetic kidney disease datasets**: `ADET` contains event-time data, `ADLB` contains laboratory data, and `ADSL` contains subject-level baseline characteristics. Based on these data, `KHCE` provides the derived kidney hierarchical composite endpoint for the same patients [@khce2].
 
-2. Functions to create `hce` objects:
+## In Brief
 
-- `hce(), as_hce(), simHCE()` (see @gasp2024bds). 
+### Calculations
 
-- The function `simKHCE()` simulates continuous eGFR (estimated Glomerular Filtration Rate) values over time and derives an `hce` object for the kidney HCE [@khce2]. 
+```{r eval=FALSE}
+calcWO()
+calcWINS()
+summaryWO()
+regWO()
+stratWO()
+IWP()
+```
 
-- The function `simORD()` simulates ordinal outcomes by categorization of *beta* distributions.
+The main functions for calculating the so-called win statistics—**win probability**, **win odds**, **win ratio**, and **net benefit**—are `calcWO()` for win odds and `calcWINS()` for all win statistics, including win odds. To summarize wins, losses, and ties, use `summaryWO()`, which also reports the win probability, win odds, and win ratio, together with the standard errors of the win probability and win odds. By default, all of these functions use the **DeLong-DeLong-Clarke-Pearson** formula [@delong1988comparing] to estimate the standard error of the win probability and win odds.
 
-3. Win odds (win ratio with ties) calculation generic functions for hierarchical composite endpoints:
+In `calcWINS()`, the `SE_WP_Type` argument can be set to `unbiased` to use the **Brunner-Konietschke** version [@brunner2025unbiased] of the **Bamber** estimator [@bamber1975area] for the variance of the win proportion, or to `biased` to use the **DeLong-DeLong-Clarke-Pearson** variance estimator, which is the same method used in `calcWO()` and may be biased in small samples. In the same function, the `CI_WP_Type` argument can be set to `Wilson` to obtain **Wilson-type, range-preserving confidence intervals** for the win proportion and win odds, following Schüürhuis, Konietschke, and Brunner [@schuurhuis2025new]. The function `calcWINS()` also implements **Goodman-Kruskal's gamma** [@goodman1954measures; @goodman1963measures]. All reported statistics include confidence intervals.
 
-- `calcWO(), summaryWO()` (see @gasparyan2021power). Win odds uses the DeLong-DeLong-Clarke-Pearson formula [@delong1988comparing] for the variance of the win proportion and is based on the Brunner-Munzel test [@brunner2000nonparametric]. 
+The functions `regWO()` and `stratWO()` compute adjusted and stratified win odds, respectively, based on the **randomization-based covariate adjustment theory** developed in Koch et al. [@koch1998issues]; for a review, see Gasparyan et al. [@gasparyan2021adjusted].
 
-4. Win statistics (win odds, win ratio, net benefit, Goodman Kruskal's `gamma`) and their confidence intervals calculation function:
+In principle, all of these functions operate on ordinal outcomes when each patient contributes a single analysis value. Therefore, the input data should be at the patient level. Any patient-level dataset with a numeric analysis value can be used to calculate these statistics. In this setting, the use of win statistics is equivalent to ordinal analysis. Specifically, win odds corresponds to the classical **Mann-Whitney odds**, win ratio is the number of concordances divided by the number of discordances and can be derived from **Goodman-Kruskal's gamma**, and net benefit corresponds to **Somers' D C/R**. Therefore, any software that computes these statistics should produce the same results. For example, although the implementation here is fully rank-based, the estimate of **Goodman-Kruskal's gamma** and its confidence interval agree with `DescTools::GoodmanKruskalGamma()` [@Desc].
 
-- `calcWINS()` (see @gasparyanhierarchical). The argument `SE_WP_Type` by default is set to `biased` since it produces DeLong-DeLong-Clarke-Pearson variance (the same as in `calcWO()`) which is biased for small samples. The `SE_WP_Type` can be changed to `unbiased` to produce Brunner-Konietschke version [@brunner2025unbiased] of the Bamber [@bamber1975area] estimator for the variance of win proportion.
+All calculations are rank-based and therefore computationally efficient. The basic building blocks are the **individual win proportions**, defined for each patient as the proportion of wins plus one-half of the proportion of ties. The function `IWP()` computes these individual win proportions for each patient in the dataset and returns an updated dataset with a new column. Any win-odds-related calculation can be based on these quantities [@gasparyan2021adjusted].
 
-- Back-calculation of number of wins, losses, and ties given the win odds and win ratio using the function `propWINS()`. 
+### Univariate hierarchical composite endpoints
 
-5. Adjusted win odds calculation for a single, numeric covariate:
+```{r eval=FALSE}
+hce()
+as_hce()
+```
 
-- `regWO()` (see @gasparyan2021adjusted; @gasparyanhierarchical).
 
-6. Stratified win odds with a possible adjustment after stratification with a single, numeric covariate:
+The idea behind **univariate hierarchical composite endpoints** [@gasparyan2026univariate] is to derive a single ordinal outcome from multiple outcomes of different types, such as time-to-event, continuous, and binary outcomes, by prioritizing the most clinically important outcome for each patient. The resulting ordinal outcome can then be used to calculate win statistics.
 
-- `stratWO()` (see @gasparyan2021adjusted; @gasparyanhierarchical).
+To support this, the package provides helper functions for deriving `hce` objects from different types of outcomes. In particular, `hce()` and `as_hce()` check the structure of the input data and attempt to convert it to an `hce` object. Once this conversion is complete, that is, once the univariate HCE has been derived, the subsequent theory and analysis are the same as for any other ordinal outcome.
 
-7. Threshold-adjusted win odds calculation:
+### Thresholds
 
-- `deltaWO()`.
+```{r eval=FALSE}
+deltaWO()
+```
 
-8. Power, sample size, and minimum detectable win odds calculation functions:
 
-- `powerWO(), sizeWO(), minWO()` provide tools for the win odds power, sample size, and minimum detectable treatment effect calculation for different alternative classes ("shifted", "ordered", and "max" for the maximum value of the standard deviation) based on the win odds. All formulas are from @bamber1975area. By default, uses Noether's formula [@noether1987sample] for shifted distributions. For shifted distributions see also @gasparyan2021power, @gasparyan2022comments.
+The function `deltaWO()` calculates threshold-adjusted win odds [@gasparyan2026univariate]. 
 
-- Win ratio sample size calculation formula `sizeWR()` [@yu2022sample]. 
+### Simulations
 
-9. Print and plot methods for `hce_results` objects, generated by the functions `powerWO(), sizeWO(), minWO()`. 
+```{r eval=FALSE}
+simORD()
+simHCE()
+simTTE()
+simKHCE()
+```
 
-10. A plot method for `hce` objects (created by `as_hce()`) to provide the ordinal dominance graph [@bamber1975area].
 
-11. The function `IWP()` to calculate patient-level individual win proportions [@gasparyan2021adjusted;@gasparyan2021power].
+### Power and sample size
+
+
+```{r eval=FALSE}
+powerWO()
+sizeWO()
+sizeWR()
+minWO()
+propWINS()
+```
+
+The functions `powerWO()`, `sizeWO()`, and `minWO()` provide tools for calculating **power**, **sample size**, and the **minimum detectable treatment effect** for win odds under different classes of alternatives: `"shifted"`, `"ordered"`, and `"max"`, where `"max"` refers to the maximum value of the standard deviation. All formulas are based on Bamber [@bamber1975area]. For shifted distributions, the default is **Noether's formula** [@noether1987sample]. See also [@gasparyan2021power; @gasparyan2022comments] for further discussion of shifted distributions. The function `sizeWR()` provides sample size calculations for the **win ratio** [@yu2022sample].
+
+The function `propWINS()` is a convenient tool for deriving the proportions of **wins**, **losses**, and **ties** for each treatment group from the win odds and win ratio.
+
+### Ordinal dominance graph and the maraca plot
+
+```{r eval=FALSE}
+plot.hce()
+```
+
+A plot method for `hce` objects (created by `as_hce()`) to provide the ordinal dominance graph [@bamber1975area].
+
+### Extras
+
+```{r eval=FALSE}
+rweibullGF()
+dGLL()
+pGLL()
+qGLL()
+rGLL()
+hGLL()
+HGLL()
+```
+
+The **generalized log-logistic (GLL)** distributions arise as the marginal distributions of the **Weibull-Gamma frailty model**. For comparison, one can use `rweibullGF()`, which implements the random frailty formulation, and compare its output with the generalized log-logistic distribution functions: density `dGLL()`, distribution function `pGLL()`, quantile function `qGLL()`, random generation `rGLL()`, hazard function `hGLL()`, and cumulative hazard function `HGLL()`.
+
+These distributions form the basis for constructing two-outcome hierarchical composite endpoints with death and hospitalization in the generalized illness-death model implemented in `simTTE()`.
+
+### Helpers
+
+```{r eval=FALSE}
+print.hce_results()
+plot.hce_results()
+as_formulae.formula()
+```
+
+
+To facilitate visualization and review of sample size and power calculations, `print()` and `plot()` methods are implemented for `hce_results` objects generated by the functions `powerWO()`, `sizeWO()`, and `minWO()`.
+
+The function `as_formulae()` is an internal helper that decomposes formula objects into treatment, response, covariate, and grouping variables using the standardized names `TRTP`, `AVAL`, `COVAR`, and `GROUP`, respectively.
 
 ## `hce` Objects
 
 
 ### `hce()` Function
-
-The main objects in the package are called `hce` objects, which are data frames with a specific structure matching the design of *hierarchical composite endpoints (HCE)*. These are complex endpoints that combine different clinical events into a composite, using a hierarchy to prioritize the clinically most important event for a patient. These endpoints are implemented in clinical trials across different therapeutic areas. See, for example, @gasparyan2022design for an implementation in a COVID-19 setting and some practical considerations for constructing hierarchical composite endpoints. For the Chronic Kidney Disease (CKD) outcomes see [@khce1; @khce2; @khce3]. 
-
-HCEs are ordinal endpoints that can be thought of as having 'greater', 'less', or 'equal' defined for them, but without a definition of how much greater or less. In this sense, the ordinal outcomes can be represented as numeric vectors *as long as numeric operations (e.g., sum or division) are not performed on them.*
 
 `hce` objects can be constructed using the helper function `hce()`, which has the following arguments:
 

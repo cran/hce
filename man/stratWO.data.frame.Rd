@@ -92,5 +92,5 @@ res
 Gasparyan SB et al. (2021) "Adjusted win ratio with stratification: calculation methods and interpretation." Statistical Methods in Medical Research 30.2: 580-611. \url{doi:10.1177/0962280220942558}.
 }
 \seealso{
-\code{\link[=stratWO]{stratWO()}}.
+\code{\link[=stratWO]{stratWO()}}, \code{\link[=stratWO.formula]{stratWO.formula()}}.
 }

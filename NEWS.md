@@ -1,3 +1,17 @@
+# hce 0.9.4
+
+### Updates
+
+- Removed the dependency on `testthat` from package testing.
+
+### New
+
+- Added implementations of `summaryWO.formula()` and `stratWO.formula()`, based on the new internal helper function `as_formulae()`, which decomposes formulas containing `|` to extract the grouping (stratification) variable.
+
+### Documentation
+
+- Heavily revised and restructured the introductory vignette based on the new paper on univariate HCEs.
+
 # hce 0.9.3
 
 ### Updates
@@ -7,7 +21,7 @@
 ### New
 
 - Added `rweibullGF()`, which simulates random numbers from a Weibull distribution with gamma frailty.
-- Added a family of distribution functions for the generalised log-logistic family, which models the marginal distribution induced by `rweibullGF()`.
+- Added a family of distribution functions for the generalized log-logistic family (`GLL`), which models the marginal distribution induced by `rweibullGF()`.
 
 # hce 0.9.1 
 
